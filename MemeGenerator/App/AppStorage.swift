@@ -29,17 +29,24 @@ final class AppStorage {
 
     // MARK: - Properties
 
-    var hasSeenOnboarding: Bool {
-        get { defaults.bool(forKey: Key.hasSeenOnboarding.rawValue) }
-        set { defaults.set(newValue, forKey: Key.hasSeenOnboarding.rawValue) }
-    }
-
     var token: String? {
-        get { defaults.string(forKey: Key.token.rawValue) }
-        set { defaults.set(newValue, forKey: Key.token.rawValue) }
+        get { defaults.string(forKey: "token") }
+        set { defaults.setValue(newValue, forKey: "token") }
     }
 
-    var isLoggedIn: Bool { token?.isEmpty == false }
+    var isLoggedIn: Bool {
+        get { token != nil }
+        set {
+            if newValue == false {
+                token = nil
+            }
+        }
+    }
+
+    var hasSeenOnboarding: Bool {
+        get { defaults.bool(forKey: "hasSeenOnboarding") }
+        set { defaults.setValue(newValue, forKey: "hasSeenOnboarding") }
+    }
 
     // MARK: - Actions
 

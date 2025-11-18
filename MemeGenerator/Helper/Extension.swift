@@ -62,3 +62,59 @@ extension Encodable {
         return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
     }
 }
+
+extension UIViewController {
+
+    func showToast(message: String, type: ToastType = .error, duration: TimeInterval = 2.0) {
+
+        // Remove old toasts
+        view.subviews.filter { $0.tag == 999999 }.forEach { $0.removeFromSuperview() }
+
+        let toastView = UIView()
+        toastView.tag = 999999
+        toastView.layer.cornerRadius = 12
+        toastView.clipsToBounds = true
+        toastView.backgroundColor = (type == .success) ? UIColor.systemGreen : UIColor.systemRed.withAlphaComponent(0.95)
+
+        let label = UILabel()
+        label.text = message
+        label.textColor = .white
+        label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+        label.numberOfLines = 0
+        label.textAlignment = .center
+
+        toastView.addSubview(label)
+        view.addSubview(toastView)
+
+        toastView.translatesAutoresizingMaskIntoConstraints = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            toastView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            toastView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            toastView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -100),
+
+            label.leadingAnchor.constraint(equalTo: toastView.leadingAnchor, constant: 12),
+            label.trailingAnchor.constraint(equalTo: toastView.trailingAnchor, constant: -12),
+            label.topAnchor.constraint(equalTo: toastView.topAnchor, constant: 10),
+            label.bottomAnchor.constraint(equalTo: toastView.bottomAnchor, constant: -10),
+        ])
+
+        view.layoutIfNeeded()
+
+        // Slide down animation
+        UIView.animate(withDuration: 0.35) {
+            toastView.transform = CGAffineTransform(translationX: 0, y: 120)
+        }
+
+        // Auto hide
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            UIView.animate(withDuration: 0.35, animations: {
+                toastView.transform = .identity
+                toastView.alpha = 0
+            }) { _ in
+                toastView.removeFromSuperview()
+            }
+        }
+    }
+}

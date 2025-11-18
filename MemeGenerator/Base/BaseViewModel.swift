@@ -8,26 +8,22 @@
 import Foundation
 import Combine
 
-/// Base class for ViewModels providing common loading/error state and a Combine store.
-/// Annotated with `@MainActor` to ensure UI-bound state updates occur on the main thread.
+/// Base class for all ViewModels with common UI-related states.
 @MainActor
 class BaseViewModel {
 
-    // MARK: - Published State
-
+    // MARK: - Published UI State
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var successMessage: String?
 
     // MARK: - Combine
-
     var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
-
     init() {}
 
     // MARK: - Helpers
-
     func setLoading(_ value: Bool) {
         isLoading = value
     }
@@ -36,7 +32,12 @@ class BaseViewModel {
         errorMessage = message
     }
 
-    func resetError() {
+    func setSuccess(_ message: String?) {
+        successMessage = message
+    }
+
+    func resetErrors() {
         errorMessage = nil
+        successMessage = nil
     }
 }

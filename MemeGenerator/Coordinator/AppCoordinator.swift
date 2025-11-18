@@ -53,7 +53,7 @@ final class AppCoordinator {
 
     private func showAuth() {
         let vm = AuthViewModel()
-        let vc = AuthController(viewModel: vm)
+        let vc = AuthController(viewModel: vm, mode: .login)
         vm.onLoginSuccess = { [weak self] token in
             AppStorage.shared.token = token
             self?.showTabbar()

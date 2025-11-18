@@ -14,9 +14,12 @@ final class AuthViewModel: BaseViewModel {
 
     // MARK: - Validation
     private func validate(_ email: String, _ password: String) -> Bool {
-        guard !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              !password.isEmpty else {
-            setError("Please enter email and password.")
+        guard !email.trimmingCharacters(in: .whitespaces).isEmpty else {
+            setError("Please enter email.")
+            return false
+        }
+        guard !password.isEmpty else {
+            setError("Please enter password.")
             return false
         }
         return true
@@ -26,25 +29,27 @@ final class AuthViewModel: BaseViewModel {
     func login(email: String, password: String) {
         guard validate(email, password) else { return }
 
-        setError(nil)
         setLoading(true)
+        resetErrors()
 
         AuthManager.shared.login(email: email, password: password) { [weak self] model, error in
             guard let self else { return }
             self.setLoading(false)
 
-            if let error = error {
+            if let error {
                 self.setError(error)
                 return
             }
 
             guard let token = model?.token else {
-                self.setError("Invalid email.")
-                print("token::", model?.token)
+                self.setError("Invalid credentials.")
                 return
             }
 
-            self.onLoginSuccess?(token)
+            self.setSuccess("Login successful!")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.onLoginSuccess?(token)
+            }
         }
     }
 
@@ -52,25 +57,27 @@ final class AuthViewModel: BaseViewModel {
     func register(email: String, password: String) {
         guard validate(email, password) else { return }
 
-        setError(nil)
         setLoading(true)
+        resetErrors()
 
         AuthManager.shared.register(email: email, password: password) { [weak self] model, error in
             guard let self else { return }
             self.setLoading(false)
 
-            if let error = error {
+            if let error {
                 self.setError(error)
                 return
             }
 
             guard let token = model?.token else {
                 self.setError("Invalid token.")
-                print("token::", model?.token)
                 return
             }
 
-            self.onRegisterSuccess?(token)
+            self.setSuccess("Registration successful!")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.onRegisterSuccess?(token)
+            }
         }
     }
 }

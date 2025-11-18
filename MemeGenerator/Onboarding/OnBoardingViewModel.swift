@@ -7,7 +7,7 @@
 
 import Foundation
 
-class OnBoardingViewModel {
+class OnBoardingViewModel:BaseViewModel {
     var onFinish: (() -> Void)?
     
     var onboardingData: [OnboardingModel] = [

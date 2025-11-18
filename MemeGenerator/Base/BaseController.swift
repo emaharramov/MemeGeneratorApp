@@ -6,58 +6,89 @@
 //
 
 import UIKit
+import Combine
 
-/// Generic base controller that standardizes lifecycle hooks for UI setup and bindings.
-class BaseController<ViewModel>: UIViewController {
+/// Base UIViewController supporting MVVM and UI event binding.
+class BaseController<ViewModel: BaseViewModel>: UIViewController {
 
     // MARK: - Properties
-
     let viewModel: ViewModel
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
-
     init(viewModel: ViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError("init(coder:) not implemented")
     }
 
     // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         configureConstraints()
         bindViewModel()
         applyDefaultBackground()
+        setupLogoutButtonIfNeeded()
+        bindViewModelBase()
     }
 
-    // MARK: - Template Methods
-
-    /// Override to add subviews and static UI configuration.
+    // MARK: - UI / Layout Hooks
     func configureUI() {}
-
-    /// Override to add layout constraints.
     func configureConstraints() {}
-
-    /// Override to bind the view model to the UI.
     func bindViewModel() {}
 
-    // MARK: - Helpers
+    // MARK: - Bind ViewModel
+    private func bindViewModelBase() {
+        // Error Toast
+        viewModel.$errorMessage
+            .sink { [weak self] message in
+                guard let message else { return }
+                self?.showToast(message: message, type: .error)
+            }
+            .store(in: &cancellables)
 
+        // Success Toast
+        viewModel.$successMessage
+            .sink { [weak self] message in
+                guard let message else { return }
+                self?.showToast(message: message, type: .success)
+            }
+            .store(in: &cancellables)
+    }
+
+    // MARK: - Logout Button
+    private func setupLogoutButtonIfNeeded() {
+        guard shouldShowLogout else { return }
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Logout",
+            style: .plain,
+            target: self,
+            action: #selector(didTapLogout)
+        )
+    }
+
+    var shouldShowLogout: Bool {
+        // Do NOT show logout on Auth screens
+        !(self is AuthController)
+    }
+
+    @objc private func didTapLogout() {
+        LogoutService.shared.logout()
+    }
+
+    // MARK: - Helpers
     private func isTabBarRoot() -> Bool {
         navigationController?.viewControllers.first === self && tabBarController != nil
     }
 
     private func applyDefaultBackground() {
-        // Prefer system colors for consistency with light/dark mode
-        if isTabBarRoot() {
-            view.backgroundColor = UIColor.systemGroupedBackground
-        } else {
-            view.backgroundColor = UIColor.systemBackground
-        }
+        view.backgroundColor = isTabBarRoot()
+            ? UIColor.systemGroupedBackground
+            : UIColor.systemBackground
     }
 }
