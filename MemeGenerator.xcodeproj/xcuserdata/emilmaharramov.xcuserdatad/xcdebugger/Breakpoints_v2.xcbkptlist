@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "CC064CCD-AAD1-4013-9E5A-DA543E179B35"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FDAD7CD2-F86E-4DD4-8A56-C77872D1604B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/SplashController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "25"
+            endingLineNumber = "25"
+            landmarkName = "start()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C0BD232B-BC72-485B-A194-8657FB56C7FE"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/SplashController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "33"
+            endingLineNumber = "33"
+            landmarkName = "owOnboarding()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1D6B814B-A496-475C-AF4E-0A8438AFED37"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/SplashController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "18"
+            endingLineNumber = "18"
+            landmarkName = "start()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B5F2C3AF-20A5-4C71-9839-932EB36F6FBC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/SplashController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "21"
+            endingLineNumber = "21"
+            landmarkName = "start()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7F82E999-04A8-4C05-8436-3236030BF5B1"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/SplashController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "20"
+            endingLineNumber = "20"
+            landmarkName = "start()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E083A35A-1898-4082-A50B-5A864AE74BC2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/SplashController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
+            landmarkName = "start()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "260F8EAE-AF6F-487B-B476-1D742FF106C1"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Auth/AuthViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "37"
+            endingLineNumber = "37"
+            landmarkName = "login(email:password:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "260F8EAE-AF6F-487B-B476-1D742FF106C1 - ab216f6d2a519256"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.login(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "37"
+                  endingLineNumber = "37">
+               </Location>
+               <Location
+                  uuid = "260F8EAE-AF6F-487B-B476-1D742FF106C1 - 69037a0db4b6eb59"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthLoginModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.login(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "37"
+                  endingLineNumber = "37">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B8C3DE66-53AE-46F3-8815-CA72614EB84F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Auth/AuthViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
+            landmarkName = "login(email:password:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "B8C3DE66-53AE-46F3-8815-CA72614EB84F - ab216f6d2a519131"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.login(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42">
+               </Location>
+               <Location
+                  uuid = "B8C3DE66-53AE-46F3-8815-CA72614EB84F - 69037a0db4b6e83e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthLoginModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.login(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B2BFFF1A-B362-4D52-BBA7-08A5BBE9A4F9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Auth/AuthViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "63"
+            endingLineNumber = "63"
+            landmarkName = "register(email:password:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "B2BFFF1A-B362-4D52-BBA7-08A5BBE9A4F9 - fde416bb590f7b9c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.register(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "62"
+                  endingLineNumber = "62">
+               </Location>
+               <Location
+                  uuid = "B2BFFF1A-B362-4D52-BBA7-08A5BBE9A4F9 - 914f576d90e34fb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthLoginModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.register(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "63"
+                  endingLineNumber = "63">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E211CABF-3DD7-46E4-B918-8CE2184D9C01"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Auth/AuthViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "68"
+            endingLineNumber = "68"
+            landmarkName = "register(email:password:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "E211CABF-3DD7-46E4-B918-8CE2184D9C01 - fde416bb590f7a79"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.register(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "67"
+                  endingLineNumber = "67">
+               </Location>
+               <Location
+                  uuid = "E211CABF-3DD7-46E4-B918-8CE2184D9C01 - 914f576d90e3550"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthLoginModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.register(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "68"
+                  endingLineNumber = "68">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C13A6546-0C5D-40E0-A763-01D4E0649470"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Auth/AuthViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
+            landmarkName = "register(email:password:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C13A6546-0C5D-40E0-A763-01D4E0649470 - fde416bb590f7af5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.register(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "71"
+                  endingLineNumber = "71">
+               </Location>
+               <Location
+                  uuid = "C13A6546-0C5D-40E0-A763-01D4E0649470 - 914f576d90e3635"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthLoginModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.register(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "73"
+                  endingLineNumber = "73">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "14B4787D-3FFF-48FC-8081-D0652EC6B3DE"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Auth/AuthViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
+            landmarkName = "login(email:password:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "14B4787D-3FFF-48FC-8081-D0652EC6B3DE - ab216f6d2a51918d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.login(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "46"
+                  endingLineNumber = "46">
+               </Location>
+               <Location
+                  uuid = "14B4787D-3FFF-48FC-8081-D0652EC6B3DE - 69037a0db4b6e8e3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.AuthLoginModel&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AuthViewModel.login(email: Swift.String, password: Swift.String) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/Auth/AuthViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "47"
+                  endingLineNumber = "47">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2AC30C9F-CA81-42EF-B53A-1BF78C2C3CC3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/AppCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "decideInitialFlow()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CCC2B1BB-EEDC-402D-AFD0-34EBCA52B18A"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/AppCoordinator.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "decideInitialFlow()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
