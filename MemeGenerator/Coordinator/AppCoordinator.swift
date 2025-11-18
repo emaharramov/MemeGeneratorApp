@@ -58,6 +58,10 @@ final class AppCoordinator {
             AppStorage.shared.token = token
             self?.showTabbar()
         }
+        vm.onRegisterSuccess = { [weak self] token in
+            AppStorage.shared.token = token
+            self?.showTabbar()
+        }
         setRoot(vc)
     }
 

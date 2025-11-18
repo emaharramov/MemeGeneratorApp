@@ -19,7 +19,8 @@ final class TabbarController: UITabBarController {
 
     private func configureAppearance() {
         tabBar.isTranslucent = true
-        tabBar.backgroundColor = .white
+        tabBar.backgroundColor = .systemPurple
+        tabBar.tintColor = .systemYellow
     }
 
     private func configureTabs() {
@@ -31,8 +32,8 @@ final class TabbarController: UITabBarController {
         let homeVC = HomeController(viewModel: BaseViewModel())
         let nav = UINavigationController(rootViewController: homeVC)
         nav.navigationBar.prefersLargeTitles = false
-        nav.tabBarItem = UITabBarItem(title: "Store",
-                                      image: UIImage(named: "store"),
+        nav.tabBarItem = UITabBarItem(title: "Home",
+                                      image: UIImage(named: "home"),
                                       tag: 0)
         return nav
     }
