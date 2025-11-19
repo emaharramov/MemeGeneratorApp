@@ -11,30 +11,91 @@ import SnapKit
 final class ActionsCell: UICollectionViewCell {
     static let id = "ActionsCell"
 
-    var onGenerate = UIButton(type: .system)
-    var onNewButton = UIButton(type: .system)
+    // Controller bunları istifadə etdiyi üçün adları saxlayıram
+    let onGenerate = UIButton(type: .system)
+    let onNewButton = UIButton(type: .system)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupUI()
+    }
 
-        onGenerate.setTitle("Generate", for: .normal)
-        onGenerate.backgroundColor = UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1)
-        onGenerate.layer.cornerRadius = 12
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-        onNewButton.setTitle("Create New", for: .normal)
-        onNewButton.layer.borderColor = UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1).cgColor
-        onNewButton.layer.borderWidth = 5
-        onGenerate.layer.cornerRadius = 12
-        
+    // MARK: - Setup
+
+    private func setupUI() {
+        contentView.backgroundColor = .clear
+
+        configure(button: onGenerate, title: "Generate", systemImage: "sparkles")
+        configure(button: onNewButton, title: "Create New", systemImage: "arrow.clockwise")
+
         let stack = UIStackView(arrangedSubviews: [onGenerate, onNewButton])
         stack.axis = .horizontal
         stack.distribution = .fillEqually
         stack.spacing = 12
 
         contentView.addSubview(stack)
-        stack.snp.makeConstraints { $0.edges.equalToSuperview() }
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
 
-    required init?(coder: NSCoder) { fatalError() }
-}
+    private func configure(button: UIButton, title: String, systemImage: String) {
+        // Modern configuration
+        var config = UIButton.Configuration.filled()
+        config.title = title
+        config.image = UIImage(systemName: systemImage)
+        config.imagePlacement = .leading
+        config.imagePadding = 6
+        config.baseBackgroundColor = .systemYellow
+        config.baseForegroundColor = .black
+        config.cornerStyle = .large
+        config.contentInsets = NSDirectionalEdgeInsets(
+            top: 10, leading: 10, bottom: 10, trailing: 10
+        )
+        button.configuration = config
 
+        button.layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
+        button.layer.shadowOpacity = 1
+        button.layer.shadowRadius = 6
+        button.layer.shadowOffset = CGSize(width: 0, height: 3)
+
+        button.adjustsImageWhenHighlighted = false
+
+        addTapAnimation(to: button)
+    }
+
+    // MARK: - Tap animation
+
+    private func addTapAnimation(to button: UIButton) {
+        button.addTarget(self,
+                         action: #selector(handleTouchDown(_:)),
+                         for: [.touchDown, .touchDragEnter])
+        button.addTarget(self,
+                         action: #selector(handleTouchUp(_:)),
+                         for: [.touchUpInside, .touchCancel, .touchDragExit])
+    }
+
+    @objc private func handleTouchDown(_ sender: UIButton) {
+        UIView.animate(withDuration: 0.08) {
+            sender.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        }
+    }
+
+    @objc private func handleTouchUp(_ sender: UIButton) {
+        UIView.animate(
+            withDuration: 0.18,
+            delay: 0,
+            usingSpringWithDamping: 0.7,
+            initialSpringVelocity: 0.8,
+            options: [.allowUserInteraction, .beginFromCurrentState],
+            animations: {
+                sender.transform = .identity
+            },
+            completion: nil
+        )
+    }
+}

@@ -27,6 +27,9 @@ final class AIMemeViewController: UIViewController {
     private let templatesColumns: CGFloat = 3
     private let templateVisibleRows: CGFloat = 3
 
+    // Gradient background
+    private let backgroundGradient = CAGradientLayer()
+
     // MARK: - Init
 
     init(userId: String) {
@@ -35,8 +38,10 @@ final class AIMemeViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
 
-        self.collectionView = UICollectionView(frame: .zero,
-                                               collectionViewLayout: layout)
+        self.collectionView = UICollectionView(
+            frame: .zero,
+            collectionViewLayout: layout
+        )
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -50,8 +55,7 @@ final class AIMemeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .systemBackground
-
+        setupGradientBackground()
         setupCollectionView()
         registerCells()
         setupBindings()
@@ -59,14 +63,33 @@ final class AIMemeViewController: UIViewController {
         viewModel.loadTemplates()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        backgroundGradient.frame = view.bounds
+    }
+
     // MARK: - Setup
 
+    private func setupGradientBackground() {
+        backgroundGradient.colors = [
+            UIColor.systemPink.withAlphaComponent(0.9).cgColor,
+            UIColor.systemPurple.withAlphaComponent(0.8).cgColor,
+            UIColor.systemTeal.withAlphaComponent(0.9).cgColor
+        ]
+        backgroundGradient.locations = [0.0, 0.45, 1.0]
+        backgroundGradient.startPoint = CGPoint(x: 0, y: 0)
+        backgroundGradient.endPoint   = CGPoint(x: 0, y: 1)
+
+        view.layer.insertSublayer(backgroundGradient, at: 0)
+    }
+
     private func setupCollectionView() {
-        collectionView.backgroundColor = .systemBackground
+        collectionView.backgroundColor = .clear
         collectionView.alwaysBounceVertical = true
         collectionView.dataSource = self
         collectionView.delegate   = self
-        collectionView.contentInset.bottom = 24
+        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 24, right: 0)
+        collectionView.showsVerticalScrollIndicator = false
 
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -161,8 +184,10 @@ final class AIMemeViewController: UIViewController {
 
     private func shareMeme() {
         guard let image = generatedImage else { return }
-        let activityVC = UIActivityViewController(activityItems: [image],
-                                                  applicationActivities: nil)
+        let activityVC = UIActivityViewController(
+            activityItems: [image],
+            applicationActivities: nil
+        )
         present(activityVC, animated: true)
     }
 }
@@ -200,6 +225,12 @@ extension AIMemeViewController: UICollectionViewDataSource {
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: PromptCell.id, for: indexPath
             ) as! PromptCell
+
+            // Card görünüşü
+            cell.contentView.layer.cornerRadius = 16
+            cell.contentView.layer.masksToBounds = true
+            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.92)
+
             return cell
 
         case .actions:
@@ -207,13 +238,21 @@ extension AIMemeViewController: UICollectionViewDataSource {
                 withReuseIdentifier: ActionsCell.id, for: indexPath
             ) as! ActionsCell
 
-            cell.onGenerate.addTarget(self,
-                                      action: #selector(handleGenerateButtonTapped(_:)),
-                                      for: .touchUpInside)
+            cell.contentView.layer.cornerRadius = 14
+            cell.contentView.layer.masksToBounds = true
+            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.9)
 
-            cell.onNewButton.addTarget(self,
-                                       action: #selector(handleNewButtonTapped(_:)),
-                                       for: .touchUpInside)
+            cell.onGenerate.addTarget(
+                self,
+                action: #selector(handleGenerateButtonTapped(_:)),
+                for: .touchUpInside
+            )
+
+            cell.onNewButton.addTarget(
+                self,
+                action: #selector(handleNewButtonTapped(_:)),
+                for: .touchUpInside
+            )
             return cell
 
         case .templates:
@@ -221,6 +260,10 @@ extension AIMemeViewController: UICollectionViewDataSource {
                 withReuseIdentifier: TemplateGridCell.id,
                 for: indexPath
             ) as! TemplateGridCell
+
+            cell.contentView.layer.cornerRadius = 16
+            cell.contentView.layer.masksToBounds = true
+            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.9)
 
             cell.templates = templates
             cell.onTemplateSelected = { [weak self] template in
@@ -232,6 +275,11 @@ extension AIMemeViewController: UICollectionViewDataSource {
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: ResultCell.id, for: indexPath
             ) as! ResultCell
+
+            cell.contentView.layer.cornerRadius = 18
+            cell.contentView.layer.masksToBounds = true
+            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.95)
+
             cell.imageView.image = generatedImage
             return cell
 
@@ -239,6 +287,10 @@ extension AIMemeViewController: UICollectionViewDataSource {
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: ShareActionsCell.id, for: indexPath
             ) as! ShareActionsCell
+
+            cell.contentView.layer.cornerRadius = 14
+            cell.contentView.layer.masksToBounds = true
+            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.95)
 
             cell.onSave = { [weak self] in
                 self?.saveImageToPhotos()
@@ -270,7 +322,7 @@ extension AIMemeViewController: UICollectionViewDelegateFlowLayout {
             return CGSize(width: width, height: 110)
 
         case .actions:
-            return CGSize(width: width, height: 60)
+            return CGSize(width: width, height: 64)
 
         case .templates:
             let spacing: CGFloat = 12
@@ -280,15 +332,15 @@ extension AIMemeViewController: UICollectionViewDelegateFlowLayout {
 
             let rows = templateVisibleRows
             let totalSpacingVert = (rows - 1) * spacing
-            let height = rows * itemWidth + totalSpacingVert + 5 + 10 // üst + alt inset
+            let height = rows * itemWidth + totalSpacingVert + 10 + 10
 
-            return CGSize(width: fullWidth, height: height)
+            return CGSize(width: width, height: height)
 
         case .result:
             return CGSize(width: width, height: 350)
 
         case .shareActions:
-            return CGSize(width: width, height: 60)
+            return CGSize(width: width, height: 64)
         }
     }
 
@@ -304,7 +356,7 @@ extension AIMemeViewController: UICollectionViewDelegateFlowLayout {
         case .prompt:
             return UIEdgeInsets(top: 0, left: 16, bottom: 10, right: 16)
         case .templates:
-            return UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
+            return UIEdgeInsets(top: 0, left: 16, bottom: 10, right: 16)
         case .actions:
             return UIEdgeInsets(top: 0, left: 16, bottom: 20, right: 16)
         case .result:
