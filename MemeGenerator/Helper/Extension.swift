@@ -126,3 +126,35 @@ extension UIViewController {
         }
     }
 }
+
+extension UILabel {
+    func configureOverlay() {
+        textColor = .white
+        font = .boldSystemFont(ofSize: 28)
+        numberOfLines = 0
+        textAlignment = .center
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.9
+        layer.shadowRadius = 3
+        layer.shadowOffset = CGSize(width: 1, height: 1)
+    }
+}
+
+extension UITextField {
+    func configureField(placeholder: String) {
+        self.placeholder = placeholder
+        borderStyle = .roundedRect
+        backgroundColor = .white
+        textAlignment = .center
+    }
+}
+
+extension UIButton {
+    func configureAction(title: String, color: UIColor) {
+        setTitle(title, for: .normal)
+        backgroundColor = color
+        setTitleColor(.white, for: .normal)
+        layer.cornerRadius = 14
+        titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+    }
+}

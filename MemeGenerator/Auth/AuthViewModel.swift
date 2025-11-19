@@ -41,7 +41,7 @@ final class AuthViewModel: BaseViewModel {
                 return
             }
 
-            guard let token = model?.token else {
+            guard let token = model?.token, let userId = model?.userId else {
                 self.setError("Invalid credentials.")
                 return
             }
@@ -49,6 +49,7 @@ final class AuthViewModel: BaseViewModel {
             self.setSuccess("Login successful!")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.onLoginSuccess?(token)
+                AppStorage.shared.userId = userId
             }
         }
     }
@@ -69,7 +70,7 @@ final class AuthViewModel: BaseViewModel {
                 return
             }
 
-            guard let token = model?.token else {
+            guard let token = model?.token, let userId = model?.userId else {
                 self.setError("Invalid token.")
                 return
             }
@@ -77,6 +78,7 @@ final class AuthViewModel: BaseViewModel {
             self.setSuccess("Registration successful!")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.onRegisterSuccess?(token)
+                AppStorage.shared.userId = userId
             }
         }
     }

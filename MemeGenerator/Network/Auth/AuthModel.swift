@@ -12,4 +12,5 @@ struct AuthModel: Codable {
 
 struct AuthLoginModel: Codable {
     let token: String
+    let userId: String
 }

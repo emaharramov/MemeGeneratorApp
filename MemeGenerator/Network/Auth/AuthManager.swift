@@ -48,9 +48,16 @@ final class AuthManager {
         performAuthRequest(
             endpoint: .login,
             credentials: credentials,
-            responseType: AuthLoginModel.self,   // <- TOKEN MODEL
-            completion: completion
-        )
+            responseType: AuthLoginModel.self
+        ) { response, error in
+            
+            if let model = response {
+                AppStorage.shared.saveLogin(token: model.token,
+                                            userId: model.userId)
+            }
+
+            completion(response, error)
+        }
     }
 
     // MARK: - Register

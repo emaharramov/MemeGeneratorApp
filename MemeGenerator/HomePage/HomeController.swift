@@ -116,7 +116,7 @@ extension HomeController: UICollectionViewDataSource, UICollectionViewDelegateFl
         ]
         
         let group = StoryGroup(
-            username: "mememaster",
+            username: "meme master",
             avatarUrl: nil,
             stories: stories
         )
