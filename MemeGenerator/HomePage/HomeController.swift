@@ -6,154 +6,160 @@
 //
 
 import UIKit
+import SnapKit
 
-class HomeController: BaseController<BaseViewModel> {
+final class HomeController: BaseController<BaseViewModel> {
     
-    private lazy var customSearchField: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "Search..."
-        tf.textColor = UIColor(hexStr: "00000059", colorAlpha: 0.35)
-        tf.font = .systemFont(ofSize: 14, weight: .regular)
-        tf.backgroundColor = UIColor(hexStr: "FFFFFF")
-        tf.layer.cornerRadius = 8
-        tf.layer.borderColor = UIColor(hexStr: "E0E1E6").cgColor
-        tf.layer.borderWidth = 1.0
-        tf.layer.masksToBounds = true
-        
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: 28, height: 28))
-        let imageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        imageView.tintColor = UIColor(hexStr: "00000059", colorAlpha: 0.35)
-        imageView.frame = CGRect(x: 6, y: 6, width: 16, height: 16)
-        container.addSubview(imageView)
-        
-        tf.leftView = container
-        tf.leftViewMode = .always
-        tf.clearButtonMode = .whileEditing
-        tf.setRightPaddingPoints(10)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-        return tf
-    }()
-    
-    private lazy var collectionview: UICollectionView = {
+    let stories = [
+        Story(imageUrl: "https://i.imgflip.com/1bij.jpg", duration: 5),
+        Story(imageUrl: "https://i.imgflip.com/26am.jpg", duration: 5),
+        Story(imageUrl: "https://i.imgflip.com/2fm6x.jpg", duration: 5)
+    ]
+
+    // Story-style top memes
+    private let storiesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
+        layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 12
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.isPagingEnabled = true
-        cv.showsVerticalScrollIndicator = false
-        cv.backgroundColor = UIColor(hexStr: "FFFFFF")
-        cv.dataSource = self
-        cv.delegate = self
-        cv.translatesAutoresizingMaskIntoConstraints = false
-        cv.register(GetPromptCell.self, forCellWithReuseIdentifier: "\(GetPromptCell.self)")
-        
-        let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(handleRefresh(_:)), for: .valueChanged)
-        cv.refreshControl = refreshControl
+        cv.showsHorizontalScrollIndicator = false
+        cv.backgroundColor = .clear
+        cv.register(StoryMemeCell.self, forCellWithReuseIdentifier: StoryMemeCell.reuseId)
         return cv
     }()
-    
-    private lazy var loadIndicator: UIActivityIndicatorView = {
-        let i = UIActivityIndicatorView()
-        i.tintColor = .black
-        i.translatesAutoresizingMaskIntoConstraints = false
-        return i
+
+    // Main feed
+    private let feedTableView: UITableView = {
+        let tv = UITableView(frame: .zero, style: .plain)
+        tv.separatorStyle = .none
+        tv.showsVerticalScrollIndicator = true
+        tv.register(FeedMemeCell.self, forCellReuseIdentifier: FeedMemeCell.reuseId)
+        tv.backgroundColor = .clear
+        return tv
     }()
-    
-//    var viewmodel = HomeViewModel()
-//    var filteredData: [Obj] = []
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        bindViewModel()
-//        viewmodel.getPackets()
+        view.backgroundColor = .systemBackground
+        title = "Memes"
+
+        setupSubviews()
+        setupConstraints()
+        setupDelegates()
     }
-    
-    @objc func handleRefresh(_ sender: UIRefreshControl) {
-//        viewmodel.getPackets()
-        sender.endRefreshing()
+
+    private func setupSubviews() {
+        [
+            storiesCollectionView,
+            feedTableView
+        ].forEach(view.addSubview)
     }
-    
-    override func bindViewModel() {
-//        viewmodel.stateUpdated = { [weak self] state in
-//            DispatchQueue.main.async { [weak self] in
-//                guard let self else { return }
-//                switch state {
-//                case .loading:
-//                    loadIndicator.startAnimating()
-//                case .loaded:
-//                    loadIndicator.stopAnimating()
-//                case .success:
-//                    filteredData = viewmodel.packages
-//                    collectionview.reloadData()
-//                case .error(let error):
-//                    print(error)
-//                case .idle:
-//                    break
-//                }
-//            }
-//        }
-    }
-    
-    override func configureUI() {
-        navigationItem.title = "Store"
-        [customSearchField, collectionview, loadIndicator].forEach { view.addSubview($0) }
-    }
-    
-    override func configureConstraints() {
-        NSLayoutConstraint.activate([
-            customSearchField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            customSearchField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
-            customSearchField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
-            customSearchField.heightAnchor.constraint(equalToConstant: 36),
-            
-            collectionview.topAnchor.constraint(equalTo: customSearchField.bottomAnchor, constant: 10),
-            collectionview.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 12),
-            collectionview.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
-            collectionview.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            loadIndicator.topAnchor.constraint(equalTo: view.topAnchor),
-            loadIndicator.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            loadIndicator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            loadIndicator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-        ])
-    }
-    
-    @objc private func textFieldDidChange(_ textField: UITextField) {
-        let searchText = textField.text ?? ""
-        if searchText.isEmpty {
-//            filteredData = viewmodel.packages
-        } else {
-//            filteredData = viewmodel.packages.filter {
-//                $0.title.lowercased().contains(searchText.lowercased())
-//            }
+
+    private func setupConstraints() {
+        storiesCollectionView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(96)     // Story hündürlüyü
         }
-        collectionview.reloadData()
+
+        feedTableView.snp.makeConstraints {
+            $0.top.equalTo(storiesCollectionView.snp.bottom).offset(12)
+            $0.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+    }
+
+    private func setupDelegates() {
+        storiesCollectionView.dataSource = self
+        storiesCollectionView.delegate = self
+
+        feedTableView.dataSource = self
+        feedTableView.delegate = self
     }
 }
 
-// MARK: - CollectionView Delegates
+// MARK: - CollectionView (Stories)
 
-extension HomeController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension HomeController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        // placeholder
+        return stories.count
     }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "\(GetPromptCell.self)", for: indexPath) as! GetPromptCell
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         
-        cell.layer.borderWidth = 1.0
-        cell.layer.cornerRadius = 12
-        cell.layer.borderColor = UIColor(hexStr: "E0E1E6").cgColor
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: StoryMemeCell.reuseId,
+            for: indexPath
+        ) as! StoryMemeCell
+        
+        let story = stories[indexPath.item]
+        
+        cell.configure(
+            title: "User \(indexPath.item + 1)",
+            imageUrl: story.imageUrl
+        )
+        
         return cell
     }
+
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return .init(width: collectionView.bounds.width, height: 60)
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let stories = [
+            Story(imageUrl: "https://i.imgflip.com/1bij.jpg", duration: 5),
+            Story(imageUrl: "https://i.imgflip.com/26am.jpg", duration: 5),
+            Story(imageUrl: "https://i.imgflip.com/2fm6x.jpg", duration: 5)
+        ]
+        
+        let group = StoryGroup(
+            username: "mememaster",
+            avatarUrl: nil,
+            stories: stories
+        )
+        
+        let viewer = StoryViewerController(group: group)
+        present(viewer, animated: true)
     }
 
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("tapped")
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
+        return CGSize(width: 72, height: 96)
+    }
+}
+
+// MARK: - TableView (Feed)
+
+extension HomeController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return stories.count
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(
+            withIdentifier: FeedMemeCell.reuseId,
+            for: indexPath
+        ) as! FeedMemeCell
+        let story = stories[indexPath.item]
+        
+        cell.configure(
+            title: "Funny meme #\(indexPath.row + 1)",
+            subtitle: "Dark • 1.2K likes",
+            imageUrl: story.imageUrl
+        )
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        320
     }
 }

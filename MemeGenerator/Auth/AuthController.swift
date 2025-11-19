@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 enum AuthMode {
     case login
@@ -29,7 +30,6 @@ final class AuthController: BaseController<AuthViewModel> {
     private let logoImageView: UIImageView = {
         let iv = UIImageView(image: UIImage(named: "logo"))
         iv.contentMode = .scaleAspectFit
-        iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
 
@@ -38,7 +38,6 @@ final class AuthController: BaseController<AuthViewModel> {
         lbl.font = .systemFont(ofSize: 32, weight: .bold)
         lbl.textColor = .black
         lbl.textAlignment = .center
-        lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
     }()
 
@@ -82,20 +81,17 @@ final class AuthController: BaseController<AuthViewModel> {
         sv.axis = .horizontal
         sv.alignment = .center
         sv.spacing = 8
-        sv.translatesAutoresizingMaskIntoConstraints = false
         return sv
     }()
 
     // MARK: - Fields
     private let emailField: FloatingTextField = {
         let field = FloatingTextField(title: "Email *", icon: UIImage(systemName: "envelope"))
-        field.translatesAutoresizingMaskIntoConstraints = false
         return field
     }()
 
     private let passwordField: FloatingTextField = {
         let field = FloatingTextField(title: "Password *", icon: nil)
-        field.translatesAutoresizingMaskIntoConstraints = false
         return field
     }()
 
@@ -104,7 +100,6 @@ final class AuthController: BaseController<AuthViewModel> {
         let btn = UIButton(type: .system)
         btn.setImage(UIImage(systemName: "eye.slash"), for: .normal)
         btn.tintColor = .lightGray
-        btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
 
@@ -115,7 +110,6 @@ final class AuthController: BaseController<AuthViewModel> {
         btn.setTitleColor(.darkGray, for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 14)
         btn.contentHorizontalAlignment = .right
-        btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
 
@@ -131,7 +125,6 @@ final class AuthController: BaseController<AuthViewModel> {
         btn.layer.shadowRadius = 4
         btn.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
         btn.setTitleColor(.black, for: .normal)
-        btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
 
@@ -140,7 +133,6 @@ final class AuthController: BaseController<AuthViewModel> {
         let btn = UIButton(type: .system)
         btn.setTitleColor(.darkGray, for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 15)
-        btn.translatesAutoresizingMaskIntoConstraints = false
         return btn
     }()
 
@@ -163,15 +155,21 @@ final class AuthController: BaseController<AuthViewModel> {
     override func configureUI() {
         setupGradient()
         setupPasswordToggle()
+        
+        [
+            logoImageView,
+            titleLabel,
+            sloganStack,
+            emailField,
+            passwordField,
+            forgetButton,
+            mainButton,
+            toggleAuthButton
+        ].forEach {
+            view.addSubview($0)
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
 
-        view.addSubview(logoImageView)
-        view.addSubview(titleLabel)
-        view.addSubview(sloganStack)
-        view.addSubview(emailField)
-        view.addSubview(passwordField)
-        view.addSubview(forgetButton)
-        view.addSubview(mainButton)
-        view.addSubview(toggleAuthButton)
 
         mainButton.addTarget(self, action: #selector(onMainPressed), for: .touchUpInside)
         toggleAuthButton.addTarget(self, action: #selector(onToggleMode), for: .touchUpInside)
@@ -181,64 +179,70 @@ final class AuthController: BaseController<AuthViewModel> {
     }
 
     override func configureConstraints() {
-        NSLayoutConstraint.activate([
-            // LOGO
-            logoImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60),
-            logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            logoImageView.heightAnchor.constraint(equalToConstant: 100),
+        logoImageView.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(60)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(100)
+        }
 
-            // TITLE
-            titleLabel.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 30),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        titleLabel.snp.makeConstraints {
+            $0.top.equalTo(logoImageView.snp.bottom).offset(30)
+            $0.centerX.equalToSuperview()
+        }
 
-            // SLOGAN
-            sloganStack.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
-            sloganStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            sloganStack.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 40),
-            sloganStack.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -40),
+        sloganStack.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(12)
+            $0.centerX.equalToSuperview()
+            $0.leading.greaterThanOrEqualTo(view).offset(40)
+            $0.trailing.lessThanOrEqualTo(view).offset(-40)
+        }
 
-            // EMAIL
-            emailField.topAnchor.constraint(equalTo: sloganStack.bottomAnchor, constant: 32),
-            emailField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-            emailField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-            emailField.heightAnchor.constraint(equalToConstant: 55),
+        emailField.snp.makeConstraints {
+            $0.top.equalTo(sloganStack.snp.bottom).offset(32)
+            $0.leading.equalToSuperview().offset(30)
+            $0.trailing.equalToSuperview().offset(-30)
+            $0.height.equalTo(55)
+        }
 
-            // PASSWORD
-            passwordField.topAnchor.constraint(equalTo: emailField.bottomAnchor, constant: 18),
-            passwordField.leadingAnchor.constraint(equalTo: emailField.leadingAnchor),
-            passwordField.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
-            passwordField.heightAnchor.constraint(equalToConstant: 55),
+        passwordField.snp.makeConstraints {
+            $0.top.equalTo(emailField.snp.bottom).offset(18)
+            $0.leading.trailing.height.equalTo(emailField)
+        }
 
-            // Forget password
-            forgetButton.topAnchor.constraint(equalTo: passwordField.bottomAnchor, constant: 6),
-            forgetButton.trailingAnchor.constraint(equalTo: passwordField.trailingAnchor),
+        forgetButton.snp.makeConstraints {
+            $0.top.equalTo(passwordField.snp.bottom).offset(6)
+            $0.trailing.equalTo(passwordField.snp.trailing)
+        }
 
-            // MAIN BUTTON
-            mainButton.topAnchor.constraint(equalTo: forgetButton.bottomAnchor, constant: 28),
-            mainButton.leadingAnchor.constraint(equalTo: emailField.leadingAnchor),
-            mainButton.trailingAnchor.constraint(equalTo: emailField.trailingAnchor),
-            mainButton.heightAnchor.constraint(equalToConstant: 55),
+        mainButton.snp.makeConstraints {
+            $0.top.equalTo(forgetButton.snp.bottom).offset(28)
+            $0.leading.trailing.equalTo(emailField)
+            $0.height.equalTo(55)
+        }
 
-            // BOTTOM TOGGLE
-            toggleAuthButton.topAnchor.constraint(equalTo: mainButton.bottomAnchor, constant: 18),
-            toggleAuthButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        ])
+        toggleAuthButton.snp.makeConstraints {
+            $0.top.equalTo(mainButton.snp.bottom).offset(18)
+            $0.centerX.equalToSuperview()
+        }
     }
 
     // MARK: - Password toggle inside field
     private func setupPasswordToggle() {
         passwordField.addSubview(passwordToggleButton)
 
-        NSLayoutConstraint.activate([
-            passwordToggleButton.trailingAnchor.constraint(equalTo: passwordField.trailingAnchor, constant: -12),
-            passwordToggleButton.centerYAnchor.constraint(equalTo: passwordField.centerYAnchor),
-            passwordToggleButton.widthAnchor.constraint(equalToConstant: 26),
-            passwordToggleButton.heightAnchor.constraint(equalToConstant: 26)
-        ])
+        passwordToggleButton.snp.makeConstraints {
+            $0.trailing.equalTo(passwordField.snp.trailing).offset(-12)
+            $0.centerY.equalTo(passwordField.snp.centerY)
+            $0.width.height.equalTo(26)
+        }
 
         passwordField.textField.isSecureTextEntry = true
-        passwordToggleButton.addTarget(self, action: #selector(onTogglePassword), for: .touchUpInside)
+
+        passwordToggleButton.addTarget(self,
+                                       action: #selector(onTogglePassword),
+                                       for: .touchUpInside)
     }
+
 
     // MARK: - Background
     private func setupGradient() {

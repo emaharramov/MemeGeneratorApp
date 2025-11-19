@@ -7,14 +7,22 @@
 
 import UIKit
 import Foundation
-//import Kingfisher
+import Kingfisher
 
 extension UIImageView {
     
-    func loadImage(url: String) {
-        let fullPath = "NetworkHelper.shared.imageBaseUrl + url"
-        guard let url = URL(string: fullPath) else { return }
-//        self.kf.setImage(with: url)
+    func loadImage(_ path: String) {
+        if path.hasPrefix("http") {
+            if let url = URL(string: path) {
+                self.kf.setImage(with: url)
+            }
+            return
+        }
+
+//        let fullPath = NetworkHelper.shared.imageBaseUrl + path
+        guard let url = URL(string: path) else { return }
+        
+        self.kf.setImage(with: url)
     }
 }
 
