@@ -6,101 +6,391 @@
 //
 
 import UIKit
+import SnapKit
 
-final class UploadMemeViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+// MARK: - ViewController
 
-    private let imageView = UIImageView()
-    private let topTextField = UITextField()
-    private let bottomTextField = UITextField()
-    private let buttonsRow = UIStackView()
+final class UploadMemeViewController: UIViewController,
+                                      UIImagePickerControllerDelegate,
+                                      UINavigationControllerDelegate,
+                                      UIColorPickerViewControllerDelegate {
 
-    private let topLabel = UILabel()
-    private let bottomLabel = UILabel()
+    private let viewModel = UploadMemeViewModel(isPremiumUser: true)
+
+    // MARK: - UI
+
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+
+    private let editorContainer = UIView()
+    private let baseImageView = UIImageView()
+    private let overlayContainer = UIView()
+    private let hintLabel = UILabel()
+
+    private let textColorTitleLabel = UILabel()
+    private let colorContainer = UIView()
+    private let eyedropperButton = UIButton(type: .system)
+
+    private let galleryButton = UIButton(type: .system)
+    private let cameraButton = UIButton(type: .system)
+    private let addTextButton = UIButton(type: .system)
+    private let clearTextButton = UIButton(type: .system)
+    private let saveButton = UIButton(type: .system)
+
+    private let watermarkPreviewLabel = UILabel()
+
+    private let backgroundGradient = CAGradientLayer()
+
+    // MARK: - Overlay State
+
+    private var overlays: [MemeTextOverlayView] = []
+    private var activeOverlay: MemeTextOverlayView?
+    private var isEditMode: Bool = false {
+        didSet { updateEditMode() }
+    }
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear
-        setupUI()
+
+        setupGradientBackground()
+        setupScrollLayout()
+        setupEditor()
+        setupBottomControls()
+        setupBindings()
     }
 
-    private func setupUI() {
-        imageView.backgroundColor = .systemGray6
-        imageView.contentMode = .scaleAspectFit
-        imageView.layer.cornerRadius = 12
-        imageView.clipsToBounds = true
-        imageView.isUserInteractionEnabled = true
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        backgroundGradient.frame = view.bounds
+    }
 
-        [topLabel, bottomLabel].forEach {
-            $0.textColor = .white
-            $0.font = .boldSystemFont(ofSize: 24)
-            $0.textAlignment = .center
-            $0.numberOfLines = 0
-            $0.layer.shadowColor = UIColor.black.cgColor
-            $0.layer.shadowOpacity = 0.8
-            $0.layer.shadowRadius = 3
-            imageView.addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
+    // MARK: - Gradient
+
+    private func setupGradientBackground() {
+        // Login screen-ə bənzər yumşaq gradient
+        backgroundGradient.colors = [
+            UIColor.systemPink.withAlphaComponent(0.9).cgColor,
+            UIColor.systemPurple.withAlphaComponent(0.75).cgColor,
+            UIColor.systemTeal.withAlphaComponent(0.85).cgColor
+        ]
+        backgroundGradient.locations = [0.0, 0.45, 1.0]
+        backgroundGradient.startPoint = CGPoint(x: 0, y: 0)
+        backgroundGradient.endPoint   = CGPoint(x: 0, y: 1)
+
+        view.layer.insertSublayer(backgroundGradient, at: 0)
+    }
+
+    // MARK: - Layout
+
+    private func setupScrollLayout() {
+        view.addSubview(scrollView)
+        scrollView.backgroundColor = .clear
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
 
-//        topTextField.placeholder = "Top text"
-//        bottomTextField.placeholder = "Bottom text"
-        [topTextField, bottomTextField].forEach {
-            $0.borderStyle = .roundedRect
-            $0.backgroundColor = .white
+        scrollView.addSubview(contentView)
+        contentView.backgroundColor = .clear
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+    }
+
+    private func setupEditor() {
+        editorContainer.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.9)
+        editorContainer.layer.cornerRadius = 16
+        editorContainer.clipsToBounds = true
+
+        contentView.addSubview(editorContainer)
+        editorContainer.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(editorContainer.snp.width).multipliedBy(0.75)
         }
 
-        let galleryBtn = UIButton(type: .system)
-        galleryBtn.setTitle("Gallery", for: .normal)
-        galleryBtn.addTarget(self, action: #selector(openGallery), for: .touchUpInside)
-
-        let cameraBtn = UIButton(type: .system)
-        cameraBtn.setTitle("Camera", for: .normal)
-        cameraBtn.addTarget(self, action: #selector(openCamera), for: .touchUpInside)
-
-        let applyBtn = UIButton(type: .system)
-        applyBtn.setTitle("Apply Text", for: .normal)
-        applyBtn.addTarget(self, action: #selector(applyText), for: .touchUpInside)
-
-        buttonsRow.axis = .horizontal
-        buttonsRow.spacing = 8
-        buttonsRow.distribution = .fillEqually
-        [galleryBtn, cameraBtn, applyBtn].forEach { buttonsRow.addArrangedSubview($0) }
-
-        let textStack = UIStackView(arrangedSubviews: [topTextField, bottomTextField])
-        textStack.axis = .vertical
-        textStack.spacing = 8
-
-        [imageView, textStack, buttonsRow].forEach {
-            view.addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
+        baseImageView.contentMode = .scaleAspectFit
+        baseImageView.backgroundColor = .black
+        editorContainer.addSubview(baseImageView)
+        baseImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
-        NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 12),
-            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor),
+        overlayContainer.backgroundColor = .clear
+        editorContainer.addSubview(overlayContainer)
+        overlayContainer.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
 
-            textStack.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 12),
-            textStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            textStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+        watermarkPreviewLabel.text = viewModel.appWatermarkText
+        watermarkPreviewLabel.font = .boldSystemFont(ofSize: 40)
+        watermarkPreviewLabel.textColor = UIColor.white.withAlphaComponent(0.18)
+        watermarkPreviewLabel.textAlignment = .center
+        watermarkPreviewLabel.numberOfLines = 0
+        watermarkPreviewLabel.transform = CGAffineTransform(rotationAngle: -.pi / 8)
 
-            buttonsRow.topAnchor.constraint(equalTo: textStack.bottomAnchor, constant: 12),
-            buttonsRow.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            buttonsRow.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            buttonsRow.heightAnchor.constraint(equalToConstant: 36),
+        overlayContainer.addSubview(watermarkPreviewLabel)
+        watermarkPreviewLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.lessThanOrEqualToSuperview().multipliedBy(0.8)
+        }
 
-            topLabel.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 12),
-            topLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 8),
-            topLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -8),
+        hintLabel.text = "Tap on the image to add text"
+        hintLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        hintLabel.textColor = .secondaryLabel
+        hintLabel.textAlignment = .center
 
-            bottomLabel.bottomAnchor.constraint(equalTo: imageView.bottomAnchor, constant: -12),
-            bottomLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 8),
-            bottomLabel.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -8),
+        contentView.addSubview(hintLabel)
+        hintLabel.snp.makeConstraints { make in
+            make.top.equalTo(editorContainer.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(24)
+        }
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleCanvasTap(_:)))
+        overlayContainer.addGestureRecognizer(tap)
+
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleCanvasLongPress(_:)))
+        overlayContainer.addGestureRecognizer(longPress)
+    }
+
+    private func setupBottomControls() {
+        textColorTitleLabel.text = "Text color"
+        textColorTitleLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        textColorTitleLabel.textColor = .label
+
+        contentView.addSubview(textColorTitleLabel)
+        textColorTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(hintLabel.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+
+        colorContainer.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.9)
+        colorContainer.layer.cornerRadius = 14
+
+        contentView.addSubview(colorContainer)
+        colorContainer.snp.makeConstraints { make in
+            make.top.equalTo(textColorTitleLabel.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(44)
+        }
+
+        eyedropperButton.setImage(UIImage(systemName: "eyedropper.halffull"), for: .normal)
+        eyedropperButton.tintColor = .label
+        eyedropperButton.addTarget(self, action: #selector(openColorPicker), for: .touchUpInside)
+
+        colorContainer.addSubview(eyedropperButton)
+        eyedropperButton.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.height.equalTo(24)
+        }
+
+        // Only icons
+        setupBottomButton(
+            galleryButton,
+            systemImageName: "photo.on.rectangle",
+            color: .systemBlue
+        )
+        setupBottomButton(
+            cameraButton,
+            systemImageName: "camera.fill",
+            color: .systemIndigo
+        )
+        setupBottomButton(
+            addTextButton,
+            systemImageName: "textformat.size.larger",
+            color: .systemOrange
+        )
+        setupBottomButton(
+            clearTextButton,
+            systemImageName: "trash",
+            color: .systemRed
+        )
+        setupBottomButton(
+            saveButton,
+            systemImageName: "square.and.arrow.down.fill",
+            color: .systemGreen
+        )
+
+        galleryButton.addTarget(self, action: #selector(openGallery), for: .touchUpInside)
+        cameraButton.addTarget(self, action: #selector(openCamera), for: .touchUpInside)
+        addTextButton.addTarget(self, action: #selector(addTextButtonTapped), for: .touchUpInside)
+        clearTextButton.addTarget(self, action: #selector(clearAllText), for: .touchUpInside)
+        saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+
+        let buttonStack = UIStackView(arrangedSubviews: [
+            galleryButton, cameraButton, addTextButton, clearTextButton, saveButton
         ])
+        buttonStack.axis = .horizontal
+        buttonStack.distribution = .fillEqually
+        buttonStack.spacing = 10
+
+        contentView.addSubview(buttonStack)
+        buttonStack.snp.makeConstraints { make in
+            make.top.equalTo(colorContainer.snp.bottom).offset(18)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(54)
+            make.bottom.equalToSuperview().inset(24)
+        }
+    }
+
+    private func setupBottomButton(
+        _ button: UIButton,
+        systemImageName: String,
+        color: UIColor
+    ) {
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
+        let image = UIImage(systemName: systemImageName, withConfiguration: config)
+
+        button.setImage(image, for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = color
+
+        button.layer.cornerRadius = 18
+        button.clipsToBounds = true
+
+        button.contentHorizontalAlignment = .center
+        button.contentVerticalAlignment = .center
+    }
+
+    // MARK: - Bindings
+
+    private func setupBindings() {
+        viewModel.onImageChanged = { [weak self] image in
+            guard let self else { return }
+            self.baseImageView.image = image
+
+            if let img = image {
+                let aspect = img.size.height / max(img.size.width, 1)
+                self.editorContainer.snp.remakeConstraints { make in
+                    make.top.equalToSuperview().offset(16)
+                    make.leading.trailing.equalToSuperview().inset(16)
+                    make.height.equalTo(self.editorContainer.snp.width).multipliedBy(aspect)
+                }
+                UIView.animate(withDuration: 0.25) {
+                    self.view.layoutIfNeeded()
+                }
+            }
+        }
+
+        viewModel.onSavingStateChange = { [weak self] isSaving in
+            guard let self else { return }
+            if isSaving {
+                self.showToast(message: "Saving meme…")
+            }
+        }
+
+        viewModel.onSaveSuccess = { [weak self] in
+            self?.showToast(message: "Saved to Photos ✅")
+        }
+
+        viewModel.onError = { [weak self] message in
+            self?.showToast(message: message)
+        }
+    }
+
+    // MARK: - Overlay helpers
+
+    private func createOverlay(at point: CGPoint, initialText: String = "Your text") {
+        let overlay = MemeTextOverlayView()
+        overlay.label.text = initialText
+
+        overlay.onTap = { [weak self, weak overlay] in
+            guard let self, let overlay else { return }
+            self.activeOverlay = overlay
+            self.presentTextEdit(for: overlay)
+        }
+
+        overlay.onDelete = { [weak self, weak overlay] in
+            guard let self, let overlay else { return }
+            self.removeOverlay(overlay)
+        }
+
+        overlay.onDragChanged = { [weak self, weak overlay] _ in
+            guard let self, let overlay else { return }
+            self.activeOverlay = overlay
+        }
+
+        overlayContainer.addSubview(overlay)
+        let size = CGSize(width: 140, height: 60)
+        overlay.frame = CGRect(origin: .zero, size: size)
+        overlay.center = point.clamped(in: overlayContainer.bounds.insetBy(dx: 20, dy: 20))
+
+        overlays.append(overlay)
+        activeOverlay = overlay
+        updateEditMode()
+    }
+
+    private func removeOverlay(_ overlay: MemeTextOverlayView) {
+        if let index = overlays.firstIndex(where: { $0 === overlay }) {
+            overlays.remove(at: index)
+        }
+        overlay.removeFromSuperview()
+        if activeOverlay === overlay { activeOverlay = nil }
+    }
+
+    private func clearAllOverlays() {
+        overlays.forEach { $0.removeFromSuperview() }
+        overlays.removeAll()
+        activeOverlay = nil
+    }
+
+    private func updateEditMode() {
+        overlays.forEach { $0.isInEditMode = isEditMode }
+    }
+
+    private func presentTextEdit(for overlay: MemeTextOverlayView) {
+        let alert = UIAlertController(
+            title: "Edit text",
+            message: nil,
+            preferredStyle: .alert
+        )
+        alert.addTextField { field in
+            field.text = overlay.label.text
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
+            guard let self else { return }
+            let newText = alert.textFields?.first?.text ?? ""
+            overlay.label.text = newText
+            self.activeOverlay = overlay
+        }))
+
+        present(alert, animated: true)
     }
 
     // MARK: - Actions
+
+    @objc private func handleCanvasTap(_ recognizer: UITapGestureRecognizer) {
+        let location = recognizer.location(in: overlayContainer)
+
+        // Edit mode aktivdirsə – sadəcə edit mode-dan çıx, yeni text yaranmasın
+        if isEditMode {
+            isEditMode = false
+            return
+        }
+
+        guard baseImageView.image != nil else { return }
+        createOverlay(at: location)
+    }
+
+    @objc private func handleCanvasLongPress(_ recognizer: UILongPressGestureRecognizer) {
+        if recognizer.state == .began {
+            isEditMode = true
+        }
+    }
+
+    @objc private func openColorPicker() {
+        guard activeOverlay != nil else {
+            showToast(message: "Tap on a text to edit color")
+            return
+        }
+        let picker = UIColorPickerViewController()
+        picker.delegate = self
+        picker.selectedColor = activeOverlay?.label.textColor ?? .white
+        present(picker, animated: true)
+    }
 
     @objc private func openGallery() {
         let picker = UIImagePickerController()
@@ -117,17 +407,50 @@ final class UploadMemeViewController: UIViewController, UIImagePickerControllerD
         present(picker, animated: true)
     }
 
-    @objc private func applyText() {
-        topLabel.text = topTextField.text
-        bottomLabel.text = bottomTextField.text
+    @objc private func addTextButtonTapped() {
+        let center = CGPoint(x: overlayContainer.bounds.midX, y: overlayContainer.bounds.midY)
+        createOverlay(at: center)
     }
 
-    // MARK: - UIImagePickerDelegate
+    @objc private func clearAllText() {
+        clearAllOverlays()
+    }
+
+    @objc private func saveTapped() {
+        view.endEditing(true)
+        viewModel.saveMeme(from: editorContainer, includeWatermark: false)
+    }
+
+    // MARK: - UIImagePicker Delegate
+
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
         if let img = info[.originalImage] as? UIImage {
-            imageView.image = img
+            clearAllOverlays()
+            viewModel.setImage(img)
         }
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+
+    // MARK: - Color Picker Delegate
+
+    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        guard let overlay = activeOverlay else { return }
+        overlay.label.textColor = viewController.selectedColor
+    }
+}
+
+// MARK: - CGPoint helper
+
+private extension CGPoint {
+    func clamped(in rect: CGRect) -> CGPoint {
+        CGPoint(
+            x: max(rect.minX, min(rect.maxX, x)),
+            y: max(rect.minY, min(rect.maxY, y))
+        )
     }
 }
