@@ -136,6 +136,11 @@ final class AIMemeViewController: UIViewController {
                 Section.shareActions.rawValue
             ])
             self.collectionView.reloadSections(reloadSections)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                self.collectionView.layoutIfNeeded()
+                self.scrollToResultSection()
+            }
         }
 
         viewModel.onLoadingStateChange = { [weak self] isLoading in
@@ -160,6 +165,24 @@ final class AIMemeViewController: UIViewController {
         else { return "" }
 
         return cell.text
+    }
+
+    /// Result section görünürsə ona scroll edir
+    private func scrollToResultSection() {
+        let sectionIndex = Section.result.rawValue
+
+        guard collectionView.numberOfSections > sectionIndex,
+              collectionView.numberOfItems(inSection: sectionIndex) > 0 else {
+            return
+        }
+
+        let indexPath = IndexPath(item: 0, section: sectionIndex)
+        collectionView.layoutIfNeeded()
+        collectionView.scrollToItem(
+            at: indexPath,
+            at: .centeredVertically,
+            animated: true
+        )
     }
 
     // MARK: - Actions
@@ -226,7 +249,6 @@ extension AIMemeViewController: UICollectionViewDataSource {
                 withReuseIdentifier: PromptCell.id, for: indexPath
             ) as! PromptCell
 
-            // Card görünüşü
             cell.contentView.layer.cornerRadius = 16
             cell.contentView.layer.masksToBounds = true
             cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.92)
