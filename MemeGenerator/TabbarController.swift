@@ -56,7 +56,7 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         createContainer.tabBarItem = UITabBarItem(title: nil,
                                                   image: nil,
                                                   selectedImage: nil)
-        createContainer.tabBarItem.isEnabled = false // fake tab
+        createContainer.tabBarItem.isEnabled = false
 
         let profile = UINavigationController(rootViewController: ProfileViewController())
         profile.tabBarItem = UITabBarItem(title: "Profile",

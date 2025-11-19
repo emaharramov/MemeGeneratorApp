@@ -18,12 +18,14 @@ final class ActionsCell: UICollectionViewCell {
         super.init(frame: frame)
 
         onGenerate.setTitle("Generate", for: .normal)
-        onGenerate.backgroundColor = .systemYellow
+        onGenerate.backgroundColor = UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1)
         onGenerate.layer.cornerRadius = 12
 
         onNewButton.setTitle("Create New", for: .normal)
-        onNewButton.setTitleColor(.red, for: .normal)
-
+        onNewButton.layer.borderColor = UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1).cgColor
+        onNewButton.layer.borderWidth = 5
+        onGenerate.layer.cornerRadius = 12
+        
         let stack = UIStackView(arrangedSubviews: [onGenerate, onNewButton])
         stack.axis = .horizontal
         stack.distribution = .fillEqually
