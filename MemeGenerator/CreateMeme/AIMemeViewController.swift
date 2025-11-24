@@ -260,7 +260,7 @@ extension AIMemeViewController: UICollectionViewDataSource {
                 withReuseIdentifier: ActionsCell.id, for: indexPath
             ) as! ActionsCell
 
-            cell.contentView.layer.cornerRadius = 14
+            cell.contentView.layer.cornerRadius = 16
             cell.contentView.layer.masksToBounds = true
             cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.9)
 

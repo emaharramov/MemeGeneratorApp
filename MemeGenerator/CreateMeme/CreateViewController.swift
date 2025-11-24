@@ -24,7 +24,7 @@ final class CreateViewController: UIViewController {
 
         // Rənglər
         sc.backgroundColor = .clear
-        sc.selectedSegmentTintColor = .systemYellow
+        sc.selectedSegmentTintColor = UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1)
 
         let normalAttrs: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.label.withAlphaComponent(0.8),

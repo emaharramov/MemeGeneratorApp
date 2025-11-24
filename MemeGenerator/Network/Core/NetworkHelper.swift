@@ -15,7 +15,6 @@ enum EncodingType {
 
 class NetworkHelper {
     static let shared = NetworkHelper()
-    private let baseURL = "http://localhost:3000/v1/api"
     
     var headers: HTTPHeaders {
           if let token = UserDefaults.standard.string(forKey: "authToken"), !token.isEmpty {
@@ -26,6 +25,12 @@ class NetworkHelper {
       }
     
     func configureURL(endpoint: String) -> String {
-        return baseURL + endpoint
+        return Constants.baseURL + endpoint
+    }
+}
+
+extension NetworkHelper {
+    enum Constants {
+        static let baseURL = "https://memegenerator-backend.vercel.app/v1/api"
     }
 }

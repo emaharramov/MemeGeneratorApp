@@ -47,7 +47,7 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
     // MARK: - Tabs
     private func configureTabs() {
 
-        let home = UINavigationController(rootViewController: HomeController(viewModel: BaseViewModel()))
+        let home = UINavigationController(rootViewController: HomeController(viewModel: HomeViewModel()))
         home.tabBarItem = UITabBarItem(title: "Home",
                                        image: UIImage(systemName: "house"),
                                        selectedImage: UIImage(systemName: "house.fill"))

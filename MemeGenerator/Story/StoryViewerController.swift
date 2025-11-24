@@ -11,7 +11,7 @@ import UIKit
 
 struct Story {
     let imageUrl: String
-    let duration: TimeInterval  // məsələn: 5.0 saniyə
+    let duration: TimeInterval
 }
 
 struct StoryGroup {
@@ -24,19 +24,24 @@ struct StoryGroup {
 
 final class StoryViewerController: UIViewController {
     
-    // Public
+    // MARK: - Public
+    
     private let group: StoryGroup
     private var currentIndex: Int
     
-    // UI
+    // MARK: - UI
+    
     private let imageView = UIImageView()
+    
     private let progressStack = UIStackView()
     private var progressBars: [UIProgressView] = []
     
+    private let headerContainer = UIView()
     private let usernameLabel = UILabel()
     private let closeButton = UIButton(type: .system)
     
-    // Timer
+    // MARK: - Timer
+    
     private var timer: Timer?
     private var currentProgress: Float = 0
     
@@ -61,11 +66,13 @@ final class StoryViewerController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = .black
         
-        setupImageView()
-        setupHeader()
-        setupProgressBars()
+        setupViews()
+        setupConstraints()
+        configureHeader()
+        configureProgressBars()
         setupGestures()
         
         showStory(at: currentIndex)
@@ -75,96 +82,119 @@ final class StoryViewerController: UIViewController {
         super.viewDidDisappear(animated)
         timer?.invalidate()
     }
+}
+
+// MARK: - Setup UI
+
+private extension StoryViewerController {
     
-    // MARK: - Setup UI
-    
-    private func setupImageView() {
+    func setupViews() {
+        // Image
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         view.addSubview(imageView)
+        
+        // Progress
+        progressStack.axis = .horizontal
+        progressStack.spacing = 6
+        progressStack.distribution = .fillEqually
+        view.addSubview(progressStack)
+        
+        // Header
+        view.addSubview(headerContainer)
+        headerContainer.addSubview(usernameLabel)
+        headerContainer.addSubview(closeButton)
+    }
+    
+    func setupConstraints() {
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        progressStack.translatesAutoresizingMaskIntoConstraints = false
+        headerContainer.translatesAutoresizingMaskIntoConstraints = false
+        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: view.topAnchor),
+            // Progress – safe area altında
+            progressStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            progressStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            progressStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            progressStack.heightAnchor.constraint(equalToConstant: 3),
+            
+            // Header progress-in altında
+            headerContainer.topAnchor.constraint(equalTo: progressStack.bottomAnchor, constant: 8),
+            headerContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            headerContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            headerContainer.heightAnchor.constraint(equalToConstant: 40),
+            
+            usernameLabel.leadingAnchor.constraint(equalTo: headerContainer.leadingAnchor, constant: 16),
+            usernameLabel.centerYAnchor.constraint(equalTo: headerContainer.centerYAnchor),
+            
+            closeButton.trailingAnchor.constraint(equalTo: headerContainer.trailingAnchor, constant: -16),
+            closeButton.centerYAnchor.constraint(equalTo: headerContainer.centerYAnchor),
+            closeButton.widthAnchor.constraint(equalToConstant: 32),
+            closeButton.heightAnchor.constraint(equalToConstant: 32),
+            
+            // Image – qalan bütün sahə
+            imageView.topAnchor.constraint(equalTo: headerContainer.bottomAnchor, constant: 8),
             imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
-    private func setupHeader() {
-        // username
+    func configureHeader() {
         usernameLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         usernameLabel.textColor = .white
-        usernameLabel.text = group.username
+        usernameLabel.text = group.username     // hazırda userId, sonra username ilə əvəz edərsən
         
-        // close button
         closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
         closeButton.tintColor = .white
         closeButton.addTarget(self, action: #selector(onClose), for: .touchUpInside)
-        
-        view.addSubview(usernameLabel)
-        view.addSubview(closeButton)
-        
-        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        closeButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            usernameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            usernameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            
-            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            closeButton.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor)
-        ])
     }
     
-    private func setupProgressBars() {
-        progressStack.axis = .horizontal
-        progressStack.spacing = 6
-        progressStack.distribution = .fillEqually
-        
-        view.addSubview(progressStack)
-        progressStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            progressStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
-            progressStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
-            progressStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
-            progressStack.heightAnchor.constraint(equalToConstant: 3)
-        ])
-        
-        // username label progress-in altında olsun
-        view.bringSubviewToFront(usernameLabel)
-        view.bringSubviewToFront(closeButton)
+    func configureProgressBars() {
+        progressBars.removeAll()
+        progressStack.arrangedSubviews.forEach { v in
+            progressStack.removeArrangedSubview(v)
+            v.removeFromSuperview()
+        }
         
         for _ in group.stories {
             let bar = UIProgressView(progressViewStyle: .default)
-            bar.progress = 0
             bar.trackTintColor = UIColor.white.withAlphaComponent(0.3)
             bar.progressTintColor = .white
-            bar.translatesAutoresizingMaskIntoConstraints = false
+            bar.progress = 0
             bar.layer.cornerRadius = 1.5
             bar.clipsToBounds = true
-            progressBars.append(bar)
+            
             progressStack.addArrangedSubview(bar)
+            progressBars.append(bar)
         }
     }
     
-    private func setupGestures() {
-        // Tap – sol / sağ keçid
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(onTap(_:)))
-        view.addGestureRecognizer(tapGesture)
+    func setupGestures() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(onTap(_:)))
+        view.addGestureRecognizer(tap)
         
-        // Swipe down – bağlamaq üçün opsional (Instagram kimi)
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(onSwipeDown(_:)))
         swipeDown.direction = .down
         view.addGestureRecognizer(swipeDown)
     }
+}
+
+// MARK: - Story Logic
+
+private extension StoryViewerController {
     
-    // MARK: - Story Logic
-    
-    private func showStory(at index: Int) {
-        guard index >= 0, index < group.stories.count else {
+    func showStory(at index: Int) {
+        guard !group.stories.isEmpty else {
+            dismiss(animated: true)
+            return
+        }
+        
+        guard index >= 0,
+              index < group.stories.count,
+              index < progressBars.count else {
             dismiss(animated: true)
             return
         }
@@ -172,90 +202,103 @@ final class StoryViewerController: UIViewController {
         timer?.invalidate()
         currentProgress = 0
         
-        // ötənləri 100%, gələcəkləri 0%
+        // Keçilmiş storilər 100%, cari 0, gələcək 0
         for (i, bar) in progressBars.enumerated() {
             if i < index {
                 bar.progress = 1
-            } else if i == index {
-                bar.progress = 0
             } else {
                 bar.progress = 0
             }
         }
         
         let story = group.stories[index]
-        loadImage(urlString: story.imageUrl)
+        imageView.loadImage(story.imageUrl)   // Sənin Kingfisher extension-un
+        
         startTimer(for: index, duration: story.duration)
     }
     
-    private func loadImage(urlString: String) {
-        guard let url = URL(string: urlString) else {
-            imageView.image = nil
+    func startTimer(for index: Int, duration: TimeInterval) {
+        guard index >= 0,
+              index < group.stories.count,
+              index < progressBars.count else {
+            dismiss(animated: true)
             return
         }
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            guard let self, let data = data else { return }
-            DispatchQueue.main.async {
-                self.imageView.image = UIImage(data: data)
-            }
-        }.resume()
-    }
-    
-    private func startTimer(for index: Int, duration: TimeInterval) {
+        
         timer?.invalidate()
         currentProgress = 0
         
         let interval: TimeInterval = 0.02
-        let step = Float(interval / duration)
+        let safeDuration = max(duration, 0.3)
+        let step = Float(interval / safeDuration)
         
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] t in
-            guard let self else { return }
+            guard let self = self else {
+                t.invalidate()
+                return
+            }
+            
+            guard index < self.progressBars.count else {
+                t.invalidate()
+                self.dismiss(animated: true)
+                return
+            }
+            
             self.currentProgress += step
-            self.progressBars[index].progress = self.currentProgress
+            self.progressBars[index].progress = min(self.currentProgress, 1.0)
             
             if self.currentProgress >= 1 {
                 t.invalidate()
-                self.currentIndex += 1
-                self.showStory(at: self.currentIndex)
+                self.goToNextStory()
             }
         }
     }
     
-    // MARK: - Actions
+    func goToNextStory() {
+        if currentIndex < group.stories.count - 1 {
+            currentIndex += 1
+            showStory(at: currentIndex)
+        } else {
+            dismiss(animated: true)
+        }
+    }
     
-    @objc private func onClose() {
+    func goToPreviousStory() {
+        if currentIndex > 0 {
+            currentIndex -= 1
+            showStory(at: currentIndex)
+        } else {
+            // Birincidə tapsa, sadəcə yenidən həmin storini oynada bilərik
+            showStory(at: currentIndex)
+        }
+    }
+}
+
+// MARK: - Actions
+
+private extension StoryViewerController {
+    
+    @objc func onClose() {
         timer?.invalidate()
         dismiss(animated: true)
     }
     
-    @objc private func onSwipeDown(_ gesture: UISwipeGestureRecognizer) {
+    @objc func onSwipeDown(_ gesture: UISwipeGestureRecognizer) {
         if gesture.state == .ended {
             onClose()
         }
     }
     
-    @objc private func onTap(_ gesture: UITapGestureRecognizer) {
+    @objc func onTap(_ gesture: UITapGestureRecognizer) {
         let location = gesture.location(in: view)
         let isRightSide = location.x > view.bounds.width / 2
         
+        timer?.invalidate()
+        
         if isRightSide {
-            // Next story
-            if currentIndex < group.stories.count - 1 {
-                currentIndex += 1
-                showStory(at: currentIndex)
-            } else {
-                // Son storidirsə – bağla
-                dismiss(animated: true)
-            }
+            goToNextStory()
         } else {
-            // Previous story
-            if currentIndex > 0 {
-                currentIndex -= 1
-                showStory(at: currentIndex)
-            } else {
-                // Birincidirsə – bir şey etmə və ya bağla
-                // dismiss(animated: true)
-            }
+            goToPreviousStory()
         }
     }
 }

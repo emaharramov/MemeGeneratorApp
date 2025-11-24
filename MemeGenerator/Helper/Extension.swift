@@ -11,18 +11,32 @@ import Kingfisher
 
 extension UIImageView {
     
-    func loadImage(_ path: String) {
-        if path.hasPrefix("http") {
+    func loadImage(_ path: String?) {
+        kf.cancelDownloadTask()
+        
+        guard let path = path, !path.isEmpty else {
+            image = nil
+            return
+        }
+        
+        if path.hasPrefix("https") {
             if let url = URL(string: path) {
-                self.kf.setImage(with: url)
+                kf.setImage(with: url)
+            } else {
+                image = nil
             }
             return
         }
-
-//        let fullPath = NetworkHelper.shared.imageBaseUrl + path
-        guard let url = URL(string: path) else { return }
         
-        self.kf.setImage(with: url)
+//        // Əks halda backend-in imageBaseUrl ilə birləşdir
+//        let fullPath = NetworkHelper.shared.imageBaseUrl + path
+//        
+//        guard let url = URL(string: fullPath) else {
+//            image = nil
+//            return
+//        }
+//        
+//        kf.setImage(with: url)
     }
 }
 

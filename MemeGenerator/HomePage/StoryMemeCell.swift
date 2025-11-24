@@ -51,4 +51,9 @@ final class StoryMemeCell: UICollectionViewCell {
         titleLabel.text = title
         imageView.loadImage(imageUrl)
     }
+
+    func configure(template: MemesTemplate) {
+        titleLabel.text = template.userID ?? "user"
+        imageView.loadImage(template.imageURL ?? "")
+    }
 }

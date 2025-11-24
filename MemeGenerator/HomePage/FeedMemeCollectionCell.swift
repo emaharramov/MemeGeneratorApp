@@ -1,16 +1,16 @@
 //
-//  FeedMemeCell.swift
+//  FeedMemeCollectionCell.swift
 //  MemeGenerator
 //
-//  Created by Emil Maharramov on 19.11.25.
+//  Created by Emil Maharramov on 24.11.25.
 //
 
 import UIKit
 import SnapKit
 
-final class FeedMemeCell: UITableViewCell {
-
-    static let reuseId = "FeedMemeCell"
+final class FeedMemeCollectionCell: UICollectionViewCell {
+    
+    static let reuseId = "FeedMemeCollectionCell"
 
     private let memeImageView = UIImageView()
 
@@ -46,8 +46,8 @@ final class FeedMemeCell: UITableViewCell {
     private let iconsStack = UIStackView()
     private let topRowStack = UIStackView()
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupUI()
         setupConstraints()
     }
@@ -55,25 +55,23 @@ final class FeedMemeCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        // Meme image
+        contentView.backgroundColor = .clear
+
         memeImageView.layer.cornerRadius = 10
         memeImageView.clipsToBounds = true
         memeImageView.contentMode = .scaleAspectFill
         contentView.addSubview(memeImageView)
 
-        // Labels stack
         labelsStack.axis = .vertical
-        labelsStack.spacing = 1       // daha kompakt
+        labelsStack.spacing = 1
         labelsStack.addArrangedSubview(titleLabel)
         labelsStack.addArrangedSubview(subtitleLabel)
 
-        // Icons stack
         iconsStack.axis = .horizontal
-        iconsStack.spacing = 8    
+        iconsStack.spacing = 8
         iconsStack.addArrangedSubview(bookmarkButton)
         iconsStack.addArrangedSubview(shareButton)
 
-        // Top row stack
         topRowStack.axis = .horizontal
         topRowStack.alignment = .top
         topRowStack.distribution = .fill
@@ -88,23 +86,22 @@ final class FeedMemeCell: UITableViewCell {
     }
 
     private func setupConstraints() {
-
         memeImageView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(8)                // 12 → 8 (daha kompakt)
+            $0.top.equalToSuperview().offset(8)
             $0.leading.trailing.equalToSuperview().inset(12)
-            $0.height.equalTo(200)                            // 200 → 180 (azca balaca)
+            $0.height.equalTo(200)
         }
 
         topRowStack.snp.makeConstraints {
-            $0.top.equalTo(memeImageView.snp.bottom).offset(8) // 8 qaldı → ideal
+            $0.top.equalTo(memeImageView.snp.bottom).offset(8)
             $0.leading.trailing.equalToSuperview().inset(12)
-            $0.bottom.equalToSuperview().inset(8)             // 12 → 8 (daha kompakt)
+            $0.bottom.equalToSuperview().inset(8)
         }
     }
 
-    func configure(title: String, subtitle: String, imageUrl: String) {
-        titleLabel.text = title
-        subtitleLabel.text = subtitle
-        memeImageView.loadImage(imageUrl)
+    func configure(template: MemesTemplate, index: Int) {
+        titleLabel.text = template.topText ?? "Meme #\(index + 1)"
+        subtitleLabel.text = template.bottomText ?? ""
+        memeImageView.loadImage(template.imageURL ?? "")
     }
 }
