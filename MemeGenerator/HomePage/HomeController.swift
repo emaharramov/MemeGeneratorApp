@@ -43,7 +43,7 @@ final class HomeController: BaseController<HomeViewModel> {
         setupConstraints()
         setupCollectionView()
         bindViewModel()
-
+        view.backgroundColor = .white
         viewModel.getAllTemplates()
     }
 
@@ -209,7 +209,7 @@ extension HomeController: UICollectionViewDataSource {
             }
 
             let template = viewModel.allTemplates[indexPath.item]
-            cell.configure(template: template, index: indexPath.item)
+            cell.configure(template: template)
             return cell
         }
     }

@@ -1,5 +1,5 @@
 //
-//  AIMemeViewController.swift
+//  FromTemplateVC.swift
 //  MemeGenerator
 //
 //  Created by Emil Maharramov on 19.11.25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class AIMemeViewController: UIViewController {
+final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     private enum Section: Int, CaseIterable {
         case prompt
@@ -17,7 +17,6 @@ final class AIMemeViewController: UIViewController {
         case shareActions
     }
 
-    private let viewModel: AIMemeViewModel
     private var templates: [TemplateDTO] = []
     private var generatedImage: UIImage?
 
@@ -33,8 +32,6 @@ final class AIMemeViewController: UIViewController {
     // MARK: - Init
 
     init(userId: String) {
-        self.viewModel = AIMemeViewModel(userId: userId)
-
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
 
@@ -43,7 +40,7 @@ final class AIMemeViewController: UIViewController {
             collectionViewLayout: layout
         )
 
-        super.init(nibName: nil, bundle: nil)
+        super.init(viewModel: FromTemplateVM(userId: userId))
     }
 
     required init?(coder: NSCoder) {
@@ -217,7 +214,7 @@ final class AIMemeViewController: UIViewController {
 
 // MARK: - UICollectionViewDataSource
 
-extension AIMemeViewController: UICollectionViewDataSource {
+extension FromTemplateVC: UICollectionViewDataSource {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         Section.allCases.count
@@ -328,7 +325,7 @@ extension AIMemeViewController: UICollectionViewDataSource {
 
 // MARK: - UICollectionViewDelegateFlowLayout
 
-extension AIMemeViewController: UICollectionViewDelegateFlowLayout {
+extension FromTemplateVC: UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,

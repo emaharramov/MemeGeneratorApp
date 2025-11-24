@@ -40,6 +40,39 @@ extension UIImageView {
     }
 }
 
+extension Date {
+    func timeAgoString() -> String {
+        let now = Date()
+        let seconds = Int(now.timeIntervalSince(self))
+
+        if seconds < 60 { return "Just now" }
+
+        let minutes = seconds / 60
+        if minutes < 60 { return "\(minutes)m ago" }
+
+        let hours = minutes / 60
+        if hours < 24 { return "\(hours)h ago" }
+
+        let days = hours / 24
+        if days < 7 { return "\(days)d ago" }
+
+        let df = DateFormatter()
+        df.dateStyle = .medium
+        return df.string(from: self)
+    }
+}
+
+// String (ISO 8601) -> Date -> timeAgoString
+extension String {
+    func timeAgoString() -> String {
+        let isoFormatter = ISO8601DateFormatter()
+        guard let date = isoFormatter.date(from: self) else {
+            return ""
+        }
+        return date.timeAgoString()
+    }
+}
+
 extension UIViewController {
     func showAlert(title: String = "Error",
                    message: String? = nil, actionTitle: String? = "Ok") {

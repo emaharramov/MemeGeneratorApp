@@ -9,99 +9,187 @@ import UIKit
 import SnapKit
 
 final class FeedMemeCollectionCell: UICollectionViewCell {
-    
     static let reuseId = "FeedMemeCollectionCell"
 
-    private let memeImageView = UIImageView()
+    // MARK: - Subviews
 
-    private let titleLabel: UILabel = {
+    private let cardView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .systemBackground
+        v.layer.cornerRadius = 18
+        v.layer.masksToBounds = false
+        v.layer.shadowColor = UIColor.black.cgColor
+        v.layer.shadowOpacity = 0.06
+        v.layer.shadowRadius = 10
+        v.layer.shadowOffset = CGSize(width: 0, height: 4)
+        return v
+    }()
+
+    private let avatarView: UIImageView = {
+        let iv = UIImageView()
+        iv.layer.cornerRadius = 16
+        iv.clipsToBounds = true
+        iv.contentMode = .scaleAspectFill
+        iv.tintColor = .systemGray3
+        iv.image = UIImage(systemName: "person.circle.fill")
+        iv.backgroundColor = .clear
+        return iv
+    }()
+
+    private let usernameLabel: UILabel = {
         let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 15, weight: .semibold)
+        lbl.font = .systemFont(ofSize: 14, weight: .semibold)
         lbl.textColor = .label
+        lbl.numberOfLines = 1
         return lbl
     }()
 
-    private let subtitleLabel: UILabel = {
+    private let timeLabel: UILabel = {
         let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 12)
+        lbl.font = .systemFont(ofSize: 12, weight: .regular)
         lbl.textColor = .secondaryLabel
         return lbl
     }()
 
-    private let bookmarkButton: UIButton = {
+    private let headerStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 10
+        return stack
+    }()
+
+    private let nameTimeStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 2
+        return stack
+    }()
+
+    private let memeImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleToFill
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 16
+        iv.backgroundColor = .secondarySystemBackground
+        return iv
+    }()
+
+    private let titleLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 15, weight: .semibold)
+        lbl.textColor = UIColor.label.withAlphaComponent(0.8)
+        lbl.numberOfLines = 0
+        return lbl
+    }()
+    
+    private let likeButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setImage(UIImage(systemName: "bookmark"), for: .normal)
-        btn.tintColor = .label
+        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        let image = UIImage(systemName: "hand.thumbsup.fill")?.withConfiguration(config)
+        btn.setImage(image, for: .normal)
+        btn.tintColor = .darkGray
+        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         return btn
     }()
 
     private let shareButton: UIButton = {
         let btn = UIButton(type: .system)
-        btn.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
-        btn.tintColor = .label
+        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        let image = UIImage(systemName: "square.and.arrow.up")?.withConfiguration(config)
+        btn.setImage(image, for: .normal)
+        btn.tintColor = .darkGray
+        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         return btn
     }()
 
-    private let labelsStack = UIStackView()
-    private let iconsStack = UIStackView()
-    private let topRowStack = UIStackView()
+    private let actionsStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 16
+        return stack
+    }()
+
+    // MARK: - Init
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupUI()
-        setupConstraints()
+        configureUI()
+        configureConstraints()
     }
 
-    required init?(coder: NSCoder) { fatalError() }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-    private func setupUI() {
+    // MARK: - Setup
+
+    private func configureUI() {
         contentView.backgroundColor = .clear
 
-        memeImageView.layer.cornerRadius = 10
-        memeImageView.clipsToBounds = true
-        memeImageView.contentMode = .scaleAspectFill
-        contentView.addSubview(memeImageView)
+        // Hierarchy
+        contentView.addSubview(cardView)
 
-        labelsStack.axis = .vertical
-        labelsStack.spacing = 1
-        labelsStack.addArrangedSubview(titleLabel)
-        labelsStack.addArrangedSubview(subtitleLabel)
+        cardView.addSubview(headerStack)
+        cardView.addSubview(memeImageView)
+        cardView.addSubview(titleLabel)
+        cardView.addSubview(actionsStack)
 
-        iconsStack.axis = .horizontal
-        iconsStack.spacing = 8
-        iconsStack.addArrangedSubview(bookmarkButton)
-        iconsStack.addArrangedSubview(shareButton)
+        nameTimeStack.addArrangedSubview(usernameLabel)
+        nameTimeStack.addArrangedSubview(timeLabel)
 
-        topRowStack.axis = .horizontal
-        topRowStack.alignment = .top
-        topRowStack.distribution = .fill
-        topRowStack.spacing = 8
+        headerStack.addArrangedSubview(avatarView)
+        headerStack.addArrangedSubview(nameTimeStack)
+        headerStack.addArrangedSubview(UIView()) // spacer
 
-        let spacer = UIView()
-        topRowStack.addArrangedSubview(labelsStack)
-        topRowStack.addArrangedSubview(spacer)
-        topRowStack.addArrangedSubview(iconsStack)
-
-        contentView.addSubview(topRowStack)
+        actionsStack.addArrangedSubview(likeButton)
+        actionsStack.addArrangedSubview(shareButton)
     }
 
-    private func setupConstraints() {
+    private func configureConstraints() {
+        cardView.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(16)
+        }
+
+        avatarView.snp.makeConstraints {
+            $0.width.height.equalTo(32)
+        }
+
+        headerStack.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(12)
+            $0.left.right.equalToSuperview().inset(16)
+        }
+
         memeImageView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(8)
-            $0.leading.trailing.equalToSuperview().inset(12)
-            $0.height.equalTo(200)
+            $0.top.equalTo(headerStack.snp.bottom).offset(12)
+            $0.left.right.equalToSuperview().inset(16)
+            $0.height.equalTo(memeImageView.snp.width).multipliedBy(0.75)
         }
 
-        topRowStack.snp.makeConstraints {
-            $0.top.equalTo(memeImageView.snp.bottom).offset(8)
-            $0.leading.trailing.equalToSuperview().inset(12)
-            $0.bottom.equalToSuperview().inset(8)
+        titleLabel.snp.makeConstraints {
+            $0.top.equalTo(memeImageView.snp.bottom).offset(10)
+            $0.left.right.equalToSuperview().inset(16)
+        }
+
+        actionsStack.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(12)
+            $0.right.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(10)
         }
     }
 
-    func configure(template: MemesTemplate, index: Int) {
-        titleLabel.text = template.topText ?? "Meme #\(index + 1)"
-        subtitleLabel.text = template.bottomText ?? ""
+
+    // MARK: - Configure
+
+    func configure(template: MemesTemplate) {
         memeImageView.loadImage(template.imageURL ?? "")
+
+        usernameLabel.text = template.id ?? "Unknown"
+        timeLabel.text = template.createdAt?.timeAgoString() ?? ""
+
+        let top = template.topText ?? ""
+        let bottom = template.bottomText ?? ""
+        titleLabel.text = "\(top) \(bottom)"
     }
 }

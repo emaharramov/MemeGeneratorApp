@@ -1,5 +1,5 @@
 //
-//  AIMemeViewModel.swift
+//  FromTemplateVM.swift
 //  MemeGenerator
 //
 //  Created by Emil Maharramov on 19.11.25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class AIMemeViewModel {
+final class FromTemplateVM: BaseViewModel {
 
     // MARK: - Inputs / Outputs
     var onTemplatesLoaded: (([TemplateDTO]) -> Void)?

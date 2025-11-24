@@ -19,7 +19,7 @@ final class CreateViewController: UIViewController {
     }()
 
     private let segmentedControl: UISegmentedControl = {
-        let sc = UISegmentedControl(items: ["AI", "Upload"])
+        let sc = UISegmentedControl(items: ["AI", "From Template", "Upload"])
         sc.selectedSegmentIndex = 0
 
         // Rənglər
@@ -46,8 +46,8 @@ final class CreateViewController: UIViewController {
     private let containerView = UIView()
 
     // MARK: - Child Controllers
-
-    private lazy var aiVC = AIMemeViewController(userId: AppStorage.shared.userId)
+    private lazy var aiVC = AIVC(viewModel: AIVM())
+    private lazy var fromTemplateVC = FromTemplateVC(userId: AppStorage.shared.userId)
     private lazy var uploadVC = UploadMemeViewController()
 
     // Current VC
@@ -98,7 +98,8 @@ final class CreateViewController: UIViewController {
 
         switch index {
         case 0: switchTo(vc: aiVC)
-        case 1: switchTo(vc: uploadVC)
+        case 1: switchTo(vc: fromTemplateVC)
+        case 2: switchTo(vc: uploadVC)
         default: break
         }
     }

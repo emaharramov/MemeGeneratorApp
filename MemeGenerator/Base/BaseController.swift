@@ -12,7 +12,7 @@ import Combine
 class BaseController<ViewModel: BaseViewModel>: UIViewController {
 
     // MARK: - Properties
-    let viewModel: ViewModel
+    var viewModel: ViewModel
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
