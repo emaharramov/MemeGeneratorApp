@@ -48,27 +48,49 @@ final class ProfileStatView: UIView {
 
 // MARK: - ProfileRowView
 
+import UIKit
+import SnapKit
+
 final class ProfileRowView: UIControl {
+
+    var onTap: (() -> Void)?
 
     private let iconContainer = UIView()
     private let iconView = UIImageView()
     private let titleLabel = UILabel()
-    private let chevronView = UIImageView(image: UIImage(systemName: "chevron.right"))
+    private let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
 
     init(iconName: String, title: String) {
         super.init(frame: .zero)
         setupUI(iconName: iconName, title: title)
+        addTarget(self, action: #selector(handleTap), for: .touchUpInside)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private func setupUI(iconName: String, title: String) {
         backgroundColor = .clear
+        heightAnchor.constraint(equalToConstant: 56).isActive = true
 
-        // Icon container
-        iconContainer.backgroundColor = UIColor.systemGray5
-        iconContainer.layer.cornerRadius = 10
+        let bg = UIView()
+        bg.backgroundColor = .systemBackground
+        bg.addSubview(iconContainer)
+        bg.addSubview(titleLabel)
+        bg.addSubview(chevron)
+
+        addSubview(bg)
+        bg.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        iconContainer.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.08)
+        iconContainer.layer.cornerRadius = 16
+
         iconContainer.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
             make.width.height.equalTo(32)
         }
 
@@ -77,34 +99,24 @@ final class ProfileRowView: UIControl {
         iconContainer.addSubview(iconView)
         iconView.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.width.height.equalTo(18)
         }
 
         titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 15, weight: .regular)
-        titleLabel.textColor = .label
+        titleLabel.font = .systemFont(ofSize: 17, weight: .medium)
 
-        chevronView.tintColor = .tertiaryLabel
-
-        let hStack = UIStackView(arrangedSubviews: [iconContainer, titleLabel, UIView(), chevronView])
-        hStack.axis = .horizontal
-        hStack.alignment = .center
-        hStack.spacing = 12
-
-        addSubview(hStack)
-        hStack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16))
+        titleLabel.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.left.equalTo(iconContainer.snp.right).offset(12)
         }
 
-        // separator
-        let separator = UIView()
-        separator.backgroundColor = UIColor.systemGray5
-        addSubview(separator)
-        separator.snp.makeConstraints { make in
-            make.height.equalTo(0.5)
-            make.leading.equalTo(hStack.snp.leading)
-            make.trailing.equalTo(hStack.snp.trailing)
-            make.bottom.equalToSuperview()
+        chevron.tintColor = .tertiaryLabel
+        chevron.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.right.equalToSuperview().inset(16)
         }
+    }
+
+    @objc private func handleTap() {
+        onTap?()
     }
 }

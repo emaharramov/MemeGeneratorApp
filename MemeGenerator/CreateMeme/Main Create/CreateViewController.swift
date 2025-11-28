@@ -10,11 +10,14 @@ import SnapKit
 
 final class CreateViewController: UIViewController {
 
+    // MARK: - Routing
+
+    private weak var router: CreateRouting?
+
     // MARK: - UI
 
     private let segmentedBackgroundView: UIView = {
         let view = UIView()
-        // Açıq bənövşəyi / boz fon (screenshot kimi)
         view.backgroundColor = UIColor(red: 239/255, green: 241/255, blue: 252/255, alpha: 1.0)
         view.layer.cornerRadius = 20
         view.layer.masksToBounds = true
@@ -22,21 +25,17 @@ final class CreateViewController: UIViewController {
     }()
 
     private let segmentedControl: UISegmentedControl = {
-        // Title-ları screenshotdakı kimi
         let items = ["AI Meme", "AI + Template", "Custom"]
         let sc = UISegmentedControl(items: items)
         sc.selectedSegmentIndex = 0
 
         sc.backgroundColor = .clear
-        // Seçilən hissə ağ kapsul
         sc.selectedSegmentTintColor = .white
 
-        // Normal state
         let normalAttrs: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.systemIndigo.withAlphaComponent(0.8),
             .font: UIFont.systemFont(ofSize: 14, weight: .medium)
         ]
-        // Selected state
         let selectedAttrs: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.black,
             .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
@@ -53,14 +52,22 @@ final class CreateViewController: UIViewController {
 
     private let containerView = UIView()
 
-    // MARK: - Child Controllers
+    // MARK: - Child management
 
-    private lazy var aiVC = AIVC(viewModel: AIVM())
-    private lazy var fromTemplateVC = FromTemplateVC(userId: AppStorage.shared.userId)
-    private lazy var uploadVC = UploadMemeViewController()
-
-    // Current VC
     private var currentVC: UIViewController?
+    /// 0 = AI, 1 = AI+Template, 2 = Custom
+    private var childCache: [Int: UIViewController] = [:]
+
+    // MARK: - Init
+
+    init(router: CreateRouting) {
+        self.router = router
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: - Lifecycle
 
@@ -71,10 +78,12 @@ final class CreateViewController: UIViewController {
         navigationItem.title = "Create"
 
         setupLayout()
-        segmentedControl.addTarget(self, action: #selector(modeChanged), for: .valueChanged)
+        segmentedControl.addTarget(self,
+                                   action: #selector(modeChanged),
+                                   for: .valueChanged)
 
         // default – AI Meme
-        switchTo(vc: aiVC)
+        showSegment(index: 0)
     }
 
     // MARK: - Layout
@@ -90,7 +99,6 @@ final class CreateViewController: UIViewController {
             $0.height.equalTo(44)
         }
 
-        // İçəridə kiçik inset verək ki, kapsul daha “pill” görünsün
         segmentedControl.snp.makeConstraints {
             $0.edges.equalToSuperview().inset(4)
         }
@@ -103,28 +111,47 @@ final class CreateViewController: UIViewController {
         }
     }
 
-    // MARK: - Switching Logic
+    // MARK: - Segment logic
 
     @objc private func modeChanged() {
-        let index = segmentedControl.selectedSegmentIndex
+        showSegment(index: segmentedControl.selectedSegmentIndex)
+    }
 
-        switch index {
-        case 0: switchTo(vc: aiVC)             // AI Meme
-        case 1: switchTo(vc: fromTemplateVC)   // AI + Template
-        case 2: switchTo(vc: uploadVC)         // Custom / Upload
-        default: break
+    private func showSegment(index: Int) {
+        guard let vc = viewControllerForSegment(index: index) else { return }
+        switchTo(vc: vc)
+    }
+
+    private func viewControllerForSegment(index: Int) -> UIViewController? {
+        if let cached = childCache[index] {
+            return cached
         }
+
+        guard let router = router else { return nil }
+
+        let vc: UIViewController
+        switch index {
+        case 0:
+            vc = router.makeAIMeme()
+        case 1:
+            vc = router.makeAIWithTemplate()
+        case 2:
+            vc = router.makeCustomMeme()
+        default:
+            return nil
+        }
+
+        childCache[index] = vc
+        return vc
     }
 
     private func switchTo(vc: UIViewController) {
-        // Köhnəni sil
         if let current = currentVC {
             current.willMove(toParent: nil)
             current.view.removeFromSuperview()
             current.removeFromParent()
         }
 
-        // Yenini əlavə et
         addChild(vc)
         containerView.addSubview(vc.view)
 
@@ -134,7 +161,6 @@ final class CreateViewController: UIViewController {
         }
 
         vc.didMove(toParent: self)
-        vc.view.setNeedsLayout()
         vc.view.layoutIfNeeded()
 
         currentVC = vc

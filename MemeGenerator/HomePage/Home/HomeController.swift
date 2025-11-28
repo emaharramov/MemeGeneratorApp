@@ -13,7 +13,6 @@ final class HomeController: BaseController<HomeViewModel> {
     // MARK: - Sections
 
     private enum Section: Int, CaseIterable {
-        case stories
         case feed
     }
 
@@ -24,14 +23,20 @@ final class HomeController: BaseController<HomeViewModel> {
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .systemBackground
         cv.alwaysBounceVertical = true
-        cv.register(StoryMemeCell.self,
-                    forCellWithReuseIdentifier: StoryMemeCell.reuseId)
         cv.register(FeedMemeCollectionCell.self,
                     forCellWithReuseIdentifier: FeedMemeCollectionCell.reuseId)
         return cv
     }()
 
     private let refreshControl = UIRefreshControl()
+    
+    override init(viewModel: HomeViewModel) {
+         super.init(viewModel: viewModel)
+     }
+
+     required init?(coder: NSCoder) {
+         fatalError("init(coder:) has not been implemented")
+     }
 
     // MARK: - Lifecycle
 
@@ -102,34 +107,6 @@ final class HomeController: BaseController<HomeViewModel> {
             guard let section = Section(rawValue: sectionIndex) else { return nil }
 
             switch section {
-            case .stories:
-                let itemSize = NSCollectionLayoutSize(
-                    widthDimension: .absolute(72),
-                    heightDimension: .absolute(96)
-                )
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-                let groupSize = NSCollectionLayoutSize(
-                    widthDimension: .estimated(72),
-                    heightDimension: .absolute(96)
-                )
-                let group = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: groupSize,
-                    subitems: [item]
-                )
-                group.interItemSpacing = .fixed(12)
-
-                let sectionLayout = NSCollectionLayoutSection(group: group)
-                sectionLayout.contentInsets = NSDirectionalEdgeInsets(
-                    top: 12,
-                    leading: 16,
-                    bottom: 8,
-                    trailing: 16
-                )
-                sectionLayout.orthogonalScrollingBehavior = .continuous
-                sectionLayout.interGroupSpacing = 12
-                return sectionLayout
-
             case .feed:
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
@@ -173,8 +150,6 @@ extension HomeController: UICollectionViewDataSource {
         guard let sectionType = Section(rawValue: section) else { return 0 }
 
         switch sectionType {
-        case .stories:
-            return min(10, viewModel.allTemplates.count)
         case .feed:
             return viewModel.allTemplates.count
         }
@@ -188,18 +163,6 @@ extension HomeController: UICollectionViewDataSource {
         }
 
         switch sectionType {
-        case .stories:
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: StoryMemeCell.reuseId,
-                for: indexPath
-            ) as? StoryMemeCell else {
-                fatalError("Wrong cell type")
-            }
-
-            let template = viewModel.allTemplates[indexPath.item]
-            cell.configure(template: template)
-            return cell
-
         case .feed:
             guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: FeedMemeCollectionCell.reuseId,
@@ -225,30 +188,7 @@ extension HomeController: UICollectionViewDelegate {
         guard let sectionType = Section(rawValue: indexPath.section) else { return }
 
         switch sectionType {
-        case .stories:
-            let selectedTemplate = viewModel.allTemplates[indexPath.item]
-
-            let userTemplates = viewModel.allTemplates.filter {
-                $0.userID == selectedTemplate.userID
-            }
-
-            let stories: [Story] = userTemplates.map {
-                Story(imageUrl: $0.imageURL ?? "", duration: 5)
-            }
-
-            let startIndex = userTemplates.firstIndex(where: { $0.id == selectedTemplate.id }) ?? 0
-
-            let group = StoryGroup(
-                username: selectedTemplate.userID ?? "user",
-                avatarUrl: nil,
-                stories: stories
-            )
-
-            let viewer = StoryViewerController(group: group, startIndex: startIndex)
-            present(viewer, animated: true)
-
         case .feed:
-            // gələcəkdə detail açarsan
             break
         }
     }

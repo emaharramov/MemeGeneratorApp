@@ -10,6 +10,8 @@ import SnapKit
 
 final class ProfileViewController: UIViewController {
 
+    private weak var router: ProfileRouting?
+    
     private enum Section: Int, CaseIterable {
         case header
         case stats
@@ -24,6 +26,8 @@ final class ProfileViewController: UIViewController {
         case logout
     }
 
+    // MARK: - UI
+
     private let tableView = UITableView(frame: .zero, style: .plain)
 
     // Demo data
@@ -32,13 +36,24 @@ final class ProfileViewController: UIViewController {
     private let memesCount = "142"
     private let savedCount = "56"
 
+    // MARK: - Init
+
+    init(router: ProfileRouting) {
+        self.router = router
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGroupedBackground
         navigationItem.title = "Profile"
         setupTableView()
     }
-
+    
     private func setupTableView() {
         view.addSubview(tableView)
 
@@ -50,7 +65,6 @@ final class ProfileViewController: UIViewController {
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
 
-        // ⭐️ Burada auto height açırıq
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 140
 
@@ -65,33 +79,34 @@ final class ProfileViewController: UIViewController {
         tableView.delegate   = self
     }
 
-    // MARK: - Navigation helpers (eyni qalsın)
+    // MARK: - Router helper-lər (push YOX, sadəcə router çağırır)
 
     private func openEditProfile() {
-        navigationController?.pushViewController(EditProfileViewController(viewModel: EditProfileVM()), animated: true)
+        router?.showEditProfile()
     }
 
     private func openPremium() {
-        navigationController?.pushViewController(PremiumViewController(viewModel: PremiumVM()), animated: true)
+        router?.showPremium()
     }
 
     private func openMyMemes() {
-        navigationController?.pushViewController(MyMemesViewController(), animated: true)
+        router?.showMyMemes()
     }
 
     private func openSavedMemes() {
-        navigationController?.pushViewController(SavedMemesViewController(), animated: true)
+        router?.showSavedMemes()
     }
 
     private func openSettings() {
-        navigationController?.pushViewController(SettingsViewController(viewModel: SettingsVM()), animated: true)
+        router?.showSettings()
     }
 
     private func openHelp() {
-        navigationController?.pushViewController(HelpFeedbackViewController(), animated: true)
+        router?.showHelp()
     }
+
     private func logout() {
-        LogoutService.shared.logout()
+        router?.performLogout()
     }
 }
 
@@ -124,32 +139,38 @@ extension ProfileViewController: UITableViewDataSource {
 
         switch section {
         case .header:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: ProfileHeaderCell.reuseID,
+            let cell: ProfileHeaderCell = tableView.dequeueCell(
+                ProfileHeaderCell.self,
                 for: indexPath
-            ) as! ProfileHeaderCell
+            )
 
             cell.configure(name: displayName, email: email)
-            cell.onEditProfile = { [weak self] in self?.openEditProfile() }
-            cell.onGoPremium   = { [weak self] in self?.openPremium() }
+
+            cell.onEditProfile = { [weak self] in
+                self?.openEditProfile()
+            }
+            cell.onGoPremium   = { [weak self] in
+                self?.openPremium()
+            }
+
             cell.selectionStyle = .none
             return cell
 
         case .stats:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: ProfileStatsCell.reuseID,
+            let cell: ProfileStatsCell = tableView.dequeueCell(
+                ProfileStatsCell.self,
                 for: indexPath
-            ) as! ProfileStatsCell
+            )
 
             cell.configure(memes: memesCount, saved: savedCount)
             cell.selectionStyle = .none
             return cell
 
         case .menu:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: ProfileMenuCell.reuseID,
+            let cell: ProfileMenuCell = tableView.dequeueCell(
+                ProfileMenuCell.self,
                 for: indexPath
-            ) as! ProfileMenuCell
+            )
 
             guard let row = MenuRow(rawValue: indexPath.row) else { return cell }
 
@@ -189,6 +210,7 @@ extension ProfileViewController: UITableViewDelegate {
               section == .menu,
               let row = MenuRow(rawValue: indexPath.row) else { return }
 
+        // 🔹 Burada da router istifadə edirik
         switch row {
         case .myMemes:    openMyMemes()
         case .savedMemes: openSavedMemes()
@@ -198,7 +220,6 @@ extension ProfileViewController: UITableViewDelegate {
         }
     }
 
-    // Section header-lar üçün kiçik boşluq
     func tableView(_ tableView: UITableView,
                    heightForHeaderInSection section: Int) -> CGFloat {
         return section == 0 ? 12 : 8
@@ -214,4 +235,3 @@ extension ProfileViewController: UITableViewDelegate {
         0.01
     }
 }
-

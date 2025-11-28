@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class UploadMemeViewModel: NSObject {
+final class UploadMemeViewModel: BaseViewModel {
 
     // MARK: - Outputs (bindings)
 

@@ -9,6 +9,8 @@ import UIKit
 
 final class FromTemplateVC: BaseController<FromTemplateVM> {
 
+    // MARK: - Sections
+
     private enum Section: Int, CaseIterable {
         case prompt
         case templates
@@ -16,6 +18,8 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         case result
         case shareActions
     }
+
+    // MARK: - Properties
 
     private var templates: [TemplateDTO] = []
     private var generatedImage: UIImage?
@@ -28,17 +32,17 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     // MARK: - Init
 
-    init(userId: String) {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
+    override init(viewModel: FromTemplateVM) {
+          let layout = UICollectionViewFlowLayout()
+          layout.scrollDirection = .vertical
 
-        self.collectionView = UICollectionView(
-            frame: .zero,
-            collectionViewLayout: layout
-        )
+          self.collectionView = UICollectionView(
+              frame: .zero,
+              collectionViewLayout: layout
+          )
 
-        super.init(viewModel: FromTemplateVM(userId: userId))
-    }
+          super.init(viewModel: viewModel)
+      }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -63,10 +67,11 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     private func setupCollectionView() {
         collectionView.backgroundColor = .clear
         collectionView.alwaysBounceVertical = true
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.contentInset = UIEdgeInsets(top: 16, left: 0, bottom: 24, right: 0)
+
         collectionView.dataSource = self
         collectionView.delegate   = self
-        collectionView.contentInset = UIEdgeInsets(top: 16, left: 0, bottom: 24, right: 0)
-        collectionView.showsVerticalScrollIndicator = false
 
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -82,24 +87,21 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     private func registerCells() {
         collectionView.register(PromptCell.self,
                                 forCellWithReuseIdentifier: PromptCell.id)
-
         collectionView.register(ActionsCell.self,
                                 forCellWithReuseIdentifier: ActionsCell.id)
-
         collectionView.register(TemplateGridCell.self,
                                 forCellWithReuseIdentifier: TemplateGridCell.id)
-
         collectionView.register(ResultCell.self,
                                 forCellWithReuseIdentifier: ResultCell.id)
-
         collectionView.register(ShareActionsCell.self,
                                 forCellWithReuseIdentifier: ShareActionsCell.id)
     }
 
     private func setupBindings() {
         viewModel.onTemplatesLoaded = { [weak self] list in
-            self?.templates = list
-            self?.collectionView.reloadSections(
+            guard let self else { return }
+            self.templates = list
+            self.collectionView.reloadSections(
                 IndexSet(integer: Section.templates.rawValue)
             )
         }
@@ -112,6 +114,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
                 Section.result.rawValue,
                 Section.shareActions.rawValue
             ])
+
             self.collectionView.reloadSections(reloadSections)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
@@ -138,13 +141,12 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     private func currentPromptText() -> String {
         let indexPath = IndexPath(item: 0, section: Section.prompt.rawValue)
-        guard let cell = collectionView.cellForItem(at: indexPath) as? PromptCell
-        else { return "" }
-
+        guard let cell = collectionView.cellForItem(at: indexPath) as? PromptCell else {
+            return ""
+        }
         return cell.text
     }
 
-    /// Result section görünürsə ona scroll edir
     private func scrollToResultSection() {
         let sectionIndex = Section.result.rawValue
 
@@ -155,11 +157,9 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
         let indexPath = IndexPath(item: 0, section: sectionIndex)
         collectionView.layoutIfNeeded()
-        collectionView.scrollToItem(
-            at: indexPath,
-            at: .centeredVertically,
-            animated: true
-        )
+        collectionView.scrollToItem(at: indexPath,
+                                    at: .centeredVertically,
+                                    animated: true)
     }
 
     // MARK: - Actions
@@ -195,9 +195,21 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         let prompt = currentPromptText()
         viewModel.generateMeme(prompt: prompt)
     }
-}
+    
+    private func resetForNewMeme() {
+        generatedImage = nil
 
-// MARK: - UICollectionViewDataSource
+        let promptIndexPath = IndexPath(item: 0, section: Section.prompt.rawValue)
+        if let promptCell = collectionView.cellForItem(at: promptIndexPath) as? PromptCell {
+            promptCell.text = ""
+        }
+
+        viewModel.clearSelectedTemplate()
+        collectionView.reloadData()
+        let topOffset = CGPoint(x: 0, y: -collectionView.adjustedContentInset.top)
+        collectionView.setContentOffset(topOffset, animated: true)
+    }
+}
 
 extension FromTemplateVC: UICollectionViewDataSource {
 
@@ -212,7 +224,7 @@ extension FromTemplateVC: UICollectionViewDataSource {
 
         switch sectionType {
         case .prompt:       return 1
-        case .templates:    return 1        // yalnız 1 grid cell
+        case .templates:    return 1
         case .actions:      return 1
         case .result:       return generatedImage == nil ? 0 : 1
         case .shareActions: return generatedImage == nil ? 0 : 1
@@ -227,41 +239,38 @@ extension FromTemplateVC: UICollectionViewDataSource {
         switch sectionType {
 
         case .prompt:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: PromptCell.id, for: indexPath
-            ) as! PromptCell
+            let cell: PromptCell = collectionView.dequeueCell(
+                PromptCell.self,
+                for: indexPath
+            )
 
             cell.contentView.layer.cornerRadius = 16
             cell.contentView.layer.masksToBounds = true
             cell.contentView.backgroundColor = .systemBackground
-
             return cell
 
         case .actions:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: ActionsCell.id, for: indexPath
-            ) as! ActionsCell
+            let cell: ActionsCell = collectionView.dequeueCell(
+                ActionsCell.self,
+                for: indexPath
+            )
 
             cell.contentView.layer.cornerRadius = 16
             cell.contentView.layer.masksToBounds = true
             cell.contentView.backgroundColor = .systemBackground
 
-            cell.onGenerate.addTarget(
-                self,
-                action: #selector(handleGenerateButtonTapped(_:)),
-                for: .touchUpInside
-            )
+            cell.onGenerate.addTarget(self,
+                                      action: #selector(handleGenerateButtonTapped(_:)),
+                                      for: .touchUpInside)
 
-            // hazırda ayrıca "Create New" göstərmirik
             cell.onNewButton.isHidden = true
-
             return cell
 
         case .templates:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: TemplateGridCell.id,
+            let cell: TemplateGridCell = collectionView.dequeueCell(
+                TemplateGridCell.self,
                 for: indexPath
-            ) as! TemplateGridCell
+            )
 
             cell.contentView.layer.cornerRadius = 16
             cell.contentView.layer.masksToBounds = true
@@ -274,37 +283,31 @@ extension FromTemplateVC: UICollectionViewDataSource {
             return cell
 
         case .result:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: ResultCell.id, for: indexPath
-            ) as! ResultCell
+            let cell: ResultCell = collectionView.dequeueCell(
+                ResultCell.self,
+                for: indexPath
+            )
 
             cell.contentView.layer.cornerRadius = 18
             cell.contentView.layer.masksToBounds = true
             cell.contentView.backgroundColor = .systemBackground
             cell.image = generatedImage
             cell.subtitleText = "Generated using template"
-
             return cell
 
         case .shareActions:
-            let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: ShareActionsCell.id, for: indexPath
-            ) as! ShareActionsCell
-
+            let cell: ShareActionsCell = collectionView.dequeueCell(
+                ShareActionsCell.self,
+                for: indexPath
+            )
+            
             cell.contentView.layer.cornerRadius = 14
             cell.contentView.layer.masksToBounds = true
             cell.contentView.backgroundColor = .systemBackground
 
-            cell.onSave = { [weak self] in
-                self?.saveImageToPhotos()
-            }
-            cell.onShare = { [weak self] in
-                self?.shareMeme()
-            }
-            cell.onRegenerate = { [weak self] in
-                self?.regenerateMeme()
-            }
-
+            cell.onSave = { [weak self] in self?.saveImageToPhotos() }
+            cell.onShare = { [weak self] in self?.shareMeme() }
+            cell.onRegenerate = { [weak self] in self?.resetForNewMeme() }
             return cell
         }
     }
@@ -325,7 +328,6 @@ extension FromTemplateVC: UICollectionViewDelegateFlowLayout {
 
         switch sectionType {
         case .prompt:
-            // description + "Your Idea" + text field üçün kifayət qədər hündürlük
             return CGSize(width: width, height: 210)
 
         case .actions:
@@ -339,9 +341,7 @@ extension FromTemplateVC: UICollectionViewDelegateFlowLayout {
 
             let rows = templateVisibleRows
             let totalSpacingVert = (rows - 1) * spacing
-            // TemplateGridCell içində title + grid var, üst-alt padding əlavə etdik
             let height = rows * itemWidth + totalSpacingVert + 32
-
             return CGSize(width: width, height: height)
 
         case .result:
@@ -356,7 +356,7 @@ extension FromTemplateVC: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
 
-        guard let _ = Section(rawValue: section) else {
+        guard Section(rawValue: section) != nil else {
             return .zero
         }
 

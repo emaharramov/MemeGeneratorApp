@@ -144,8 +144,6 @@ final class AuthController: BaseController<AuthViewModel> {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    override var shouldShowLogout: Bool { false }
-
     // MARK: - Lifecycle
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()

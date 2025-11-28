@@ -11,9 +11,8 @@ import SnapKit
 final class ActionsCell: UICollectionViewCell {
     static let id = "ActionsCell"
 
-    // Controller bunları istifadə etdiyi üçün adları saxlayıram
     let onGenerate = UIButton(type: .system)
-    let onNewButton = UIButton(type: .system) // hazırda istifadə olunmur, gizlədilir
+    let onNewButton = UIButton(type: .system)
 
     override init(frame: CGRect) {
         super.init(frame: frame)

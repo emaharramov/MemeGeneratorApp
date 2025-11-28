@@ -1,8 +1,8 @@
 //
-//  AIMemeTemplateCell.swift
+//  AiMemeTemplateCell.swift
 //  MemeGenerator
 //
-//  Created by Emil Maharramov on 19.11.25.
+//  Created by Emil Maharramov on 29.11.25.
 //
 
 import UIKit
@@ -13,7 +13,6 @@ final class AIMemeTemplateCell: UICollectionViewCell {
 
     let imageView = UIImageView()
 
-    // Seçiləndə görünən overlay + checkmark
     private let selectionOverlay = UIView()
     private let checkmarkImageView = UIImageView()
 
@@ -30,7 +29,6 @@ final class AIMemeTemplateCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // TemplateGridCell-də çağırmaq üçün
     func setSelected(_ selected: Bool) {
         isSelected = selected
     }

@@ -83,21 +83,17 @@ extension TemplateGridCell: UICollectionViewDataSource, UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: AIMemeTemplateCell.id,
+        let cell: AIMemeTemplateCell = collectionView.dequeueCell(
+            AIMemeTemplateCell.self,
             for: indexPath
-        ) as! AIMemeTemplateCell
+        )
 
         let item = templates[indexPath.item]
 
-        MemeService.shared.loadImage(url: item.url) { [weak cell] img in
-            DispatchQueue.main.async {
-                cell?.imageView.image = img
-            }
-        }
+        cell.imageView.loadImage(item.url)
 
         let isSelected = item.id == selectedTemplateId
-        cell.setSelected(isSelected)   // AIMemeTemplateCell-də bu methodu əlavə edə bilərsən
+        cell.setSelected(isSelected)
 
         return cell
     }

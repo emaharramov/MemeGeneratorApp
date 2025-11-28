@@ -10,33 +10,17 @@ import Foundation
 import Kingfisher
 
 extension UIImageView {
-    
     func loadImage(_ path: String?) {
         kf.cancelDownloadTask()
-        
-        guard let path = path, !path.isEmpty else {
-            image = nil
-            return
-        }
-        
-        if path.hasPrefix("https") {
-            if let url = URL(string: path) {
-                kf.setImage(with: url)
-            } else {
-                image = nil
-            }
-            return
-        }
-        
-//        // Əks halda backend-in imageBaseUrl ilə birləşdir
-//        let fullPath = NetworkHelper.shared.imageBaseUrl + path
-//        
-//        guard let url = URL(string: fullPath) else {
-//            image = nil
-//            return
-//        }
-//        
-//        kf.setImage(with: url)
+        self.image = nil
+
+        guard
+            let path = path,
+            !path.isEmpty,
+            let url = URL(string: path)
+        else { return }
+
+        kf.setImage(with: url)
     }
 }
 
@@ -94,6 +78,36 @@ extension UITextField {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.height))
         self.rightView = paddingView
         self.rightViewMode = .always
+    }
+}
+
+extension UICollectionView {
+    func dequeueCell<T: UICollectionViewCell>(
+        _ type: T.Type,
+        for indexPath: IndexPath
+    ) -> T {
+        guard let cell = dequeueReusableCell(
+            withReuseIdentifier: String(describing: type),
+            for: indexPath
+        ) as? T else {
+            fatalError("Failed to dequeue cell of type \(type)")
+        }
+        return cell
+    }
+}
+
+extension UITableView {
+    func dequeueCell<T: UITableViewCell>(
+        _ type: T.Type,
+        for indexPath: IndexPath
+    ) -> T {
+        guard let cell = dequeueReusableCell(
+            withIdentifier: String(describing: type),
+            for: indexPath
+        ) as? T else {
+            fatalError("Failed to dequeue cell of type \(type)")
+        }
+        return cell
     }
 }
 

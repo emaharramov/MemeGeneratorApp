@@ -41,6 +41,10 @@ final class FromTemplateVM: BaseViewModel {
     func selectTemplate(id: String) {
         selectedTemplateId = id
     }
+    
+    func clearSelectedTemplate() {
+        selectedTemplateId = nil
+    }
 
     // MARK: - Generate Meme
     func generateMeme(prompt: String) {

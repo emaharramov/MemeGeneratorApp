@@ -5,16 +5,29 @@
 //  Created by Emil Maharramov on 18.11.25.
 //
 
-import UIKit
+import Foundation
 
 final class AuthViewModel: BaseViewModel {
 
     var onLoginSuccess: ((String) -> Void)?
     var onRegisterSuccess: ((String) -> Void)?
 
+    private let loginUseCase: LoginUseCase
+    private let registerUseCase: RegisterUseCase
+
+    init(
+        loginUseCase: LoginUseCase,
+        registerUseCase: RegisterUseCase
+    ) {
+        self.loginUseCase = loginUseCase
+        self.registerUseCase = registerUseCase
+    }
+
     // MARK: - Validation
     private func validate(_ email: String, _ password: String) -> Bool {
-        guard !email.trimmingCharacters(in: .whitespaces).isEmpty else {
+        let trimmed = email.trimmingCharacters(in: .whitespaces)
+
+        guard !trimmed.isEmpty else {
             setError("Please enter email.")
             return false
         }
@@ -22,6 +35,7 @@ final class AuthViewModel: BaseViewModel {
             setError("Please enter password.")
             return false
         }
+        // Burada istəsən email regex də əlavə edərsən
         return true
     }
 
@@ -32,54 +46,72 @@ final class AuthViewModel: BaseViewModel {
         setLoading(true)
         resetErrors()
 
-        AuthManager.shared.login(email: email, password: password) { [weak self] model, error in
+        loginUseCase.execute(email: email, password: password) { [weak self] result in
             guard let self else { return }
             self.setLoading(false)
 
-            if let error {
-                self.setError(error)
-                return
-            }
+            switch result {
+            case .success(let session):
+                AppStorage.shared.saveLogin(token: session.token,
+                                            userId: session.userId)
 
-            guard let token = model?.token, let userId = model?.userId else {
-                self.setError("Invalid credentials.")
-                return
-            }
+                self.setSuccess("Login successful!")
 
-            self.setSuccess("Login successful!")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.onLoginSuccess?(token)
-                AppStorage.shared.userId = userId
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    self.onLoginSuccess?(session.token)
+                }
+
+            case .failure(let error):
+                let message = self.mapError(error)
+                self.setError(message)
             }
         }
     }
 
-    // MARK: - Register
     func register(email: String, password: String) {
         guard validate(email, password) else { return }
 
         setLoading(true)
         resetErrors()
 
-        AuthManager.shared.register(email: email, password: password) { [weak self] model, error in
+        registerUseCase.execute(email: email, password: password) { [weak self] result in
             guard let self else { return }
             self.setLoading(false)
 
-            if let error {
-                self.setError(error)
-                return
-            }
+            switch result {
+            case .success(let session):
+                AppStorage.shared.saveLogin(token: session.token,
+                                            userId: session.userId)
 
-            guard let token = model?.token, let userId = model?.userId else {
-                self.setError("Invalid token.")
-                return
-            }
+                self.setSuccess("Registration successful!")
 
-            self.setSuccess("Registration successful!")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.onRegisterSuccess?(token)
-                AppStorage.shared.userId = userId
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    self.onRegisterSuccess?(session.token)
+                }
+
+            case .failure(let error):
+                let message = self.mapError(error)
+                self.setError(message)
             }
+        }
+    }
+
+    private func mapError(_ error: AuthError) -> String {
+        switch error {
+        case .invalidCredentials:
+            return "Invalid email or password."
+
+        case .network(let message):
+            return message
+
+        case .server(let message):
+            return message
+
+        case .decoding:
+            return "Unexpected response from server."
+
+        case .unknown:
+            return "Something went wrong. Please try again."
         }
     }
 }
