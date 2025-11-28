@@ -5,11 +5,15 @@
 //  Created by Emil Maharramov on 24.11.25.
 //
 
+import UIKit
+
 final class AIVM: BaseViewModel {
     private let manager = HomeManager.shared
-
-    // yalnız buradan oxunsun
-    private(set) var allTemplates: [MemesTemplate] = []
+    
+    var onTemplatesLoaded: (([TemplateDTO]) -> Void)?
+    var onMemeGenerated: ((UIImage?) -> Void)?
+    var onLoadingStateChange: ((Bool) -> Void)?
+    var onError: ((String) -> Void)?
 
     enum ViewState {
         case loading
@@ -28,22 +32,5 @@ final class AIVM: BaseViewModel {
     func getAllTemplates() {
         state = .loading
 
-        manager.getAllTemplates { [weak self] response, errorMessage in
-            guard let self = self else { return }
-
-            if let errorMessage {
-                self.state = .error(errorMessage)
-                return
-            }
-
-            guard let response = response,
-                  let templates = response.memes else {
-                self.state = .error("No data")
-                return
-            }
-
-            self.allTemplates = templates
-            self.state = .success
-        }
     }
 }

@@ -32,7 +32,7 @@ class BaseController<ViewModel: BaseViewModel>: UIViewController {
         configureConstraints()
         bindViewModel()
         applyDefaultBackground()
-        setupLogoutButtonIfNeeded()
+//        setupLogoutButtonIfNeeded()
         bindViewModelBase()
     }
 

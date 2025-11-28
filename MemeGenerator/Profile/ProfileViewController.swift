@@ -10,151 +10,208 @@ import SnapKit
 
 final class ProfileViewController: UIViewController {
 
-    private let avatarView: UIImageView = {
-        let iv = UIImageView()
-        iv.backgroundColor = .systemGray5
-        iv.layer.cornerRadius = 32
-        iv.layer.masksToBounds = true
-        iv.contentMode = .scaleAspectFill
-        return iv
-    }()
-
-    private let nameLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 20, weight: .semibold)
-        lbl.text = "Meme Master"
-        return lbl
-    }()
-
-    private let emailLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 14)
-        lbl.textColor = .secondaryLabel
-        lbl.text = "user@example.com"
-        return lbl
-    }()
-
-    private let tableView: UITableView = {
-        let tv = UITableView(frame: .zero, style: .insetGrouped)
-        tv.isScrollEnabled = true
-        return tv
-    }()
-
-    private enum Row: Int, CaseIterable {
-        case myMemes
-        case saved
-        case premium
-        case settings
-
-        var title: String {
-            switch self {
-            case .myMemes: return "My Memes"
-            case .saved: return "Saved Memes"
-            case .premium: return "Go Premium"
-            case .settings: return "Settings"
-            }
-        }
-
-        var icon: String {
-            switch self {
-            case .myMemes: return "photo.on.rectangle"
-            case .saved: return "bookmark"
-            case .premium: return "star.fill"
-            case .settings: return "gearshape"
-            }
-        }
+    private enum Section: Int, CaseIterable {
+        case header
+        case stats
+        case menu
     }
+
+    private enum MenuRow: Int, CaseIterable {
+        case myMemes
+        case savedMemes
+        case settings
+        case help
+        case logout
+    }
+
+    private let tableView = UITableView(frame: .zero, style: .plain)
+
+    // Demo data
+    private let displayName = "Meme Master"
+    private let email = "user@example.com"
+    private let memesCount = "142"
+    private let savedCount = "56"
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        title = "Profile"
-
-        setupHeader()
-        setupTable()
+        view.backgroundColor = .systemGroupedBackground
+        navigationItem.title = "Profile"
+        setupTableView()
     }
 
-    private func setupHeader() {
-        let headerView = UIView()
-        view.addSubview(headerView)
-        headerView.addSubview(avatarView)
-        headerView.addSubview(nameLabel)
-        headerView.addSubview(emailLabel)
-
-        headerView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
-            $0.leading.trailing.equalToSuperview().inset(16)
-        }
-
-        avatarView.snp.makeConstraints {
-            $0.top.leading.bottom.equalToSuperview()
-            $0.width.height.equalTo(64)
-        }
-
-        nameLabel.snp.makeConstraints {
-            $0.top.equalTo(avatarView.snp.top).offset(4)
-            $0.leading.equalTo(avatarView.snp.trailing).offset(12)
-            $0.trailing.equalToSuperview()
-        }
-
-        emailLabel.snp.makeConstraints {
-            $0.top.equalTo(nameLabel.snp.bottom).offset(4)
-            $0.leading.trailing.equalTo(nameLabel)
-            $0.bottom.equalToSuperview()
-        }
-
+    private func setupTableView() {
         view.addSubview(tableView)
-        tableView.snp.makeConstraints {
-            $0.top.equalTo(headerView.snp.bottom).offset(16)
-            $0.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
+
+        tableView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
+
+        tableView.backgroundColor = .systemGroupedBackground
+        tableView.separatorStyle = .none
+        tableView.showsVerticalScrollIndicator = false
+
+        // ⭐️ Burada auto height açırıq
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 140
+
+        tableView.register(ProfileHeaderCell.self,
+                           forCellReuseIdentifier: ProfileHeaderCell.reuseID)
+        tableView.register(ProfileStatsCell.self,
+                           forCellReuseIdentifier: ProfileStatsCell.reuseID)
+        tableView.register(ProfileMenuCell.self,
+                           forCellReuseIdentifier: ProfileMenuCell.reuseID)
+
+        tableView.dataSource = self
+        tableView.delegate   = self
     }
 
-    private func setupTable() {
-        tableView.dataSource = self
-        tableView.delegate = self
+    // MARK: - Navigation helpers (eyni qalsın)
+
+    private func openEditProfile() {
+        navigationController?.pushViewController(EditProfileViewController(viewModel: EditProfileVM()), animated: true)
+    }
+
+    private func openPremium() {
+        navigationController?.pushViewController(PremiumViewController(viewModel: PremiumVM()), animated: true)
+    }
+
+    private func openMyMemes() {
+        navigationController?.pushViewController(MyMemesViewController(), animated: true)
+    }
+
+    private func openSavedMemes() {
+        navigationController?.pushViewController(SavedMemesViewController(), animated: true)
+    }
+
+    private func openSettings() {
+        navigationController?.pushViewController(SettingsViewController(viewModel: SettingsVM()), animated: true)
+    }
+
+    private func openHelp() {
+        navigationController?.pushViewController(HelpFeedbackViewController(), animated: true)
+    }
+    private func logout() {
+        LogoutService.shared.logout()
     }
 }
 
-extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        Row.allCases.count
+// MARK: - UITableViewDataSource
+
+extension ProfileViewController: UITableViewDataSource {
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        Section.allCases.count
     }
 
-    func tableView(
-        _ tableView: UITableView,
-        cellForRowAt indexPath: IndexPath
-    ) -> UITableViewCell {
-        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
-        let row = Row(rawValue: indexPath.row)!
-        cell.textLabel?.text = row.title
-        cell.imageView?.image = UIImage(systemName: row.icon)
-        cell.accessoryType = .disclosureIndicator
+    func tableView(_ tableView: UITableView,
+                   numberOfRowsInSection section: Int) -> Int {
 
-        if row == .premium {
-            cell.textLabel?.textColor = .systemYellow
+        guard let section = Section(rawValue: section) else { return 0 }
+
+        switch section {
+        case .header: return 1
+        case .stats:  return 1
+        case .menu:   return MenuRow.allCases.count
+        }
+    }
+
+    func tableView(_ tableView: UITableView,
+                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+        guard let section = Section(rawValue: indexPath.section) else {
+            return UITableViewCell()
         }
 
-        return cell
-    }
+        switch section {
+        case .header:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: ProfileHeaderCell.reuseID,
+                for: indexPath
+            ) as! ProfileHeaderCell
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            cell.configure(name: displayName, email: email)
+            cell.onEditProfile = { [weak self] in self?.openEditProfile() }
+            cell.onGoPremium   = { [weak self] in self?.openPremium() }
+            cell.selectionStyle = .none
+            return cell
+
+        case .stats:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: ProfileStatsCell.reuseID,
+                for: indexPath
+            ) as! ProfileStatsCell
+
+            cell.configure(memes: memesCount, saved: savedCount)
+            cell.selectionStyle = .none
+            return cell
+
+        case .menu:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: ProfileMenuCell.reuseID,
+                for: indexPath
+            ) as! ProfileMenuCell
+
+            guard let row = MenuRow(rawValue: indexPath.row) else { return cell }
+
+            switch row {
+            case .myMemes:
+                cell.configure(iconName: "square.grid.2x2.fill",
+                               title: "My Memes")
+            case .savedMemes:
+                cell.configure(iconName: "bookmark.fill",
+                               title: "Saved Memes")
+            case .settings:
+                cell.configure(iconName: "gearshape.fill",
+                               title: "Settings")
+            case .help:
+                cell.configure(iconName: "questionmark.circle.fill",
+                               title: "Help & Feedback")
+            case .logout:
+                cell.configure(iconName: "figure.run",
+                               title: "Logout")
+            }
+
+            return cell
+        }
+    }
+}
+
+// MARK: - UITableViewDelegate
+
+extension ProfileViewController: UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView,
+                   didSelectRowAt indexPath: IndexPath) {
+
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let row = Row(rawValue: indexPath.row) else { return }
+
+        guard let section = Section(rawValue: indexPath.section),
+              section == .menu,
+              let row = MenuRow(rawValue: indexPath.row) else { return }
 
         switch row {
-        case .myMemes:
-            // push MyMemesController
-            break
-        case .saved:
-            // push SavedMemesController
-            break
-        case .premium:
-            // push PremiumPaywallController
-            break
-        case .settings:
-            // push SettingsController
-            break
+        case .myMemes:    openMyMemes()
+        case .savedMemes: openSavedMemes()
+        case .settings:   openSettings()
+        case .help:       openHelp()
+        case .logout:     logout()
         }
     }
+
+    // Section header-lar üçün kiçik boşluq
+    func tableView(_ tableView: UITableView,
+                   heightForHeaderInSection section: Int) -> CGFloat {
+        return section == 0 ? 12 : 8
+    }
+
+    func tableView(_ tableView: UITableView,
+                   viewForHeaderInSection section: Int) -> UIView? {
+        UIView()
+    }
+
+    func tableView(_ tableView: UITableView,
+                   heightForFooterInSection section: Int) -> CGFloat {
+        0.01
+    }
 }
+

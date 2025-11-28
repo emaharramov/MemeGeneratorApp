@@ -10,26 +10,33 @@ import SnapKit
 
 final class CreateViewController: UIViewController {
 
+    // MARK: - UI
+
     private let segmentedBackgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.white.withAlphaComponent(0.15)
+        // Açıq bənövşəyi / boz fon (screenshot kimi)
+        view.backgroundColor = UIColor(red: 239/255, green: 241/255, blue: 252/255, alpha: 1.0)
         view.layer.cornerRadius = 20
         view.layer.masksToBounds = true
         return view
     }()
 
     private let segmentedControl: UISegmentedControl = {
-        let sc = UISegmentedControl(items: ["AI", "From Template", "Upload"])
+        // Title-ları screenshotdakı kimi
+        let items = ["AI Meme", "AI + Template", "Custom"]
+        let sc = UISegmentedControl(items: items)
         sc.selectedSegmentIndex = 0
 
-        // Rənglər
         sc.backgroundColor = .clear
-        sc.selectedSegmentTintColor = UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1)
+        // Seçilən hissə ağ kapsul
+        sc.selectedSegmentTintColor = .white
 
+        // Normal state
         let normalAttrs: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.label.withAlphaComponent(0.8),
+            .foregroundColor: UIColor.systemIndigo.withAlphaComponent(0.8),
             .font: UIFont.systemFont(ofSize: 14, weight: .medium)
         ]
+        // Selected state
         let selectedAttrs: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.black,
             .font: UIFont.systemFont(ofSize: 14, weight: .semibold)
@@ -38,14 +45,16 @@ final class CreateViewController: UIViewController {
         sc.setTitleTextAttributes(normalAttrs, for: .normal)
         sc.setTitleTextAttributes(selectedAttrs, for: .selected)
 
-        sc.layer.cornerRadius = 20
+        sc.layer.cornerRadius = 16
         sc.layer.masksToBounds = true
+
         return sc
     }()
 
     private let containerView = UIView()
 
     // MARK: - Child Controllers
+
     private lazy var aiVC = AIVC(viewModel: AIVM())
     private lazy var fromTemplateVC = FromTemplateVC(userId: AppStorage.shared.userId)
     private lazy var uploadVC = UploadMemeViewController()
@@ -58,15 +67,17 @@ final class CreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .systemBackground
-        navigationItem.title = "Create Meme"
+        view.backgroundColor = .systemGroupedBackground
+        navigationItem.title = "Create"
 
         setupLayout()
         segmentedControl.addTarget(self, action: #selector(modeChanged), for: .valueChanged)
 
-        // default – AI
+        // default – AI Meme
         switchTo(vc: aiVC)
     }
+
+    // MARK: - Layout
 
     private func setupLayout() {
         view.addSubview(segmentedBackgroundView)
@@ -76,11 +87,12 @@ final class CreateViewController: UIViewController {
         segmentedBackgroundView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
             $0.leading.trailing.equalToSuperview().inset(16)
-            $0.height.equalTo(40)
+            $0.height.equalTo(44)
         }
 
+        // İçəridə kiçik inset verək ki, kapsul daha “pill” görünsün
         segmentedControl.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.edges.equalToSuperview().inset(4)
         }
 
         containerView.backgroundColor = .clear
@@ -97,9 +109,9 @@ final class CreateViewController: UIViewController {
         let index = segmentedControl.selectedSegmentIndex
 
         switch index {
-        case 0: switchTo(vc: aiVC)
-        case 1: switchTo(vc: fromTemplateVC)
-        case 2: switchTo(vc: uploadVC)
+        case 0: switchTo(vc: aiVC)             // AI Meme
+        case 1: switchTo(vc: fromTemplateVC)   // AI + Template
+        case 2: switchTo(vc: uploadVC)         // Custom / Upload
         default: break
         }
     }

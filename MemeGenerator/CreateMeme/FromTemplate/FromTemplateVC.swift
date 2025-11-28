@@ -22,12 +22,9 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     private let collectionView: UICollectionView
 
-    // 3 sütun, 3 sətir görünməsini istəyirik
+    // 3 sütun, 2 sətir görünməsini istəyirik
     private let templatesColumns: CGFloat = 3
-    private let templateVisibleRows: CGFloat = 3
-
-    // Gradient background
-    private let backgroundGradient = CAGradientLayer()
+    private let templateVisibleRows: CGFloat = 2
 
     // MARK: - Init
 
@@ -52,7 +49,8 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupGradientBackground()
+        view.backgroundColor = .systemGroupedBackground
+
         setupCollectionView()
         registerCells()
         setupBindings()
@@ -60,32 +58,14 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         viewModel.loadTemplates()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        backgroundGradient.frame = view.bounds
-    }
-
     // MARK: - Setup
-
-    private func setupGradientBackground() {
-        backgroundGradient.colors = [
-            UIColor.systemPink.withAlphaComponent(0.9).cgColor,
-            UIColor.systemPurple.withAlphaComponent(0.8).cgColor,
-            UIColor.systemTeal.withAlphaComponent(0.9).cgColor
-        ]
-        backgroundGradient.locations = [0.0, 0.45, 1.0]
-        backgroundGradient.startPoint = CGPoint(x: 0, y: 0)
-        backgroundGradient.endPoint   = CGPoint(x: 0, y: 1)
-
-        view.layer.insertSublayer(backgroundGradient, at: 0)
-    }
 
     private func setupCollectionView() {
         collectionView.backgroundColor = .clear
         collectionView.alwaysBounceVertical = true
         collectionView.dataSource = self
         collectionView.delegate   = self
-        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 24, right: 0)
+        collectionView.contentInset = UIEdgeInsets(top: 16, left: 0, bottom: 24, right: 0)
         collectionView.showsVerticalScrollIndicator = false
 
         view.addSubview(collectionView)
@@ -133,7 +113,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
                 Section.shareActions.rawValue
             ])
             self.collectionView.reloadSections(reloadSections)
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 self.collectionView.layoutIfNeeded()
                 self.scrollToResultSection()
@@ -184,12 +164,12 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     // MARK: - Actions
 
-    @objc private func handleGenerateButtonTapped(_ sender: UIButton) {
+    @objc private func handleGenerateButtonTapped(_ sender: UIButton?) {
         let prompt = currentPromptText()
         viewModel.generateMeme(prompt: prompt)
     }
 
-    @objc private func handleNewButtonTapped(_ sender: UIButton) {
+    @objc private func handleNewButtonTapped(_ sender: UIButton?) {
         generatedImage = nil
         collectionView.reloadSections(
             IndexSet([Section.result.rawValue, Section.shareActions.rawValue])
@@ -209,6 +189,11 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
             applicationActivities: nil
         )
         present(activityVC, animated: true)
+    }
+
+    private func regenerateMeme() {
+        let prompt = currentPromptText()
+        viewModel.generateMeme(prompt: prompt)
     }
 }
 
@@ -248,7 +233,7 @@ extension FromTemplateVC: UICollectionViewDataSource {
 
             cell.contentView.layer.cornerRadius = 16
             cell.contentView.layer.masksToBounds = true
-            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.92)
+            cell.contentView.backgroundColor = .systemBackground
 
             return cell
 
@@ -259,7 +244,7 @@ extension FromTemplateVC: UICollectionViewDataSource {
 
             cell.contentView.layer.cornerRadius = 16
             cell.contentView.layer.masksToBounds = true
-            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+            cell.contentView.backgroundColor = .systemBackground
 
             cell.onGenerate.addTarget(
                 self,
@@ -267,11 +252,9 @@ extension FromTemplateVC: UICollectionViewDataSource {
                 for: .touchUpInside
             )
 
-            cell.onNewButton.addTarget(
-                self,
-                action: #selector(handleNewButtonTapped(_:)),
-                for: .touchUpInside
-            )
+            // hazırda ayrıca "Create New" göstərmirik
+            cell.onNewButton.isHidden = true
+
             return cell
 
         case .templates:
@@ -282,7 +265,7 @@ extension FromTemplateVC: UICollectionViewDataSource {
 
             cell.contentView.layer.cornerRadius = 16
             cell.contentView.layer.masksToBounds = true
-            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+            cell.contentView.backgroundColor = .systemBackground
 
             cell.templates = templates
             cell.onTemplateSelected = { [weak self] template in
@@ -297,9 +280,10 @@ extension FromTemplateVC: UICollectionViewDataSource {
 
             cell.contentView.layer.cornerRadius = 18
             cell.contentView.layer.masksToBounds = true
-            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.95)
+            cell.contentView.backgroundColor = .systemBackground
+            cell.image = generatedImage
+            cell.subtitleText = "Generated using template"
 
-            cell.imageView.image = generatedImage
             return cell
 
         case .shareActions:
@@ -309,15 +293,18 @@ extension FromTemplateVC: UICollectionViewDataSource {
 
             cell.contentView.layer.cornerRadius = 14
             cell.contentView.layer.masksToBounds = true
-            cell.contentView.backgroundColor = UIColor.white.withAlphaComponent(0.95)
+            cell.contentView.backgroundColor = .systemBackground
 
             cell.onSave = { [weak self] in
                 self?.saveImageToPhotos()
             }
-
             cell.onShare = { [weak self] in
                 self?.shareMeme()
             }
+            cell.onRegenerate = { [weak self] in
+                self?.regenerateMeme()
+            }
+
             return cell
         }
     }
@@ -338,10 +325,11 @@ extension FromTemplateVC: UICollectionViewDelegateFlowLayout {
 
         switch sectionType {
         case .prompt:
-            return CGSize(width: width, height: 110)
+            // description + "Your Idea" + text field üçün kifayət qədər hündürlük
+            return CGSize(width: width, height: 210)
 
         case .actions:
-            return CGSize(width: width, height: 64)
+            return CGSize(width: width, height: 70)
 
         case .templates:
             let spacing: CGFloat = 12
@@ -351,15 +339,16 @@ extension FromTemplateVC: UICollectionViewDelegateFlowLayout {
 
             let rows = templateVisibleRows
             let totalSpacingVert = (rows - 1) * spacing
-            let height = rows * itemWidth + totalSpacingVert + 10 + 10
+            // TemplateGridCell içində title + grid var, üst-alt padding əlavə etdik
+            let height = rows * itemWidth + totalSpacingVert + 32
 
             return CGSize(width: width, height: height)
 
         case .result:
-            return CGSize(width: width, height: 350)
+            return CGSize(width: width, height: 360)
 
         case .shareActions:
-            return CGSize(width: width, height: 64)
+            return CGSize(width: width, height: 72)
         }
     }
 
@@ -367,21 +356,10 @@ extension FromTemplateVC: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
 
-        guard let sectionType = Section(rawValue: section) else {
+        guard let _ = Section(rawValue: section) else {
             return .zero
         }
 
-        switch sectionType {
-        case .prompt:
-            return UIEdgeInsets(top: 0, left: 16, bottom: 10, right: 16)
-        case .templates:
-            return UIEdgeInsets(top: 0, left: 16, bottom: 10, right: 16)
-        case .actions:
-            return UIEdgeInsets(top: 0, left: 16, bottom: 20, right: 16)
-        case .result:
-            return UIEdgeInsets(top: 0, left: 16, bottom: 16, right: 16)
-        case .shareActions:
-            return UIEdgeInsets(top: 10, left: 16, bottom: 20, right: 16)
-        }
+        return UIEdgeInsets(top: 0, left: 16, bottom: 16, right: 16)
     }
 }

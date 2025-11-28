@@ -8,8 +8,6 @@
 import UIKit
 import SnapKit
 
-// MARK: - ViewController
-
 final class UploadMemeViewController: UIViewController,
                                       UIImagePickerControllerDelegate,
                                       UINavigationControllerDelegate,
@@ -22,25 +20,30 @@ final class UploadMemeViewController: UIViewController,
     private let scrollView = UIScrollView()
     private let contentView = UIView()
 
+    private let headerView = MemeHeaderView(
+        title: "Custom Meme",
+        subtitle: "Use your own image and add custom text."
+    )
+
     private let editorContainer = UIView()
     private let baseImageView = UIImageView()
     private let overlayContainer = UIView()
+
+    private let placeholderStack = UIStackView()
+    private let placeholderIcon = UIImageView()
+    private let placeholderLabel = UILabel()
+
+    private let watermarkPreviewLabel = UILabel()
+    private let dashedBorderLayer = CAShapeLayer()
+
     private let hintLabel = UILabel()
 
     private let textColorTitleLabel = UILabel()
     private let colorContainer = UIView()
     private let eyedropperButton = UIButton(type: .system)
 
-    private let galleryButton = UIButton(type: .system)
-    private let cameraButton = UIButton(type: .system)
-    private let addTextButton = UIButton(type: .system)
-    private let clearTextButton = UIButton(type: .system)
-    private let saveButton = UIButton(type: .system)
-
-    private let watermarkPreviewLabel = UILabel()
-
-    private let backgroundGradient = CAGradientLayer()
-
+    private let shareActionsView = MemeShareActionsView()
+    private let toolsView = MemeEditToolsView()
     // MARK: - Overlay State
 
     private var overlays: [MemeTextOverlayView] = []
@@ -54,32 +57,25 @@ final class UploadMemeViewController: UIViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupGradientBackground()
+        view.backgroundColor = .systemGroupedBackground
+
         setupScrollLayout()
+        setupHeader()
         setupEditor()
-        setupBottomControls()
+        setupTextColorAndActions()
         setupBindings()
+
+        updatePlaceholderState(hasImage: false)
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        backgroundGradient.frame = view.bounds
-    }
 
-    // MARK: - Gradient
-
-    private func setupGradientBackground() {
-        // Login screen-ə bənzər yumşaq gradient
-        backgroundGradient.colors = [
-            UIColor.systemPink.withAlphaComponent(0.9).cgColor,
-            UIColor.systemPurple.withAlphaComponent(0.75).cgColor,
-            UIColor.systemTeal.withAlphaComponent(0.85).cgColor
-        ]
-        backgroundGradient.locations = [0.0, 0.45, 1.0]
-        backgroundGradient.startPoint = CGPoint(x: 0, y: 0)
-        backgroundGradient.endPoint   = CGPoint(x: 0, y: 1)
-
-        view.layer.insertSublayer(backgroundGradient, at: 0)
+        dashedBorderLayer.frame = editorContainer.bounds
+        dashedBorderLayer.path = UIBezierPath(
+            roundedRect: editorContainer.bounds,
+            cornerRadius: 16
+        ).cgPath
     }
 
     // MARK: - Layout
@@ -87,6 +83,9 @@ final class UploadMemeViewController: UIViewController,
     private func setupScrollLayout() {
         view.addSubview(scrollView)
         scrollView.backgroundColor = .clear
+        scrollView.alwaysBounceVertical = true
+        scrollView.showsVerticalScrollIndicator = false
+
         scrollView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
@@ -99,20 +98,35 @@ final class UploadMemeViewController: UIViewController,
         }
     }
 
+    private func setupHeader() {
+        contentView.addSubview(headerView)
+        headerView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+    }
+
     private func setupEditor() {
-        editorContainer.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.9)
+        editorContainer.backgroundColor = .systemBackground
         editorContainer.layer.cornerRadius = 16
         editorContainer.clipsToBounds = true
 
+        // dashed border – upload placeholder kimi
+        dashedBorderLayer.strokeColor = UIColor.systemGray4.cgColor
+        dashedBorderLayer.fillColor = UIColor.clear.cgColor
+        dashedBorderLayer.lineDashPattern = [6, 4]
+        dashedBorderLayer.lineWidth = 1
+        editorContainer.layer.addSublayer(dashedBorderLayer)
+
         contentView.addSubview(editorContainer)
         editorContainer.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
+            make.top.equalTo(headerView.snp.bottom).offset(16)
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(editorContainer.snp.width).multipliedBy(0.75)
         }
 
         baseImageView.contentMode = .scaleAspectFit
-        baseImageView.backgroundColor = .black
+        baseImageView.backgroundColor = .clear
         editorContainer.addSubview(baseImageView)
         baseImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -122,6 +136,27 @@ final class UploadMemeViewController: UIViewController,
         editorContainer.addSubview(overlayContainer)
         overlayContainer.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+        }
+
+        // Placeholder (add_photo_alternate style)
+        placeholderIcon.image = UIImage(systemName: "photo.on.rectangle")
+        placeholderIcon.tintColor = .systemGray3
+
+        placeholderLabel.text = "Tap to upload or take a photo"
+        placeholderLabel.font = .systemFont(ofSize: 14)
+        placeholderLabel.textColor = .secondaryLabel
+        placeholderLabel.textAlignment = .center
+        placeholderLabel.numberOfLines = 0
+
+        placeholderStack.axis = .vertical
+        placeholderStack.alignment = .center
+        placeholderStack.spacing = 8
+        placeholderStack.addArrangedSubview(placeholderIcon)
+        placeholderStack.addArrangedSubview(placeholderLabel)
+
+        editorContainer.addSubview(placeholderStack)
+        placeholderStack.snp.makeConstraints { make in
+            make.center.equalToSuperview()
         }
 
         watermarkPreviewLabel.text = viewModel.appWatermarkText
@@ -155,103 +190,74 @@ final class UploadMemeViewController: UIViewController,
         overlayContainer.addGestureRecognizer(longPress)
     }
 
-    private func setupBottomControls() {
-        textColorTitleLabel.text = "Text color"
-        textColorTitleLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+    private func setupTextColorAndActions() {
+        // Başlıq – artıq yalnız "Text color" yox, ümumi tools kimi dursun
+        textColorTitleLabel.text = "Tools"
+        textColorTitleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         textColorTitleLabel.textColor = .label
 
         contentView.addSubview(textColorTitleLabel)
         textColorTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(hintLabel.snp.bottom).offset(16)
+            make.top.equalTo(hintLabel.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(16)
         }
 
-        colorContainer.backgroundColor = UIColor.secondarySystemBackground.withAlphaComponent(0.9)
-        colorContainer.layer.cornerRadius = 14
-
-        contentView.addSubview(colorContainer)
-        colorContainer.snp.makeConstraints { make in
-            make.top.equalTo(textColorTitleLabel.snp.bottom).offset(8)
+        // ↓ Yeni tools view (Gallery / Camera / Text color)
+        contentView.addSubview(toolsView)
+        toolsView.snp.makeConstraints { make in
+            make.top.equalTo(textColorTitleLabel.snp.bottom).offset(10)
             make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(44)
+            make.height.equalTo(60)
         }
 
-        eyedropperButton.setImage(UIImage(systemName: "eyedropper.halffull"), for: .normal)
-        eyedropperButton.tintColor = .label
-        eyedropperButton.addTarget(self, action: #selector(openColorPicker), for: .touchUpInside)
-
-        colorContainer.addSubview(eyedropperButton)
-        eyedropperButton.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.width.height.equalTo(24)
+        toolsView.onGallery = { [weak self] in
+            // birbaşa galeriya
+            self?.openGallery()
         }
 
-        // Only icons
-        setupBottomButton(
-            galleryButton,
-            systemImageName: "photo.on.rectangle",
-            color: .systemBlue
-        )
-        setupBottomButton(
-            cameraButton,
-            systemImageName: "camera.fill",
-            color: .systemIndigo
-        )
-        setupBottomButton(
-            addTextButton,
-            systemImageName: "textformat.size.larger",
-            color: .systemOrange
-        )
-        setupBottomButton(
-            clearTextButton,
-            systemImageName: "trash",
-            color: .systemRed
-        )
-        setupBottomButton(
-            saveButton,
-            systemImageName: "square.and.arrow.down.fill",
-            color: .systemGreen
-        )
+        toolsView.onCamera = { [weak self] in
+            // birbaşa kamera
+            self?.openCamera()
+        }
 
-        galleryButton.addTarget(self, action: #selector(openGallery), for: .touchUpInside)
-        cameraButton.addTarget(self, action: #selector(openCamera), for: .touchUpInside)
-        addTextButton.addTarget(self, action: #selector(addTextButtonTapped), for: .touchUpInside)
-        clearTextButton.addTarget(self, action: #selector(clearAllText), for: .touchUpInside)
-        saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+        toolsView.onColor = { [weak self] in
+            // mövcud color picker logikanı istifadə edirik
+            self?.openColorPicker()
+        }
 
-        let buttonStack = UIStackView(arrangedSubviews: [
-            galleryButton, cameraButton, addTextButton, clearTextButton, saveButton
-        ])
-        buttonStack.axis = .horizontal
-        buttonStack.distribution = .fillEqually
-        buttonStack.spacing = 10
-
-        contentView.addSubview(buttonStack)
-        buttonStack.snp.makeConstraints { make in
-            make.top.equalTo(colorContainer.snp.bottom).offset(18)
+        // ↓ ShareActionsView – eyni qalır, sadəcə toolsView-dən sonra yerləşir
+        contentView.addSubview(shareActionsView)
+        shareActionsView.snp.makeConstraints { make in
+            make.top.equalTo(toolsView.snp.bottom).offset(24)
             make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(54)
+            make.height.equalTo(60)
             make.bottom.equalToSuperview().inset(24)
+        }
+
+        shareActionsView.onSave = { [weak self] in
+            self?.handleSave()
+        }
+        shareActionsView.onShare = { [weak self] in
+            self?.handleShare()
+        }
+        shareActionsView.onTryAgain = { [weak self] in
+            self?.handleReset()
         }
     }
 
-    private func setupBottomButton(
-        _ button: UIButton,
-        systemImageName: String,
-        color: UIColor
-    ) {
-        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
-        let image = UIImage(systemName: systemImageName, withConfiguration: config)
 
-        button.setImage(image, for: .normal)
-        button.tintColor = .white
-        button.backgroundColor = color
 
-        button.layer.cornerRadius = 18
-        button.clipsToBounds = true
+    // MARK: - Placeholder state
 
-        button.contentHorizontalAlignment = .center
-        button.contentVerticalAlignment = .center
+    private func updatePlaceholderState(hasImage: Bool) {
+        placeholderStack.isHidden = hasImage
+        watermarkPreviewLabel.isHidden = !hasImage
+        hintLabel.isHidden = !hasImage
+
+        overlayContainer.isUserInteractionEnabled = hasImage
+        if !hasImage {
+            clearAllOverlays()
+        }
     }
 
     // MARK: - Bindings
@@ -264,13 +270,16 @@ final class UploadMemeViewController: UIViewController,
             if let img = image {
                 let aspect = img.size.height / max(img.size.width, 1)
                 self.editorContainer.snp.remakeConstraints { make in
-                    make.top.equalToSuperview().offset(16)
+                    make.top.equalTo(self.headerView.snp.bottom).offset(16)
                     make.leading.trailing.equalToSuperview().inset(16)
                     make.height.equalTo(self.editorContainer.snp.width).multipliedBy(aspect)
                 }
                 UIView.animate(withDuration: 0.25) {
                     self.view.layoutIfNeeded()
                 }
+                self.updatePlaceholderState(hasImage: true)
+            } else {
+                self.updatePlaceholderState(hasImage: false)
             }
         }
 
@@ -365,13 +374,18 @@ final class UploadMemeViewController: UIViewController,
     @objc private func handleCanvasTap(_ recognizer: UITapGestureRecognizer) {
         let location = recognizer.location(in: overlayContainer)
 
-        // Edit mode aktivdirsə – sadəcə edit mode-dan çıx, yeni text yaranmasın
+        // Şəkil yoxdursa → upload sheet (gallery / camera)
+        guard baseImageView.image != nil else {
+            presentImageSourceActionSheet()
+            return
+        }
+
+        // Edit mode aktivdirsə – sadəcə edit moddan çıx
         if isEditMode {
             isEditMode = false
             return
         }
 
-        guard baseImageView.image != nil else { return }
         createOverlay(at: location)
     }
 
@@ -379,6 +393,23 @@ final class UploadMemeViewController: UIViewController,
         if recognizer.state == .began {
             isEditMode = true
         }
+    }
+
+    private func presentImageSourceActionSheet() {
+        let sheet = UIAlertController(title: "Add Image", message: nil, preferredStyle: .actionSheet)
+
+        sheet.addAction(UIAlertAction(title: "Choose from Library", style: .default, handler: { [weak self] _ in
+            self?.openGallery()
+        }))
+
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            sheet.addAction(UIAlertAction(title: "Take Photo", style: .default, handler: { [weak self] _ in
+                self?.openCamera()
+            }))
+        }
+
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(sheet, animated: true)
     }
 
     @objc private func openColorPicker() {
@@ -392,14 +423,14 @@ final class UploadMemeViewController: UIViewController,
         present(picker, animated: true)
     }
 
-    @objc private func openGallery() {
+    private func openGallery() {
         let picker = UIImagePickerController()
         picker.sourceType = .photoLibrary
         picker.delegate = self
         present(picker, animated: true)
     }
 
-    @objc private func openCamera() {
+    private func openCamera() {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else { return }
         let picker = UIImagePickerController()
         picker.sourceType = .camera
@@ -407,18 +438,40 @@ final class UploadMemeViewController: UIViewController,
         present(picker, animated: true)
     }
 
-    @objc private func addTextButtonTapped() {
-        let center = CGPoint(x: overlayContainer.bounds.midX, y: overlayContainer.bounds.midY)
-        createOverlay(at: center)
-    }
+    // MARK: - ShareActions handlers
 
-    @objc private func clearAllText() {
-        clearAllOverlays()
-    }
-
-    @objc private func saveTapped() {
+    private func handleSave() {
+        guard baseImageView.image != nil else {
+            showToast(message: "Add an image first")
+            return
+        }
         view.endEditing(true)
         viewModel.saveMeme(from: editorContainer, includeWatermark: false)
+    }
+
+    private func handleShare() {
+        guard let image = renderMemeImage() else {
+            showToast(message: "Add an image first")
+            return
+        }
+        let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+        present(activityVC, animated: true)
+    }
+
+    private func handleReset() {
+        // regenerate → hər şeyi sıfırla
+        baseImageView.image = nil
+        viewModel.onImageChanged?(nil)   // əgər closure optional-dırsa işə düşəcək
+        clearAllOverlays()
+        updatePlaceholderState(hasImage: false)
+    }
+
+    private func renderMemeImage() -> UIImage? {
+        view.layoutIfNeeded()
+        let renderer = UIGraphicsImageRenderer(bounds: editorContainer.bounds)
+        return renderer.image { _ in
+            editorContainer.drawHierarchy(in: editorContainer.bounds, afterScreenUpdates: true)
+        }
     }
 
     // MARK: - UIImagePicker Delegate

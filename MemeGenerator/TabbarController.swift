@@ -25,33 +25,37 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
 
     // MARK: - Tab Bar UI
     private func configureAppearance() {
-        tabBar.tintColor = UIColor.black
+        tabBar.tintColor = .systemBlue
         tabBar.unselectedItemTintColor = .systemGray3
+        tabBar.backgroundColor = .systemBackground
+        tabBar.isTranslucent = false
 
-        tabBar.layer.cornerRadius = 26
+        // Artıq blur və böyük corner radius istəmirik
+        tabBar.layer.cornerRadius = 0
         tabBar.layer.masksToBounds = false
-        tabBar.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        tabBar.layer.shadowOpacity = 0
+        tabBar.layer.shadowRadius = 0
 
-        let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterialLight))
-        blurView.frame = tabBar.bounds
-        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        tabBar.insertSubview(blurView, at: 0)
-
-        tabBar.layer.shadowColor = UIColor.black.cgColor
-        tabBar.layer.shadowOpacity = 0.15
-        tabBar.layer.shadowOffset = CGSize(width: 0, height: -4)
-        tabBar.layer.shadowRadius = 10
+        // Yalnız yuxarı tərəfdə nazik xətt (divider)
+        let topLine = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: tabBar.bounds.width,
+            height: 0.5
+        ))
+        topLine.backgroundColor = UIColor.systemGray4.withAlphaComponent(0.7)
+        topLine.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
+        tabBar.addSubview(topLine)
     }
-
 
     // MARK: - Tabs
     private func configureTabs() {
-
         let home = UINavigationController(rootViewController: HomeController(viewModel: HomeViewModel()))
         home.tabBarItem = UITabBarItem(title: "Home",
                                        image: UIImage(systemName: "house"),
                                        selectedImage: UIImage(systemName: "house.fill"))
 
+        // Ortadakı boş container – create üçün
         let createContainer = UIViewController()
         createContainer.tabBarItem = UITabBarItem(title: nil,
                                                   image: nil,
@@ -66,40 +70,44 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         viewControllers = [home, createContainer, profile]
     }
 
-    // MARK: - Middle Button
     private func setupMiddleButton() {
-        middleButton.backgroundColor = UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1)
-        middleButton.tintColor = .black
-        middleButton.layer.cornerRadius = 32
-        middleButton.setImage(UIImage(systemName: "sparkles"), for: .normal)
+        // Mavi dairə
+        middleButton.backgroundColor = .systemBlue
+        middleButton.tintColor = .white
+
+        let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .bold)
+        middleButton.setImage(UIImage(systemName: "plus", withConfiguration: config),
+                              for: .normal)
+
+        middleButton.layer.cornerRadius = 30
+        middleButton.layer.masksToBounds = false
 
         middleButton.layer.shadowColor = UIColor.black.cgColor
-        middleButton.layer.shadowOpacity = 0.25
-        middleButton.layer.shadowOffset = CGSize(width: 0, height: 4)
-        middleButton.layer.shadowRadius = 8
-
-        middleButton.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+        middleButton.layer.shadowOpacity = 0.22
+        middleButton.layer.shadowOffset = CGSize(width: 0, height: 6)
+        middleButton.layer.shadowRadius = 10
 
         view.addSubview(middleButton)
         middleButton.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
             middleButton.centerXAnchor.constraint(equalTo: tabBar.centerXAnchor),
-            middleButton.centerYAnchor.constraint(equalTo: tabBar.topAnchor),
-            middleButton.widthAnchor.constraint(equalToConstant: 64),
-            middleButton.heightAnchor.constraint(equalToConstant: 64)
+            // Bir az aşağı — tabbarla overlap etsin
+            middleButton.centerYAnchor.constraint(equalTo: tabBar.topAnchor, constant: 4),
+            middleButton.widthAnchor.constraint(equalToConstant: 60),
+            middleButton.heightAnchor.constraint(equalToConstant: 60)
         ])
 
         middleButton.addTarget(self, action: #selector(openCreate), for: .touchUpInside)
     }
 
+    // MARK: - Actions
     @objc private func openCreate() {
-
-        // Animation — fun effect
+        // Kiçik tap animasiyası
         UIView.animate(
             withDuration: 0.12,
             animations: {
-                self.middleButton.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
+                self.middleButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
             },
             completion: { _ in
                 UIView.animate(withDuration: 0.12) {
@@ -108,16 +116,17 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
             }
         )
 
-        // Create stack reset
+        // Create stack-i reset eləyək
         createNav.setViewControllers([CreateViewController()], animated: false)
 
-        // Create tab-a keçirik (index 1)
+        // Orta tab-a keç
         selectedIndex = 1
 
-        // VC-nin yerinə bizim createNav göstərilsin
-        setViewControllers([viewControllers![0], createNav, viewControllers![2]], animated: false)
+        // View controller-ları yenilə ki, ortada createNav olsun
+        if let vcs = viewControllers, vcs.count == 3 {
+            setViewControllers([vcs[0], createNav, vcs[2]], animated: false)
+        }
     }
-
 
     // MARK: - Tab Animation
     func tabBarController(_ tabBarController: UITabBarController,

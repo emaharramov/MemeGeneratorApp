@@ -13,7 +13,7 @@ final class ActionsCell: UICollectionViewCell {
 
     // Controller bunları istifadə etdiyi üçün adları saxlayıram
     let onGenerate = UIButton(type: .system)
-    let onNewButton = UIButton(type: .system)
+    let onNewButton = UIButton(type: .system) // hazırda istifadə olunmur, gizlədilir
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -29,13 +29,14 @@ final class ActionsCell: UICollectionViewCell {
     private func setupUI() {
         contentView.backgroundColor = .clear
 
-        configure(button: onGenerate, title: "Generate", systemImage: "sparkles")
-        configure(button: onNewButton, title: "Create New", systemImage: "arrow.clockwise")
+        configureMainButton()
 
-        let stack = UIStackView(arrangedSubviews: [onGenerate, onNewButton])
-        stack.axis = .horizontal
+        onNewButton.isHidden = true
+        onNewButton.alpha = 0
+
+        let stack = UIStackView(arrangedSubviews: [onGenerate])
+        stack.axis = .vertical
         stack.distribution = .fillEqually
-        stack.spacing = 12
 
         contentView.addSubview(stack)
         stack.snp.makeConstraints { make in
@@ -43,29 +44,26 @@ final class ActionsCell: UICollectionViewCell {
         }
     }
 
-    private func configure(button: UIButton, title: String, systemImage: String) {
-        // Modern configuration
+    private func configureMainButton() {
         var config = UIButton.Configuration.filled()
-        config.title = title
-        config.image = UIImage(systemName: systemImage)
+        config.title = "Generate with Template"
+        config.image = UIImage(systemName: "sparkles")
         config.imagePlacement = .leading
-        config.imagePadding = 6
-        config.baseBackgroundColor = .systemYellow
-        config.baseForegroundColor = .black
+        config.imagePadding = 8
+        config.baseBackgroundColor = .systemBlue
+        config.baseForegroundColor = .white
         config.cornerStyle = .large
         config.contentInsets = NSDirectionalEdgeInsets(
-            top: 10, leading: 10, bottom: 10, trailing: 10
+            top: 12, leading: 12, bottom: 12, trailing: 12
         )
-        button.configuration = config
+        onGenerate.configuration = config
 
-        button.layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
-        button.layer.shadowOpacity = 1
-        button.layer.shadowRadius = 6
-        button.layer.shadowOffset = CGSize(width: 0, height: 3)
+        onGenerate.layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
+        onGenerate.layer.shadowOpacity = 1
+        onGenerate.layer.shadowRadius = 6
+        onGenerate.layer.shadowOffset = CGSize(width: 0, height: 3)
 
-        button.adjustsImageWhenHighlighted = false
-
-        addTapAnimation(to: button)
+        addTapAnimation(to: onGenerate)
     }
 
     // MARK: - Tap animation
@@ -81,7 +79,7 @@ final class ActionsCell: UICollectionViewCell {
 
     @objc private func handleTouchDown(_ sender: UIButton) {
         UIView.animate(withDuration: 0.08) {
-            sender.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+            sender.transform = CGAffineTransform(scaleX: 0.97, y: 0.97)
         }
     }
 
