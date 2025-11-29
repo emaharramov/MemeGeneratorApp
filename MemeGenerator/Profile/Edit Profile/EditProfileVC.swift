@@ -62,12 +62,11 @@ final class EditProfileViewController: BaseController<EditProfileVM> {
         configureTextField(usernameField, placeholder: "Username")
         configureTextField(emailField, placeholder: "Email")
         
-        var btnConfig = UIButton.Configuration.filled()
-        btnConfig.cornerStyle = .large
-        btnConfig.title = "Save Changes"
-        btnConfig.baseBackgroundColor = .systemBlue
-        btnConfig.baseForegroundColor = .white
-        saveButton.configuration = btnConfig
+        saveButton.applyFilledStyle(
+            title: "Save Changes",
+            baseBackgroundColor: .systemBlue,
+            baseForegroundColor: .white
+        )
         
         let fieldsStack = UIStackView(arrangedSubviews: [fullNameField, usernameField, emailField, saveButton])
         fieldsStack.axis = .vertical

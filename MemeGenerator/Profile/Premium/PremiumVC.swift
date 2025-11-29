@@ -81,14 +81,12 @@ final class PremiumViewController: BaseController<PremiumVM> {
             perksStack.addArrangedSubview(row)
         }
         
-        let upgradeButton = UIButton(type: .system)
-        var config = UIButton.Configuration.filled()
-        config.cornerStyle = .large
-        config.title = "Upgrade Now"
-        config.baseBackgroundColor = .systemBlue
-        config.baseForegroundColor = .white
-        config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)
-        upgradeButton.configuration = config
+        let upgradeButton = UIButton.makeFilledAction(
+            title: "Upgrade Now",
+            baseBackgroundColor: .systemBlue,
+            baseForegroundColor: .white,
+            contentInsets: .init(top: 14, leading: 16, bottom: 14, trailing: 16)
+        )
         
         let restoreButton = UIButton(type: .system)
         restoreButton.setTitle("Restore Purchases", for: .normal)

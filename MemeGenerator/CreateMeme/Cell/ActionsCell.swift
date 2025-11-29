@@ -44,24 +44,10 @@ final class ActionsCell: UICollectionViewCell {
     }
 
     private func configureMainButton() {
-        var config = UIButton.Configuration.filled()
-        config.title = "Generate with Template"
-        config.image = UIImage(systemName: "sparkles")
-        config.imagePlacement = .leading
-        config.imagePadding = 8
-        config.baseBackgroundColor = .systemBlue
-        config.baseForegroundColor = .white
-        config.cornerStyle = .large
-        config.contentInsets = NSDirectionalEdgeInsets(
-            top: 12, leading: 12, bottom: 12, trailing: 12
+        onGenerate.applyFilledStyle(
+            title: "Generate with Template",
+            systemImageName: "sparkles"
         )
-        onGenerate.configuration = config
-
-        onGenerate.layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
-        onGenerate.layer.shadowOpacity = 1
-        onGenerate.layer.shadowRadius = 6
-        onGenerate.layer.shadowOffset = CGSize(width: 0, height: 3)
-
         addTapAnimation(to: onGenerate)
     }
 

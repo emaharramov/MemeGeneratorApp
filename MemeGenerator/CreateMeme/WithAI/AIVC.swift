@@ -115,23 +115,10 @@ final class AIVC: BaseController<AIVM> {
     }
 
     private func configureGenerateButton() {
-        var config = UIButton.Configuration.filled()
-        config.title = "Generate Meme"
-        config.image = UIImage(systemName: "sparkles")
-        config.imagePlacement = .leading
-        config.imagePadding = 8
-        config.baseBackgroundColor = UIColor.systemBlue
-        config.baseForegroundColor = .white
-        config.cornerStyle = .large
-        config.contentInsets = NSDirectionalEdgeInsets(
-            top: 12, leading: 12, bottom: 12, trailing: 12
+        generateButton.applyFilledStyle(
+            title: "Generate Meme",
+            systemImageName: "sparkles"
         )
-        generateButton.configuration = config
-
-        generateButton.layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
-        generateButton.layer.shadowOpacity = 1
-        generateButton.layer.shadowRadius = 6
-        generateButton.layer.shadowOffset = CGSize(width: 0, height: 3)
     }
 
     private func setupBindings() {

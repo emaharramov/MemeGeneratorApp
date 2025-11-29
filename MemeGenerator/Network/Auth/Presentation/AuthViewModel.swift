@@ -23,23 +23,28 @@ final class AuthViewModel: BaseViewModel {
         self.registerUseCase = registerUseCase
     }
 
-    // MARK: - Validation
     private func validate(_ email: String, _ password: String) -> Bool {
-        let trimmed = email.trimmingCharacters(in: .whitespaces)
-
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             setError("Please enter email.")
+            return false
+        }
+        let emailRegex = #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
+        let predicate = NSPredicate(format: "SELF MATCHES[c] %@", emailRegex)
+
+        guard predicate.evaluate(with: trimmed) else {
+            setError("Please enter a valid email address.")
             return false
         }
         guard !password.isEmpty else {
             setError("Please enter password.")
             return false
         }
-        // Burada istəsən email regex də əlavə edərsən
+
         return true
     }
 
-    // MARK: - Login
+
     func login(email: String, password: String) {
         guard validate(email, password) else { return }
 

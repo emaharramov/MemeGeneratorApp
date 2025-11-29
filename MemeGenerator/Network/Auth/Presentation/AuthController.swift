@@ -16,15 +16,12 @@ enum AuthMode {
 @MainActor
 final class AuthController: BaseController<AuthViewModel> {
 
-    // MARK: - Mode
     private var mode: AuthMode
 
-    // MARK: - Slogan Animation
     private let sloganWords = ["creating", "making", "generating"]
     private var sloganIndex = 0
     private var sloganTimer: Timer?
 
-    // MARK: - UI
     private let gradientLayer = CAGradientLayer()
 
     private let logoImageView: UIImageView = {
@@ -41,7 +38,6 @@ final class AuthController: BaseController<AuthViewModel> {
         return lbl
     }()
 
-    // MARK: - Slogan Labels
     private let sloganLeftLabel: UILabel = {
         let lbl = UILabel()
         lbl.text = "Join us to start"
@@ -84,7 +80,6 @@ final class AuthController: BaseController<AuthViewModel> {
         return sv
     }()
 
-    // MARK: - Fields
     private let emailField: FloatingTextField = {
         let field = FloatingTextField(title: "Email *", icon: UIImage(systemName: "envelope"))
         return field
@@ -95,48 +90,32 @@ final class AuthController: BaseController<AuthViewModel> {
         return field
     }()
 
-    // Right eye button
-    private let passwordToggleButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setImage(UIImage(systemName: "eye.slash"), for: .normal)
-        btn.tintColor = .lightGray
-        return btn
-    }()
+    private let passwordToggleButton = UIButton.makeIconButton(
+        systemName: "eye.slash",
+        tintColor: .lightGray,
+        contentInsets: .zero
+    )
 
-    // MARK: - Forget Password
-    private let forgetButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitle("Forgot password?", for: .normal)
-        btn.setTitleColor(.darkGray, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 14)
-        btn.contentHorizontalAlignment = .right
-        return btn
-    }()
+    private let forgetButton = UIButton.makeTextButton(
+        title: "Forgot password?",
+        titleColor: .darkGray,
+        font: .systemFont(ofSize: 14),
+        alignment: .right
+    )
 
-    // MARK: - Main Button
-    private let mainButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitle("Login", for: .normal)
-        btn.backgroundColor = UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1)
-        btn.layer.cornerRadius = 18
-        btn.layer.shadowColor = UIColor.black.cgColor
-        btn.layer.shadowOpacity = 0.2
-        btn.layer.shadowOffset = CGSize(width: 0, height: 3)
-        btn.layer.shadowRadius = 4
-        btn.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
-        btn.setTitleColor(.black, for: .normal)
-        return btn
-    }()
+    private let mainButton: UIButton = UIButton.makeFilledAction(
+        title: "Login",
+        baseBackgroundColor: UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1),
+        baseForegroundColor: .black
+    )
 
-    // MARK: - Bottom toggle (register/login)
-    private let toggleAuthButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitleColor(.darkGray, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 15)
-        return btn
-    }()
-
-    // MARK: - Init
+    private let toggleAuthButton = UIButton.makeTextButton(
+        title: "",
+        titleColor: .darkGray,
+        font: .systemFont(ofSize: 15),
+        alignment: .center
+    )
+    
     init(viewModel: AuthViewModel, mode: AuthMode = .login) {
         self.mode = mode
         super.init(viewModel: viewModel)
@@ -144,7 +123,6 @@ final class AuthController: BaseController<AuthViewModel> {
 
     required init?(coder: NSCoder) { fatalError() }
 
-    // MARK: - Lifecycle
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         gradientLayer.frame = view.bounds
@@ -224,7 +202,6 @@ final class AuthController: BaseController<AuthViewModel> {
         }
     }
 
-    // MARK: - Password toggle inside field
     private func setupPasswordToggle() {
         passwordField.addSubview(passwordToggleButton)
 
@@ -242,7 +219,6 @@ final class AuthController: BaseController<AuthViewModel> {
     }
 
 
-    // MARK: - Background
     private func setupGradient() {
         gradientLayer.colors = [
             UIColor(red: 0.93, green: 0.47, blue: 0.7, alpha: 1).cgColor,
@@ -252,7 +228,6 @@ final class AuthController: BaseController<AuthViewModel> {
         view.layer.insertSublayer(gradientLayer, at: 0)
     }
 
-    // MARK: - Slogan Animation
     private func startSloganAnimation() {
         sloganTimer = Timer.scheduledTimer(withTimeInterval: 1.3, repeats: true) { [weak self] _ in
             self?.animateSloganWord()
@@ -277,7 +252,6 @@ final class AuthController: BaseController<AuthViewModel> {
         }
     }
 
-    // MARK: - Actions
     @objc private func onTogglePassword() {
         let secure = passwordField.textField.isSecureTextEntry
         passwordField.textField.isSecureTextEntry = !secure

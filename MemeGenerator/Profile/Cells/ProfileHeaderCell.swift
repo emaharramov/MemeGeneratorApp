@@ -100,20 +100,23 @@ final class ProfileHeaderCell: UITableViewCell {
     private func configureButton(_ button: UIButton,
                                  title: String,
                                  filled: Bool) {
-        var config = UIButton.Configuration.filled()
-        config.cornerStyle = .large
-        config.title = title
-        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
-
         if filled {
-            config.baseBackgroundColor = .systemBlue
-            config.baseForegroundColor = .white
+            button.applyFilledStyle(
+                title: title,
+                baseBackgroundColor: .systemBlue,
+                baseForegroundColor: .white,
+                contentInsets: .init(top: 8, leading: 8, bottom: 8, trailing: 8),
+                addShadow: true
+            )
         } else {
-            config.baseBackgroundColor = .systemGray6
-            config.baseForegroundColor = .label
+            button.applyFilledStyle(
+                title: title,
+                baseBackgroundColor: .systemGray6,
+                baseForegroundColor: .label,
+                contentInsets: .init(top: 8, leading: 8, bottom: 8, trailing: 8),
+                addShadow: false
+            )
         }
-
-        button.configuration = config
     }
 
     func configure(name: String, email: String) {

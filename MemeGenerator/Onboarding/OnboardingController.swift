@@ -35,13 +35,16 @@ final class OnboardingController: BaseController<OnBoardingViewModel> {
     }()
     
     private lazy var arrowButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setImage(UIImage(systemName: "arrow.right"), for: .normal)
+        let btn = UIButton.makeIconButton(
+            systemName: "arrow.right",
+            pointSize: 18,
+            weight: .semibold,
+            tintColor: .white,
+            contentInsets: UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10),
+            backgroundColor: .systemBlue,
+            cornerRadius: 16
+        )
         btn.isHidden = true
-        btn.tintColor = .white
-        btn.backgroundColor = .systemBlue
-        btn.layer.cornerRadius = 16
-        btn.clipsToBounds = true
         btn.addTarget(self, action: #selector(arrowButtonTapped), for: .touchUpInside)
         return btn
     }()

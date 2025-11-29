@@ -13,6 +13,7 @@ protocol CreateFactory {
     func makeAIWithTemplate() -> UIViewController
     func makeCustomMeme() -> UIViewController
     func makePremium() -> UIViewController
+    func makeAuth() -> UIViewController
 }
 
 final class DefaultCreateFactory: CreateFactory {
@@ -56,6 +57,25 @@ final class DefaultCreateFactory: CreateFactory {
     func makePremium() -> UIViewController {
         let vm = PremiumVM()
         let vc = PremiumViewController(viewModel: vm)
+        return vc
+    }
+
+    func makeAuth() -> UIViewController {
+        let vm = AuthViewModel(
+            loginUseCase: loginUseCase,
+            registerUseCase: registerUseCase
+        )
+
+        let vc = AuthController(viewModel: vm, mode: .login)
+
+        vm.onLoginSuccess = { [weak vc] _ in
+            vc?.dismiss(animated: true)
+        }
+
+        vm.onRegisterSuccess = { [weak vc] _ in
+            vc?.dismiss(animated: true)
+        }
+
         return vc
     }
 }

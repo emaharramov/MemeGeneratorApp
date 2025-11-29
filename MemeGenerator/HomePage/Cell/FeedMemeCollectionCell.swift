@@ -83,26 +83,14 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         return lbl
     }()
     
-    private let likeButton: UIButton = {
-        let btn = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-        let image = UIImage(systemName: "hand.thumbsup.fill")?.withConfiguration(config)
-        btn.setImage(image, for: .normal)
-        btn.tintColor = .darkGray
-        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-        return btn
-    }()
+    private let likeButton = UIButton.makeIconButton(
+        systemName: "hand.thumbsup.fill"
+    )
 
-    private let shareButton: UIButton = {
-        let btn = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-        let image = UIImage(systemName: "square.and.arrow.up")?.withConfiguration(config)
-        btn.setImage(image, for: .normal)
-        btn.tintColor = .darkGray
-        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-        return btn
-    }()
-
+    private let shareButton = UIButton.makeIconButton(
+        systemName: "square.and.arrow.up"
+    )
+    
     private let actionsStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
