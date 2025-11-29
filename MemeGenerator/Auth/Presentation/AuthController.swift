@@ -81,13 +81,17 @@ final class AuthController: BaseController<AuthViewModel> {
     }()
 
     private let emailField: FloatingTextField = {
-        let field = FloatingTextField(title: "Email *", icon: UIImage(systemName: "envelope"))
-        return field
+        FloatingTextField(
+            title: "Email *",
+            icon: UIImage(systemName: "envelope")
+        )
     }()
 
     private let passwordField: FloatingTextField = {
-        let field = FloatingTextField(title: "Password *", icon: nil)
-        return field
+        FloatingTextField(
+            title: "Password *",
+            icon: nil
+        )
     }()
 
     private let passwordToggleButton = UIButton.makeIconButton(
@@ -103,7 +107,7 @@ final class AuthController: BaseController<AuthViewModel> {
         alignment: .right
     )
 
-    private let mainButton: UIButton = UIButton.makeFilledAction(
+    private let mainButton = UIButton.makeFilledAction(
         title: "Login",
         baseBackgroundColor: UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1),
         baseForegroundColor: .black
@@ -115,13 +119,15 @@ final class AuthController: BaseController<AuthViewModel> {
         font: .systemFont(ofSize: 15),
         alignment: .center
     )
-    
+
     init(viewModel: AuthViewModel, mode: AuthMode = .login) {
         self.mode = mode
         super.init(viewModel: viewModel)
     }
 
-    required init?(coder: NSCoder) { fatalError() }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -129,9 +135,11 @@ final class AuthController: BaseController<AuthViewModel> {
     }
 
     override func configureUI() {
+        super.configureUI()
+
         setupGradient()
         setupPasswordToggle()
-        
+
         [
             logoImageView,
             titleLabel,
@@ -146,9 +154,13 @@ final class AuthController: BaseController<AuthViewModel> {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
 
+        mainButton.addTarget(self,
+                             action: #selector(onMainPressed),
+                             for: .touchUpInside)
 
-        mainButton.addTarget(self, action: #selector(onMainPressed), for: .touchUpInside)
-        toggleAuthButton.addTarget(self, action: #selector(onToggleMode), for: .touchUpInside)
+        toggleAuthButton.addTarget(self,
+                                   action: #selector(onToggleMode),
+                                   for: .touchUpInside)
 
         updateModeUI(animated: false)
         startSloganAnimation()
@@ -202,6 +214,10 @@ final class AuthController: BaseController<AuthViewModel> {
         }
     }
 
+    override func bindViewModel() {
+        super.bindViewModel()
+    }
+
     private func setupPasswordToggle() {
         passwordField.addSubview(passwordToggleButton)
 
@@ -213,11 +229,12 @@ final class AuthController: BaseController<AuthViewModel> {
 
         passwordField.textField.isSecureTextEntry = true
 
-        passwordToggleButton.addTarget(self,
-                                       action: #selector(onTogglePassword),
-                                       for: .touchUpInside)
+        passwordToggleButton.addTarget(
+            self,
+            action: #selector(onTogglePassword),
+            for: .touchUpInside
+        )
     }
-
 
     private func setupGradient() {
         gradientLayer.colors = [
@@ -229,7 +246,8 @@ final class AuthController: BaseController<AuthViewModel> {
     }
 
     private func startSloganAnimation() {
-        sloganTimer = Timer.scheduledTimer(withTimeInterval: 1.3, repeats: true) { [weak self] _ in
+        sloganTimer = Timer.scheduledTimer(withTimeInterval: 1.3,
+                                           repeats: true) { [weak self] _ in
             self?.animateSloganWord()
         }
     }
@@ -242,11 +260,13 @@ final class AuthController: BaseController<AuthViewModel> {
         sloganWordLabel.alpha = 0
         sloganWordLabel.text = newWord
 
-        UIView.animate(withDuration: 0.3,
-                       delay: 0,
-                       usingSpringWithDamping: 0.5,
-                       initialSpringVelocity: 0.5,
-                       options: .curveEaseOut) {
+        UIView.animate(
+            withDuration: 0.3,
+            delay: 0,
+            usingSpringWithDamping: 0.5,
+            initialSpringVelocity: 0.5,
+            options: .curveEaseOut
+        ) {
             self.sloganWordLabel.transform = .identity
             self.sloganWordLabel.alpha = 1
         }
@@ -264,7 +284,7 @@ final class AuthController: BaseController<AuthViewModel> {
     @objc private func onMainPressed() {
         let email = emailField.textField.text?.lowercased() ?? ""
         let pass = passwordField.textField.text ?? ""
-        
+
         switch mode {
         case .login:
             viewModel.login(email: email, password: pass)
@@ -285,6 +305,7 @@ final class AuthController: BaseController<AuthViewModel> {
                 self.titleLabel.text = "Welcome Back"
                 self.mainButton.setTitle("Login", for: .normal)
                 self.toggleAuthButton.setTitle("No account?  Register", for: .normal)
+
             case .register:
                 self.titleLabel.text = "Meme Master"
                 self.mainButton.setTitle("Register", for: .normal)
@@ -293,8 +314,15 @@ final class AuthController: BaseController<AuthViewModel> {
         }
 
         if animated {
-            UIView.transition(with: view, duration: 0.25, options: .transitionCrossDissolve, animations: block)
-        } else { block() }
+            UIView.transition(
+                with: view,
+                duration: 0.25,
+                options: .transitionCrossDissolve,
+                animations: block
+            )
+        } else {
+            block()
+        }
     }
 
     @MainActor

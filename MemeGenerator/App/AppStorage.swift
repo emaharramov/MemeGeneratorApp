@@ -48,9 +48,4 @@ final class AppStorage {
         self.token = token
         self.userId = userId
     }
-
-//    func logout() {
-//        defaults.removeObject(forKey: Key.token.rawValue)
-//        defaults.removeObject(forKey: Key.userId.rawValue)
-//    }
 }
