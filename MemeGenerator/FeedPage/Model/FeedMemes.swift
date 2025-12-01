@@ -1,5 +1,5 @@
 //
-//  AllTemplates.swift
+//  FeedMemes.swift
 //  MemeGenerator
 //
 //  Created by Emil Maharramov on 23.11.25.
@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - AllMemes
-struct AllMemes: Codable, Sendable {
+struct FeedMemes: Codable, Sendable {
     let success: Bool?
     let memes: [MemesTemplate]?
 }

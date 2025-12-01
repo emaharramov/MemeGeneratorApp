@@ -27,12 +27,12 @@ final class MemeHeaderView: UIView {
 
         titleLabel.text = title
         titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
-        titleLabel.textColor = .label
+        titleLabel.textColor = .mgTextPrimary
         titleLabel.numberOfLines = 0
 
         subtitleLabel.text = subtitle
         subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .secondaryLabel
+        subtitleLabel.textColor = .mgTextSecondary
         subtitleLabel.numberOfLines = 0
 
         let stack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])

@@ -28,22 +28,13 @@ final class ProfileStatsCell: UITableViewCell {
     private func setupUI() {
         let stack = UIStackView(arrangedSubviews: [memesCard, savedCard])
         stack.axis = .horizontal
-        stack.spacing = 10
+        stack.spacing = 12
         stack.distribution = .fillEqually
 
-        let card = UIView()
-        card.backgroundColor = .clear
-
-        contentView.addSubview(card)
-        card.addSubview(stack)
-
-        card.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: 16, bottom: 4, right: 16))
-        }
-
+        contentView.addSubview(stack)
         stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalTo(76)
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: 16, bottom: 4, right: 16))
+            make.height.equalTo(80)
         }
     }
 

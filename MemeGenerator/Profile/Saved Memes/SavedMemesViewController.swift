@@ -11,7 +11,7 @@ import SnapKit
 final class SavedMemesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .mgBackground
         title = "Saved Memes"
 
         let label = UILabel()

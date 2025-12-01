@@ -1,5 +1,5 @@
 //
-//  HomeController.swift
+//  FeedController.swift
 //  MemeGenerator
 //
 //  Created by Emil Maharramov on 18.11.25.
@@ -7,10 +7,16 @@
 
 import UIKit
 import SnapKit
+import Combine
 
-final class HomeController: BaseController<HomeViewModel> {
+final class FeedController: BaseController<FeedViewModel> {
 
-    // MARK: - Sections
+    // Status bar ikonları üçün
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
+    }
+
+    // MARK: - Section
 
     private enum Section: Int, CaseIterable {
         case feed
@@ -21,36 +27,53 @@ final class HomeController: BaseController<HomeViewModel> {
     private lazy var collectionView: UICollectionView = {
         let layout = createLayout()
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .systemBackground
+        cv.backgroundColor = .clear
         cv.alwaysBounceVertical = true
-        cv.register(FeedMemeCollectionCell.self,
-                    forCellWithReuseIdentifier: FeedMemeCollectionCell.reuseId)
+        cv.showsVerticalScrollIndicator = false
+        cv.register(
+            FeedMemeCollectionCell.self,
+            forCellWithReuseIdentifier: FeedMemeCollectionCell.reuseId
+        )
         return cv
     }()
 
-    private let refreshControl = UIRefreshControl()
-    
-    override init(viewModel: HomeViewModel) {
-         super.init(viewModel: viewModel)
-     }
+    private let refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl()
+        rc.tintColor = .mgAccent
+        return rc
+    }()
 
-     required init?(coder: NSCoder) {
-         fatalError("init(coder:) has not been implemented")
-     }
+    // MARK: - Combine
+
+    private var cancellables = Set<AnyCancellable>()
+
+    // MARK: - Init
+
+    override init(viewModel: FeedViewModel) {
+        super.init(viewModel: viewModel)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Memes"
+
+        title = "Feed"
+        view.backgroundColor = .mgBackground
 
         setupSubviews()
         setupConstraints()
         setupCollectionView()
         bindViewModel()
-        view.backgroundColor = .white
-        viewModel.getAllTemplates()
+
+        viewModel.getAllMemes()
     }
+
+    // MARK: - Setup
 
     private func setupSubviews() {
         view.addSubview(collectionView)
@@ -67,37 +90,53 @@ final class HomeController: BaseController<HomeViewModel> {
         collectionView.delegate = self
 
         collectionView.refreshControl = refreshControl
-        refreshControl.addTarget(self,
-                                 action: #selector(onRefresh),
-                                 for: .valueChanged)
+        refreshControl.addTarget(
+            self,
+            action: #selector(onRefresh),
+            for: .valueChanged
+        )
     }
 
     @objc private func onRefresh() {
-        viewModel.getAllTemplates()
+        viewModel.getAllMemes()
     }
 
-    // MARK: - ViewModel binding
+    // MARK: - Bindings
 
     override func bindViewModel() {
-        viewModel.stateUpdated = { [weak self] state in
-            guard let self else { return }
+        super.bindViewModel()
 
-            switch state {
-            case .loading:
-                break
-
-            case .success, .loaded:
+        // data
+        viewModel.$allMemes
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
                 self.refreshControl.endRefreshing()
                 self.collectionView.reloadData()
-
-            case .error(let message):
-                self.refreshControl.endRefreshing()
-                print("Home error:", message)
-
-            default:
-                break
             }
-        }
+            .store(in: &cancellables)
+
+        // error
+        viewModel.$errorMessage
+            .compactMap { $0 }
+            .receive(on: RunLoop.main)
+            .sink { [weak self] message in
+                guard let self else { return }
+                self.refreshControl.endRefreshing()
+                self.showToast(message: message)
+            }
+            .store(in: &cancellables)
+
+        // loading
+        viewModel.$isLoading
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isLoading in
+                guard let self else { return }
+                if !isLoading {
+                    self.refreshControl.endRefreshing()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Layout
@@ -110,13 +149,13 @@ final class HomeController: BaseController<HomeViewModel> {
             case .feed:
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .estimated(320)
+                    heightDimension: .estimated(420)
                 )
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
                 let groupSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .estimated(320)
+                    heightDimension: .estimated(420)
                 )
                 let group = NSCollectionLayoutGroup.vertical(
                     layoutSize: groupSize,
@@ -125,24 +164,31 @@ final class HomeController: BaseController<HomeViewModel> {
 
                 let sectionLayout = NSCollectionLayoutSection(group: group)
                 sectionLayout.contentInsets = NSDirectionalEdgeInsets(
-                    top: 8,
+                    top: 12,
                     leading: 0,
-                    bottom: 16,
+                    bottom: 32,
                     trailing: 0
                 )
-                sectionLayout.interGroupSpacing = 8
+                sectionLayout.interGroupSpacing = 12
                 return sectionLayout
             }
         }
+    }
+
+    // MARK: - Helpers
+
+    private func saveImageToPhotos(_ image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        showToast(message: "Saved to Photos")
     }
 }
 
 // MARK: - DataSource
 
-extension HomeController: UICollectionViewDataSource {
+extension FeedController: UICollectionViewDataSource {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return Section.allCases.count
+        Section.allCases.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -151,7 +197,7 @@ extension HomeController: UICollectionViewDataSource {
 
         switch sectionType {
         case .feed:
-            return viewModel.allTemplates.count
+            return viewModel.allMemes.count
         }
     }
 
@@ -171,8 +217,19 @@ extension HomeController: UICollectionViewDataSource {
                 fatalError("Wrong cell type")
             }
 
-            let template = viewModel.allTemplates[indexPath.item]
+            let template = viewModel.allMemes[indexPath.item]
             cell.configure(template: template)
+
+            cell.onDownloadTapped = { [weak self] image in
+                guard let self, let image else { return }
+                self.saveImageToPhotos(image)
+            }
+
+            cell.onSaveTapped = { [weak self] _ in
+                guard let self else { return }
+                self.showToast(message: "Saved in App")
+            }
+
             return cell
         }
     }
@@ -180,16 +237,10 @@ extension HomeController: UICollectionViewDataSource {
 
 // MARK: - Delegate
 
-extension HomeController: UICollectionViewDelegate {
+extension FeedController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView,
                         didSelectItemAt indexPath: IndexPath) {
-
-        guard let sectionType = Section(rawValue: indexPath.section) else { return }
-
-        switch sectionType {
-        case .feed:
-            break
-        }
+        // gələcəkdə detail açmaq üçün
     }
 }

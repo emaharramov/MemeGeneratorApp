@@ -9,118 +9,215 @@ import UIKit
 import SnapKit
 
 final class MemePromptView: UIView {
+    
+    private let cardView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .mgCard
+        view.layer.cornerRadius = 20
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.mgCardStroke.cgColor
+        return view
+    }()
 
-    private let titleLabel = UILabel()
-    private let subtitleLabel = UILabel()
-    private let fieldTitleLabel = UILabel()
-    private let inputBackgroundView = UIView()
-    private let textView = UITextView()
-    private let placeholderLabel = UILabel()
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 22, weight: .semibold)
+        label.textColor = .mgTextPrimary
+        label.numberOfLines = 0
+        label.isHidden = true
+        return label
+    }()
 
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16)
+        label.textColor = .mgTextSecondary
+        label.numberOfLines = 0
+        label.isHidden = true
+        return label
+    }()
+
+    private let fieldTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .mgTextSecondary
+        label.numberOfLines = 1
+        label.isHidden = true
+        return label
+    }()
+
+    private let inputBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .cardBg
+        view.layer.cornerRadius = 18
+        view.layer.masksToBounds = true
+        view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        return view
+    }()
+
+    private let textView: UITextView = {
+        let tv = UITextView()
+        tv.backgroundColor = .clear
+        tv.font = .systemFont(ofSize: 16)
+        tv.textColor = .textFieldTextColor
+        tv.tintColor = .mgAccent
+        tv.isScrollEnabled = false
+        tv.keyboardAppearance = .dark
+        tv.textContainerInset = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+        tv.textContainer.lineFragmentPadding = 0
+        return tv
+    }()
+
+    private let placeholderLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.textColor = .textFieldTextColor
+        label.numberOfLines = 0
+        label.isUserInteractionEnabled = false
+        return label
+    }()
+    
     var text: String {
-        get { textView.text ?? "" }
+        get { textView.text }
         set {
             textView.text = newValue
             updatePlaceholderVisibility()
         }
     }
 
-    init(title: String?,
-         subtitle: String?,
-         fieldTitle: String?,
-         placeholder: String) {
+    init(
+        title: String?,
+        subtitle: String?,
+        fieldTitle: String?,
+        placeholder: String
+    ) {
         super.init(frame: .zero)
-        setupUI(title: title, subtitle: subtitle, fieldTitle: fieldTitle, placeholder: placeholder)
+        setupLayout()
+        configure(
+            title: title,
+            subtitle: subtitle,
+            fieldTitle: fieldTitle,
+            placeholder: placeholder
+        )
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func setPlaceholderWithIcon(text: String, systemImageName: String) {
+        guard let baseImage = UIImage(systemName: systemImageName) else {
+            placeholderLabel.text = text
+            updatePlaceholderVisibility()
+            return
+        }
 
-    private func setupUI(title: String?,
-                         subtitle: String?,
-                         fieldTitle: String?,
-                         placeholder: String) {
+        let color = placeholderLabel.textColor ?? .label
 
+        let config = UIImage.SymbolConfiguration(
+            pointSize: placeholderLabel.font.pointSize,
+            weight: .medium
+        )
+
+        let configuredImage = baseImage
+            .applyingSymbolConfiguration(config)?
+            .withTintColor(color, renderingMode: .alwaysOriginal)
+
+        let attachment = NSTextAttachment()
+        attachment.image = configuredImage
+        let attributed = NSMutableAttributedString(
+            string: text + " ",
+            attributes: [
+                .font: placeholderLabel.font as Any,
+                .foregroundColor: color
+            ]
+        )
+
+        attributed.append(NSAttributedString(attachment: attachment))
+
+        placeholderLabel.attributedText = attributed
+        updatePlaceholderVisibility()
+    }
+
+}
+
+private extension MemePromptView {
+
+    func setupLayout() {
         backgroundColor = .clear
-
-        titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        titleLabel.textColor = .label
-        titleLabel.numberOfLines = 0
-        titleLabel.isHidden = (title?.isEmpty ?? true)
-
-        subtitleLabel.text = subtitle
-        subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .secondaryLabel
-        subtitleLabel.numberOfLines = 0
-        subtitleLabel.isHidden = (subtitle?.isEmpty ?? true)
-
-        fieldTitleLabel.text = fieldTitle
-        fieldTitleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
-        fieldTitleLabel.textColor = .label
-        fieldTitleLabel.numberOfLines = 1
-        fieldTitleLabel.isHidden = (fieldTitle?.isEmpty ?? true)
-
-        inputBackgroundView.backgroundColor = .systemBackground
-        inputBackgroundView.layer.cornerRadius = 16
-        inputBackgroundView.layer.borderWidth = 1
-        inputBackgroundView.layer.borderColor = UIColor.systemGray4.withAlphaComponent(0.7).cgColor
-
-        textView.backgroundColor = .clear
-        textView.font = .systemFont(ofSize: 15)
-        textView.textContainerInset = UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12)
         textView.delegate = self
-        textView.isScrollEnabled = false
 
-        placeholderLabel.text = placeholder
-        placeholderLabel.textColor = .placeholderText
-        placeholderLabel.font = .systemFont(ofSize: 15)
-        placeholderLabel.numberOfLines = 0
-        placeholderLabel.isUserInteractionEnabled = false
+        addSubview(cardView)
+        cardView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
 
-        let labelsStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, fieldTitleLabel])
+        let labelsStack = UIStackView(arrangedSubviews: [
+            titleLabel,
+            subtitleLabel,
+            fieldTitleLabel
+        ])
         labelsStack.axis = .vertical
-        labelsStack.spacing = 4
-        labelsStack.alignment = .fill
+        labelsStack.spacing = 6
 
-        addSubview(labelsStack)
-        addSubview(inputBackgroundView)
-        inputBackgroundView.addSubview(textView)
-        textView.addSubview(placeholderLabel)
+        cardView.addSubview(labelsStack)
+        cardView.addSubview(inputBackgroundView)
 
         labelsStack.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview().inset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
         }
 
         inputBackgroundView.snp.makeConstraints { make in
-            make.top.equalTo(labelsStack.snp.bottom).offset(12)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview()
-            make.height.greaterThanOrEqualTo(90)
+            make.top.equalTo(labelsStack.snp.bottom).offset(14)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().inset(16)
+            make.height.greaterThanOrEqualTo(70)
         }
 
+        inputBackgroundView.addSubview(textView)
         textView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
+        textView.addSubview(placeholderLabel)
         placeholderLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(textView.textContainerInset.top)
-            make.leading.equalToSuperview().inset(textView.textContainerInset.left + 2)
-            make.trailing.lessThanOrEqualToSuperview().inset(textView.textContainerInset.right)
+            make.top.equalToSuperview().inset(8)
+            make.leading.equalToSuperview().inset(12)
+            make.trailing.lessThanOrEqualToSuperview().inset(12)
         }
+    }
 
+    func configure(
+        title: String?,
+        subtitle: String?,
+        fieldTitle: String?,
+        placeholder: String
+    ) {
+        configure(label: titleLabel, with: title)
+        configure(label: subtitleLabel, with: subtitle)
+        configure(label: fieldTitleLabel, with: fieldTitle)
+
+        placeholderLabel.text = placeholder
         updatePlaceholderVisibility()
     }
 
-    private func updatePlaceholderVisibility() {
-        placeholderLabel.isHidden = !(textView.text?.isEmpty ?? true)
+    func configure(label: UILabel, with text: String?) {
+        let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        label.text = trimmed
+        label.isHidden = trimmed.isEmpty
+    }
+
+    func updatePlaceholderVisibility() {
+        let hasText = !textView.text
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+        placeholderLabel.isHidden = hasText
     }
 }
 
 extension MemePromptView: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) { updatePlaceholderVisibility() }
-    func textViewDidBeginEditing(_ textView: UITextView) { updatePlaceholderVisibility() }
-    func textViewDidEndEditing(_ textView: UITextView) { updatePlaceholderVisibility() }
+    func textViewDidChange(_ textView: UITextView) {
+        updatePlaceholderVisibility()
+    }
 }

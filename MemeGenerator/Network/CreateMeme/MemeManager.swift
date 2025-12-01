@@ -63,7 +63,30 @@ final class MemeService {
         }
     }
 
+    func generateMemeAI(
+        userId: String,
+        prompt: String,
+        completion: @escaping (MemeWithAI?, String?) -> Void
+    ) {
+        let params: [String: Any] = [
+            "userId": userId,
+            "prompt": prompt
+        ]
 
+        networkManager.request(
+            path: MemeEndpoint.createAI.path,
+            model: MemeWithAI.self,
+            method: .post,
+            params: params,
+            encodingType: .json
+        ) { response, error in
+            if let err = error {
+                completion(nil, err)
+                return
+            }
+            completion(response, nil)
+        }
+    }
 
     // MARK: - User Meme History
     func fetchUserMemes(

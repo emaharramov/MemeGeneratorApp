@@ -10,41 +10,52 @@ import SnapKit
 
 final class MemeResultView: UIView {
 
-    private let containerView = UIView()
-    private let placeholderStack = UIStackView()
-    private let placeholderIcon = UIImageView()
-    private let placeholderLabel = UILabel()
-    private let imageView = UIImageView()
-
     var image: UIImage? {
         didSet { updateState() }
     }
 
+    private let innerBackground = UIView()
+    private let imageView = UIImageView()
+    private let placeholderStack = UIStackView()
+    private let placeholderIcon = UIImageView()
+    private let placeholderLabel = UILabel()
+
     init(placeholderText: String) {
         super.init(frame: .zero)
         setupUI(placeholderText: placeholderText)
+        updateState()
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private func setupUI(placeholderText: String) {
         backgroundColor = .clear
 
-        containerView.backgroundColor = UIColor.systemGray6.withAlphaComponent(0.9)
-        containerView.layer.cornerRadius = 20
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor.systemGray4.withAlphaComponent(0.7).cgColor
+        innerBackground.layer.cornerRadius = 18
+        innerBackground.layer.masksToBounds = true
+
+        addSubview(innerBackground)
+        innerBackground.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalTo(innerBackground.snp.width).multipliedBy(4.0/5.0)
+        }
 
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
-        imageView.isHidden = true
+
+        innerBackground.addSubview(imageView)
+        imageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
 
         placeholderIcon.image = UIImage(systemName: "sparkles")
-        placeholderIcon.tintColor = .systemIndigo
+        placeholderIcon.tintColor = .mgAccent
 
         placeholderLabel.text = placeholderText
-        placeholderLabel.font = .systemFont(ofSize: 14)
-        placeholderLabel.textColor = .secondaryLabel
+        placeholderLabel.font = .systemFont(ofSize: 15)
+        placeholderLabel.textColor = .mgAccent
         placeholderLabel.textAlignment = .center
         placeholderLabel.numberOfLines = 0
 
@@ -54,32 +65,24 @@ final class MemeResultView: UIView {
         placeholderStack.addArrangedSubview(placeholderIcon)
         placeholderStack.addArrangedSubview(placeholderLabel)
 
-        addSubview(containerView)
-        containerView.addSubview(imageView)
-        containerView.addSubview(placeholderStack)
-
-        containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalTo(240)
-        }
-
-        imageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(16)
-        }
-
+        innerBackground.addSubview(placeholderStack)
         placeholderStack.snp.makeConstraints { make in
             make.center.equalToSuperview()
+            make.leading.greaterThanOrEqualToSuperview().inset(24)
+            make.trailing.lessThanOrEqualToSuperview().inset(24)
         }
     }
 
     private func updateState() {
         if let img = image {
-            imageView.image = img
+            innerBackground.backgroundColor = .clear
             imageView.isHidden = false
+            imageView.image = img
             placeholderStack.isHidden = true
         } else {
-            imageView.image = nil
+            innerBackground.backgroundColor = .cardBg
             imageView.isHidden = true
+            imageView.image = nil
             placeholderStack.isHidden = false
         }
     }

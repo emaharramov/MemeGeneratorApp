@@ -13,114 +13,202 @@ enum AuthMode {
     case register
 }
 
-@MainActor
 final class AuthController: BaseController<AuthViewModel> {
 
-    private var mode: AuthMode
+    // MARK: - State
 
-    private let sloganWords = ["creating", "making", "generating"]
-    private var sloganIndex = 0
-    private var sloganTimer: Timer?
+    var mode: AuthMode {
+        didSet { updateForMode() }
+    }
 
-    private let gradientLayer = CAGradientLayer()
+    // MARK: - UI
 
-    private let logoImageView: UIImageView = {
-        let iv = UIImageView(image: UIImage(named: "logo"))
+    private let scrollView: UIScrollView = {
+        let v = UIScrollView()
+        v.alwaysBounceVertical = true
+        v.showsVerticalScrollIndicator = false
+        return v
+    }()
+
+    private let contentView = UIView()
+
+    // Header
+
+    private let logoView: UIImageView = {
+        let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
+        iv.image = UIImage(named: "app_logo") // varsa
+        iv.layer.cornerRadius = 16
+        iv.clipsToBounds = true
         return iv
     }()
 
     private let titleLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 32, weight: .bold)
-        lbl.textColor = .black
-        lbl.textAlignment = .center
-        return lbl
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 26, weight: .bold)
+        label.textColor = .mgTextPrimary
+        label.numberOfLines = 0
+        label.textAlignment = .left
+        return label
     }()
 
-    private let sloganLeftLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.text = "Join us to start"
-        lbl.font = .systemFont(ofSize: 15)
-        lbl.textAlignment = .right
-        lbl.setContentHuggingPriority(.required, for: .horizontal)
-        lbl.setContentCompressionResistancePriority(.required, for: .horizontal)
-        return lbl
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = .mgTextSecondary
+        label.numberOfLines = 0
+        label.textAlignment = .left
+        return label
     }()
 
-    private let sloganWordLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.text = "creating"
-        lbl.font = .systemFont(ofSize: 15, weight: .semibold)
-        lbl.textAlignment = .center
-        lbl.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        lbl.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-        return lbl
+    // Form
+
+    private let formCard = UIView()
+
+    private let fieldsStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 14
+        stack.alignment = .fill
+        return stack
     }()
 
-    private let sloganRightLabel: UILabel = {
-        let lbl = UILabel()
-        lbl.text = "memes"
-        lbl.font = .systemFont(ofSize: 15)
-        lbl.textAlignment = .left
-        lbl.setContentHuggingPriority(.required, for: .horizontal)
-        lbl.setContentCompressionResistancePriority(.required, for: .horizontal)
-        return lbl
+    private let emailContainer = UIView()
+    private let emailIcon: UIImageView = {
+        let iv = UIImageView(image: UIImage(systemName: "envelope"))
+        iv.tintColor = .mgTextSecondary
+        return iv
+    }()
+    private let emailField: UITextField = {
+        let tf = UITextField()
+        tf.keyboardType = .emailAddress
+        tf.autocapitalizationType = .none
+        tf.backgroundColor = .clear
+        tf.borderStyle = .none
+        tf.textColor = .mgTextPrimary
+        tf.tintColor = .mgAccent
+        tf.font = .systemFont(ofSize: 15, weight: .medium)
+        return tf
     }()
 
-    private lazy var sloganStack: UIStackView = {
-        let sv = UIStackView(arrangedSubviews: [
-            sloganLeftLabel,
-            sloganWordLabel,
-            sloganRightLabel
-        ])
-        sv.axis = .horizontal
-        sv.alignment = .center
-        sv.spacing = 8
-        return sv
+    private let usernameContainer = UIView()
+    private let usernameIcon: UIImageView = {
+        let iv = UIImageView(image: UIImage(systemName: "person"))
+        iv.tintColor = .mgTextSecondary
+        return iv
+    }()
+    private let usernameField: UITextField = {
+        let tf = UITextField()
+        tf.autocapitalizationType = .none
+        tf.backgroundColor = .clear
+        tf.borderStyle = .none
+        tf.textColor = .mgTextPrimary
+        tf.tintColor = .mgAccent
+        tf.font = .systemFont(ofSize: 15, weight: .medium)
+        return tf
     }()
 
-    private let emailField: FloatingTextField = {
-        FloatingTextField(
-            title: "Email *",
-            icon: UIImage(systemName: "envelope")
-        )
+    private let passwordContainer = UIView()
+    private let passwordIcon: UIImageView = {
+        let iv = UIImageView(image: UIImage(systemName: "lock"))
+        iv.tintColor = .mgTextSecondary
+        return iv
+    }()
+    private let passwordField: UITextField = {
+        let tf = UITextField()
+        tf.isSecureTextEntry = true
+        tf.backgroundColor = .clear
+        tf.borderStyle = .none
+        tf.textColor = .mgTextPrimary
+        tf.tintColor = .mgAccent
+        tf.font = .systemFont(ofSize: 15, weight: .medium)
+        return tf
+    }()
+    private let passwordVisibilityButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.tintColor = .mgTextSecondary
+        btn.setImage(UIImage(systemName: "eye"), for: .normal)
+        return btn
     }()
 
-    private let passwordField: FloatingTextField = {
-        FloatingTextField(
-            title: "Password *",
-            icon: nil
-        )
+    private let forgotPasswordButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitle("Forgot Password?", for: .normal)
+        btn.setTitleColor(.systemPurple, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+        return btn
     }()
 
-    private let passwordToggleButton = UIButton.makeIconButton(
-        systemName: "eye.slash",
-        tintColor: .lightGray,
-        contentInsets: .zero
-    )
+    // Primary button
 
-    private let forgetButton = UIButton.makeTextButton(
-        title: "Forgot password?",
-        titleColor: .darkGray,
-        font: .systemFont(ofSize: 14),
-        alignment: .right
-    )
+    private let primaryButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.layer.cornerRadius = 22
+        btn.clipsToBounds = true
+        return btn
+    }()
 
-    private let mainButton = UIButton.makeFilledAction(
-        title: "Login",
-        baseBackgroundColor: UIColor(red: 1, green: 0.97, blue: 0.7, alpha: 1),
-        baseForegroundColor: .black
-    )
+    // OR divider
 
-    private let toggleAuthButton = UIButton.makeTextButton(
-        title: "",
-        titleColor: .darkGray,
-        font: .systemFont(ofSize: 15),
-        alignment: .center
-    )
+    private let orLeftLine: UIView = {
+        let v = UIView()
+        v.backgroundColor = UIColor.mgCardStroke.withAlphaComponent(0.7)
+        return v
+    }()
 
-    init(viewModel: AuthViewModel, mode: AuthMode = .login) {
+    private let orRightLine: UIView = {
+        let v = UIView()
+        v.backgroundColor = UIColor.mgCardStroke.withAlphaComponent(0.7)
+        return v
+    }()
+
+    private let orLabel: UILabel = {
+        let label = UILabel()
+        label.text = "OR"
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.textColor = .mgTextSecondary
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let orStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 8
+        return stack
+    }()
+
+    // Google button
+
+    private let googleButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.layer.cornerRadius = 22
+        btn.layer.masksToBounds = true
+        btn.layer.borderWidth = 1
+        btn.layer.borderColor = UIColor.mgCardStroke.cgColor
+        return btn
+    }()
+
+    // Bottom section
+
+    private let bottomTextLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.textColor = .mgTextSecondary
+        return label
+    }()
+
+    private let bottomActionButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setTitleColor(.systemPurple, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+        return btn
+    }()
+
+    // MARK: - Init
+
+    init(viewModel: AuthViewModel, mode: AuthMode) {
         self.mode = mode
         super.init(viewModel: viewModel)
     }
@@ -129,204 +217,381 @@ final class AuthController: BaseController<AuthViewModel> {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        gradientLayer.frame = view.bounds
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = .mgBackground
+        configureNavigation(title: "Auth")
+
+        setupLayout()
+        setupActions()
+        updateForMode()
     }
 
-    override func configureUI() {
-        super.configureUI()
+    // MARK: - Layout
 
-        setupGradient()
-        setupPasswordToggle()
-
-        [
-            logoImageView,
-            titleLabel,
-            sloganStack,
-            emailField,
-            passwordField,
-            forgetButton,
-            mainButton,
-            toggleAuthButton
-        ].forEach {
-            view.addSubview($0)
-            $0.translatesAutoresizingMaskIntoConstraints = false
+    private func setupLayout() {
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
 
-        mainButton.addTarget(self,
-                             action: #selector(onMainPressed),
-                             for: .touchUpInside)
-
-        toggleAuthButton.addTarget(self,
-                                   action: #selector(onToggleMode),
-                                   for: .touchUpInside)
-
-        updateModeUI(animated: false)
-        startSloganAnimation()
-    }
-
-    override func configureConstraints() {
-        logoImageView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(60)
-            $0.centerX.equalToSuperview()
-            $0.height.equalTo(100)
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
         }
 
-        titleLabel.snp.makeConstraints {
-            $0.top.equalTo(logoImageView.snp.bottom).offset(30)
-            $0.centerX.equalToSuperview()
+        contentView.addSubview(logoView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(subtitleLabel)
+        contentView.addSubview(formCard)
+        contentView.addSubview(forgotPasswordButton)
+        contentView.addSubview(primaryButton)
+        contentView.addSubview(orStack)
+        contentView.addSubview(googleButton)
+
+        let bottomStack = UIStackView(arrangedSubviews: [bottomTextLabel, bottomActionButton])
+        bottomStack.axis = .horizontal
+        bottomStack.spacing = 4
+        bottomStack.alignment = .center
+
+        contentView.addSubview(bottomStack)
+
+        // Header constraints
+
+        logoView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(32)
+            make.centerX.equalToSuperview()
+            make.width.height.equalTo(72)
         }
 
-        sloganStack.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(12)
-            $0.centerX.equalToSuperview()
-            $0.leading.greaterThanOrEqualTo(view).offset(40)
-            $0.trailing.lessThanOrEqualTo(view).offset(-40)
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(logoView.snp.bottom).offset(20)
+            make.leading.trailing.equalToSuperview().inset(24)
         }
 
-        emailField.snp.makeConstraints {
-            $0.top.equalTo(sloganStack.snp.bottom).offset(32)
-            $0.leading.equalToSuperview().offset(30)
-            $0.trailing.equalToSuperview().offset(-30)
-            $0.height.equalTo(55)
+        subtitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(6)
+            make.leading.trailing.equalToSuperview().inset(24)
         }
 
-        passwordField.snp.makeConstraints {
-            $0.top.equalTo(emailField.snp.bottom).offset(18)
-            $0.leading.trailing.height.equalTo(emailField)
+        // Form card
+
+        formCard.backgroundColor = .clear
+        contentView.addSubview(formCard)
+        formCard.snp.makeConstraints { make in
+            make.top.equalTo(subtitleLabel.snp.bottom).offset(24)
+            make.leading.trailing.equalToSuperview().inset(24)
         }
 
-        forgetButton.snp.makeConstraints {
-            $0.top.equalTo(passwordField.snp.bottom).offset(6)
-            $0.trailing.equalTo(passwordField.snp.trailing)
+        formCard.addSubview(fieldsStack)
+        fieldsStack.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
-        mainButton.snp.makeConstraints {
-            $0.top.equalTo(forgetButton.snp.bottom).offset(28)
-            $0.leading.trailing.equalTo(emailField)
-            $0.height.equalTo(55)
+        // Field containers
+
+        styleFieldContainer(emailContainer)
+        styleFieldContainer(usernameContainer)
+        styleFieldContainer(passwordContainer)
+
+        fieldsStack.addArrangedSubview(emailContainer)
+        fieldsStack.addArrangedSubview(usernameContainer)
+        fieldsStack.addArrangedSubview(passwordContainer)
+
+        emailContainer.snp.makeConstraints { make in
+            make.height.equalTo(52)
+        }
+        usernameContainer.snp.makeConstraints { make in
+            make.height.equalTo(52)
+        }
+        passwordContainer.snp.makeConstraints { make in
+            make.height.equalTo(52)
         }
 
-        toggleAuthButton.snp.makeConstraints {
-            $0.top.equalTo(mainButton.snp.bottom).offset(18)
-            $0.centerX.equalToSuperview()
-        }
-    }
+        // Email layout
 
-    override func bindViewModel() {
-        super.bindViewModel()
-    }
+        emailContainer.addSubview(emailIcon)
+        emailContainer.addSubview(emailField)
 
-    private func setupPasswordToggle() {
-        passwordField.addSubview(passwordToggleButton)
-
-        passwordToggleButton.snp.makeConstraints {
-            $0.trailing.equalTo(passwordField.snp.trailing).offset(-12)
-            $0.centerY.equalTo(passwordField.snp.centerY)
-            $0.width.height.equalTo(26)
+        emailIcon.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(18)
         }
 
-        passwordField.textField.isSecureTextEntry = true
+        emailField.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(4)
+            make.leading.equalTo(emailIcon.snp.trailing).offset(10)
+            make.trailing.equalToSuperview().inset(16)
+        }
 
-        passwordToggleButton.addTarget(
-            self,
-            action: #selector(onTogglePassword),
-            for: .touchUpInside
+        // Username layout
+
+        usernameContainer.addSubview(usernameIcon)
+        usernameContainer.addSubview(usernameField)
+
+        usernameIcon.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(18)
+        }
+
+        usernameField.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(4)
+            make.leading.equalTo(usernameIcon.snp.trailing).offset(10)
+            make.trailing.equalToSuperview().inset(16)
+        }
+
+        // Password layout
+
+        passwordContainer.addSubview(passwordIcon)
+        passwordContainer.addSubview(passwordField)
+        passwordContainer.addSubview(passwordVisibilityButton)
+
+        passwordIcon.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(18)
+        }
+
+        passwordVisibilityButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(14)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(30)
+        }
+
+        passwordField.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(4)
+            make.leading.equalTo(passwordIcon.snp.trailing).offset(10)
+            make.trailing.equalTo(passwordVisibilityButton.snp.leading).offset(-8)
+        }
+
+        // Forgot password
+
+        contentView.addSubview(forgotPasswordButton)
+        forgotPasswordButton.snp.makeConstraints { make in
+            make.top.equalTo(formCard.snp.bottom).offset(8)
+            make.trailing.equalTo(formCard.snp.trailing)
+        }
+
+        // Primary button
+
+        primaryButton.applyFilledStyle(
+            title: "",
+            systemImageName: nil,
+            baseBackgroundColor: .mgAccent,
+            baseForegroundColor: .mgTextSecondary
         )
-    }
 
-    private func setupGradient() {
-        gradientLayer.colors = [
-            UIColor(red: 0.93, green: 0.47, blue: 0.7, alpha: 1).cgColor,
-            UIColor(red: 0.34, green: 0.87, blue: 0.77, alpha: 1).cgColor
-        ]
-        gradientLayer.locations = [0, 1]
-        view.layer.insertSublayer(gradientLayer, at: 0)
-    }
+        primaryButton.snp.makeConstraints { make in
+            make.top.equalTo(forgotPasswordButton.snp.bottom).offset(16)
+            make.leading.trailing.equalTo(formCard)
+            make.height.equalTo(48)
+        }
 
-    private func startSloganAnimation() {
-        sloganTimer = Timer.scheduledTimer(withTimeInterval: 1.3,
-                                           repeats: true) { [weak self] _ in
-            self?.animateSloganWord()
+        // OR divider
+
+        orStack.addArrangedSubview(orLeftLine)
+        orStack.addArrangedSubview(orLabel)
+        orStack.addArrangedSubview(orRightLine)
+
+        orLeftLine.snp.makeConstraints { make in
+            make.height.equalTo(1)
+        }
+        orRightLine.snp.makeConstraints { make in
+            make.height.equalTo(1)
+        }
+
+        orStack.snp.makeConstraints { make in
+            make.top.equalTo(primaryButton.snp.bottom).offset(20)
+            make.leading.trailing.equalTo(formCard)
+            make.height.equalTo(20)
+        }
+
+        // Google button
+
+        configureGoogleButton()
+
+        googleButton.snp.makeConstraints { make in
+            make.top.equalTo(orStack.snp.bottom).offset(18)
+            make.leading.trailing.equalTo(formCard)
+            make.height.equalTo(46)
+        }
+
+        // Bottom
+
+        bottomStack.snp.makeConstraints { make in
+            make.top.equalTo(googleButton.snp.bottom).offset(24)
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(24)
         }
     }
 
-    private func animateSloganWord() {
-        sloganIndex = (sloganIndex + 1) % sloganWords.count
-        let newWord = sloganWords[sloganIndex]
+    // MARK: - Styling helpers
 
-        sloganWordLabel.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
-        sloganWordLabel.alpha = 0
-        sloganWordLabel.text = newWord
-
-        UIView.animate(
-            withDuration: 0.3,
-            delay: 0,
-            usingSpringWithDamping: 0.5,
-            initialSpringVelocity: 0.5,
-            options: .curveEaseOut
-        ) {
-            self.sloganWordLabel.transform = .identity
-            self.sloganWordLabel.alpha = 1
-        }
+    private func styleFieldContainer(_ view: UIView) {
+        view.backgroundColor = .mgCard
+        view.layer.cornerRadius = 16
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.mgCardStroke.cgColor
+        view.layer.masksToBounds = true
     }
 
-    @objc private func onTogglePassword() {
-        let secure = passwordField.textField.isSecureTextEntry
-        passwordField.textField.isSecureTextEntry = !secure
-        passwordToggleButton.setImage(
-            UIImage(systemName: secure ? "eye" : "eye.slash"),
-            for: .normal
+    private func configureGoogleButton() {
+        var config = UIButton.Configuration.plain()
+        config.baseForegroundColor = .mgTextPrimary
+        config.background.backgroundColor = .mgCard
+        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
+        config.cornerStyle = .capsule
+
+        let title = AttributedString(
+            "", // mode-a görə sonra set olunacaq
+            attributes: AttributeContainer([
+                .font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+            ])
         )
+        config.attributedTitle = title
+
+        let gImage = UIImage(named: "google_logo")
+        config.image = gImage
+        config.imagePadding = 8
+        config.imagePlacement = .leading
+
+        googleButton.configuration = config
     }
 
-    @objc private func onMainPressed() {
-        let email = emailField.textField.text?.lowercased() ?? ""
-        let pass = passwordField.textField.text ?? ""
+    // MARK: - Mode
+
+    private func updateForMode() {
+        switch mode {
+        case .login:
+            titleLabel.text = "Welcome Back!"
+            subtitleLabel.text = "Log in to continue your meme journey."
+
+            emailField.attributedPlaceholder = NSAttributedString(
+                string: "Enter your email or username",
+                attributes: [
+                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
+                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
+                ])
+
+            usernameField.attributedPlaceholder = NSAttributedString(
+                string: "Choose a username",
+                attributes: [
+                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
+                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
+                ])
+
+            passwordField.attributedPlaceholder = NSAttributedString(
+                string: "Enter your password",
+                attributes: [
+                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
+                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
+                ])
+
+            usernameContainer.isHidden = true
+            forgotPasswordButton.isHidden = false
+
+            primaryButton.setTitle("Log In", for: .normal)
+
+            googleButton.configuration?.attributedTitle = AttributedString(
+                "Sign in with Google",
+                attributes: AttributeContainer([
+                    .font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+                ])
+            )
+
+            bottomTextLabel.text = "Don't have an account?"
+            bottomActionButton.setTitle("Sign Up", for: .normal)
+
+        case .register:
+            titleLabel.text = "Create Your Account"
+            subtitleLabel.text = "Join the meme community and start creating."
+
+            emailField.attributedPlaceholder = NSAttributedString(
+                string: "Enter your email",
+                attributes: [
+                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
+                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
+                ])
+
+            usernameField.attributedPlaceholder = NSAttributedString(
+                string: "Choose a username",
+                attributes: [
+                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
+                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
+                ])
+
+            passwordField.attributedPlaceholder = NSAttributedString(
+                string: "Create a password",
+                attributes: [
+                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
+                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
+                ])
+
+            usernameContainer.isHidden = false
+            forgotPasswordButton.isHidden = true
+
+            primaryButton.setTitle("Sign Up", for: .normal)
+
+            googleButton.configuration?.attributedTitle = AttributedString(
+                "Sign up with Google",
+                attributes: AttributeContainer([
+                    .font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+                ])
+            )
+
+            bottomTextLabel.text = "Already have an account?"
+            bottomActionButton.setTitle("Log In", for: .normal)
+        }
+    }
+
+    // MARK: - Actions
+
+    private func setupActions() {
+        primaryButton.addTarget(self, action: #selector(handlePrimaryTapped), for: .touchUpInside)
+        passwordVisibilityButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+        googleButton.addTarget(self, action: #selector(handleGoogleTapped), for: .touchUpInside)
+        bottomActionButton.addTarget(self, action: #selector(handleToggleMode), for: .touchUpInside)
+        forgotPasswordButton.addTarget(self, action: #selector(handleForgotPassword), for: .touchUpInside)
+    }
+
+    @objc private func handlePrimaryTapped() {
+        let email = emailField.text ?? ""
+        let password = passwordField.text ?? ""
+        let username = usernameField.text ?? ""
+
+        view.endEditing(true)
 
         switch mode {
         case .login:
-            viewModel.login(email: email, password: pass)
+            viewModel.login(email: email, password: password)
         case .register:
-            viewModel.register(email: email, password: pass)
+            viewModel.register(email: email, username: username, password: password)
         }
     }
 
-    @objc private func onToggleMode() {
+    @objc private func togglePasswordVisibility() {
+        passwordField.isSecureTextEntry.toggle()
+        let name = passwordField.isSecureTextEntry ? "eye" : "eye.slash"
+        passwordVisibilityButton.setImage(UIImage(systemName: name), for: .normal)
+    }
+
+    @objc private func handleGoogleTapped() {
+        view.endEditing(true)
+//        viewModel.signInWithGoogle(mode: mode)
+    }
+
+    @objc private func handleToggleMode() {
         mode = (mode == .login) ? .register : .login
-        updateModeUI(animated: true)
+//        viewModel.didChangeMode(to: mode)
     }
 
-    private func updateModeUI(animated: Bool) {
-        let block = {
-            switch self.mode {
-            case .login:
-                self.titleLabel.text = "Welcome Back"
-                self.mainButton.setTitle("Login", for: .normal)
-                self.toggleAuthButton.setTitle("No account?  Register", for: .normal)
-
-            case .register:
-                self.titleLabel.text = "Meme Master"
-                self.mainButton.setTitle("Register", for: .normal)
-                self.toggleAuthButton.setTitle("Already a member?  Sign in", for: .normal)
-            }
-        }
-
-        if animated {
-            UIView.transition(
-                with: view,
-                duration: 0.25,
-                options: .transitionCrossDissolve,
-                animations: block
-            )
-        } else {
-            block()
-        }
-    }
-
-    @MainActor
-    deinit {
-        sloganTimer?.invalidate()
+    @objc private func handleForgotPassword() {
+//        viewModel.forgotPassword()
     }
 }

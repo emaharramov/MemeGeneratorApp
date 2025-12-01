@@ -16,14 +16,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                willConnectTo session: UISceneSession,
                options connectionOptions: UIScene.ConnectionOptions) {
 
-        guard let windowScene = scene as? UIWindowScene else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
 
         let window = UIWindow(windowScene: windowScene)
         self.window = window
 
+        setupNavigationBarAppearance()
+
         let appCoordinator = AppCoordinator(window: window)
         self.coordinator = appCoordinator
         appCoordinator.start()
+    }
+    
+    private func setupNavigationBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .mgBackground
+        appearance.titleTextAttributes = [
+            .foregroundColor: UIColor.mgTextPrimary,
+            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
+        ]
+        appearance.shadowColor = .clear
+
+        let navBar = UINavigationBar.appearance()
+        navBar.standardAppearance = appearance
+        navBar.scrollEdgeAppearance = appearance
+        navBar.compactAppearance = appearance
+        navBar.tintColor = .mgTextPrimary
+        navBar.isTranslucent = false
+
+        // ƏSAS YER: status bar ikonları ağ olsun
+        navBar.barStyle = .black   // -> lightContent
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

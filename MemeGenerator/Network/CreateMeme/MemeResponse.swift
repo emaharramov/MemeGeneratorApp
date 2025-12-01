@@ -31,3 +31,26 @@ struct TemplateDTO: Codable {
     let width: Int
     let height: Int
 }
+
+// MARK: - MemeWithAI
+struct MemeWithAI: Codable {
+    let success: Bool?
+    let meme: Meme?
+}
+
+// MARK: - Meme
+struct Meme: Codable {
+    let userID, prompt: String?
+    let imageURL: String?
+    let id, createdAt, updatedAt: String?
+    let v: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case userID = "userId"
+        case prompt
+        case imageURL = "imageUrl"
+        case id = "_id"
+        case createdAt, updatedAt
+        case v = "__v"
+    }
+}

@@ -12,6 +12,7 @@ final class ProfileMenuCell: UITableViewCell {
 
     static let reuseID = "ProfileMenuCell"
 
+    private let cardView = UIView()
     private let iconBackground = UIView()
     private let iconView = UIImageView()
     private let titleLabel = UILabel()
@@ -29,45 +30,60 @@ final class ProfileMenuCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        let card = UIView()
-        card.backgroundColor = .systemBackground
-        card.layer.cornerRadius = 20
-        card.layer.masksToBounds = true
+        // Card
+        cardView.backgroundColor = .mgCard
+        cardView.layer.cornerRadius = 18
+        cardView.layer.masksToBounds = false
+        cardView.layer.borderWidth = 1
+        cardView.layer.borderColor = UIColor.mgCardStroke.cgColor
 
-        contentView.addSubview(card)
-        card.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 2, left: 16, bottom: 2, right: 16))
-            make.height.equalTo(52)
+        contentView.addSubview(cardView)
+        cardView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 3, left: 16, bottom: 3, right: 16))
+            make.height.equalTo(56)
         }
 
-        iconBackground.backgroundColor = .systemGray6
+        // Icon background
+        iconBackground.backgroundColor = UIColor.white.withAlphaComponent(0.06)
         iconBackground.layer.cornerRadius = 12
         iconBackground.snp.makeConstraints { $0.width.height.equalTo(36) }
 
-        iconView.tintColor = .systemBlue
+        iconView.tintColor = .mgAccent
         iconView.contentMode = .scaleAspectFit
 
         iconBackground.addSubview(iconView)
         iconView.snp.makeConstraints { $0.center.equalToSuperview() }
 
-        titleLabel.font = .systemFont(ofSize: 16)
-        titleLabel.textColor = .label
+        // Title
+        titleLabel.font = .systemFont(ofSize: 16, weight: .regular)
+        titleLabel.textColor = .mgTextPrimary
 
-        chevron.tintColor = .tertiaryLabel
+        // Chevron
+        chevron.tintColor = .mgTextSecondary
 
         let stack = UIStackView(arrangedSubviews: [iconBackground, titleLabel, UIView(), chevron])
         stack.axis = .horizontal
         stack.alignment = .center
         stack.spacing = 12
 
-        card.addSubview(stack)
+        cardView.addSubview(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(12)
         }
     }
 
-    func configure(iconName: String, title: String) {
+    func configure(iconName: String,
+                   title: String,
+                   isDestructive: Bool = false) {
         iconView.image = UIImage(systemName: iconName)
         titleLabel.text = title
+
+        if isDestructive {
+            titleLabel.textColor = UIColor.systemRed.withAlphaComponent(0.9)
+            iconView.tintColor = UIColor.systemRed.withAlphaComponent(0.9)
+        } else {
+            titleLabel.textColor = .mgTextPrimary
+            iconView.tintColor = .mgAccent
+        }
     }
 }

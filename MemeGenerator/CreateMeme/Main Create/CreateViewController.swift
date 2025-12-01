@@ -18,9 +18,11 @@ final class CreateViewController: UIViewController {
 
     private let segmentedBackgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 239/255, green: 241/255, blue: 252/255, alpha: 1.0)
+        view.backgroundColor = UIColor.white.withAlphaComponent(0.06)
         view.layer.cornerRadius = 20
         view.layer.masksToBounds = true
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.white.withAlphaComponent(0.12).cgColor
         return view
     }()
 
@@ -30,10 +32,10 @@ final class CreateViewController: UIViewController {
         sc.selectedSegmentIndex = 0
 
         sc.backgroundColor = .clear
-        sc.selectedSegmentTintColor = .white
+        sc.selectedSegmentTintColor = .mgAccent
 
         let normalAttrs: [NSAttributedString.Key: Any] = [
-            .foregroundColor: UIColor.systemIndigo.withAlphaComponent(0.8),
+            .foregroundColor: UIColor.mgTextSecondary,
             .font: UIFont.systemFont(ofSize: 14, weight: .medium)
         ]
         let selectedAttrs: [NSAttributedString.Key: Any] = [
@@ -50,7 +52,11 @@ final class CreateViewController: UIViewController {
         return sc
     }()
 
-    private let containerView = UIView()
+    private let containerView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }()
 
     // MARK: - Child management
 
@@ -74,15 +80,18 @@ final class CreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = .mgBackground
         navigationItem.title = "Create"
 
         setupLayout()
-        segmentedControl.addTarget(self,
-                                   action: #selector(modeChanged),
-                                   for: .valueChanged)
 
-        // default – AI Meme
+        segmentedControl.addTarget(
+            self,
+            action: #selector(modeChanged),
+            for: .valueChanged
+        )
+
+        // Default – AI Meme
         showSegment(index: 0)
     }
 
@@ -103,9 +112,8 @@ final class CreateViewController: UIViewController {
             $0.edges.equalToSuperview().inset(4)
         }
 
-        containerView.backgroundColor = .clear
         containerView.snp.makeConstraints {
-            $0.top.equalTo(segmentedBackgroundView.snp.bottom).offset(12)
+            $0.top.equalTo(segmentedBackgroundView.snp.bottom).offset(16)
             $0.leading.trailing.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
         }

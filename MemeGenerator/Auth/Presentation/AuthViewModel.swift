@@ -23,7 +23,7 @@ final class AuthViewModel: BaseViewModel {
         self.registerUseCase = registerUseCase
     }
 
-    private func validate(_ email: String, _ password: String) -> Bool {
+    private func validate(_ email: String, username: String? = nil, _ password: String) -> Bool {
         let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             showError("Please enter email.")
@@ -76,8 +76,8 @@ final class AuthViewModel: BaseViewModel {
         )
     }
 
-    func register(email: String, password: String) {
-        guard validate(email, password) else { return }
+    func register(email: String, username: String, password: String) {
+        guard validate(email, username: username, password) else { return }
 
         performWithLoading(
             operation: { [weak self] completion in

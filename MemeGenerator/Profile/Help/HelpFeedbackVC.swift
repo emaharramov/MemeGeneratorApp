@@ -15,7 +15,7 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "Help & Feedback"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .mgBackground
 
         label.text = "Help & Feedback screen\n(coming soon)"
         label.numberOfLines = 0

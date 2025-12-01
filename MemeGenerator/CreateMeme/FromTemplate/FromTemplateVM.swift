@@ -9,7 +9,7 @@ import UIKit
 
 final class FromTemplateVM: BaseViewModel {
 
-    // MARK: - Inputs / Outputs
+    // MARK: - Outputs
     var onTemplatesLoaded: (([TemplateDTO]) -> Void)?
     var onMemeGenerated: ((UIImage?) -> Void)?
     var onLoadingStateChange: ((Bool) -> Void)?
@@ -22,9 +22,9 @@ final class FromTemplateVM: BaseViewModel {
         self.userId = userId
     }
 
-    // MARK: - Fetch Templates
+    // MARK: - Templates
+
     func loadTemplates() {
-        // Burda loading toast lazım deyil deyə state göndərmirik
         MemeService.shared.fetchTemplates { [weak self] list, error in
             guard let self else { return }
 
@@ -41,14 +41,17 @@ final class FromTemplateVM: BaseViewModel {
     func selectTemplate(id: String) {
         selectedTemplateId = id
     }
-    
+
     func clearSelectedTemplate() {
         selectedTemplateId = nil
     }
 
     // MARK: - Generate Meme
+
     func generateMeme(prompt: String) {
-        guard !prompt.isEmpty else {
+        let trimmed = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmed.isEmpty else {
             onError?("Please enter a prompt")
             return
         }
@@ -62,7 +65,7 @@ final class FromTemplateVM: BaseViewModel {
 
         MemeService.shared.generateMeme(
             userId: userId,
-            prompt: prompt,
+            prompt: trimmed,
             templateId: templateId
         ) { [weak self] dto, error in
 

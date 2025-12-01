@@ -24,31 +24,46 @@ extension UIImageView {
     }
 }
 
+extension UIEdgeInsets {
+    init(all value: CGFloat) {
+        self.init(top: value, left: value, bottom: value, right: value)
+    }
+}
+
 extension Date {
     func timeAgoString() -> String {
-        let now = Date()
-        let seconds = Int(now.timeIntervalSince(self))
+        let seconds = Int(Date().timeIntervalSince(self))
 
-        if seconds < 60 { return "Just now" }
+        let minute = 60
+        let hour = 60 * minute
+        let day = 24 * hour
 
-        let minutes = seconds / 60
-        if minutes < 60 { return "\(minutes)m ago" }
-
-        let hours = minutes / 60
-        if hours < 24 { return "\(hours)h ago" }
-
-        let days = hours / 24
-        if days < 7 { return "\(days)d ago" }
-
-        let df = DateFormatter()
-        df.dateStyle = .medium
-        return df.string(from: self)
+        switch seconds {
+        case 0..<minute:      return "\(seconds)s ago"
+        case minute..<hour:   return "\(seconds / minute)m ago"
+        case hour..<day:      return "\(seconds / hour)h ago"
+        default:              return "\(seconds / day)d ago"
+        }
     }
+}
+
+extension UIColor {
+    static let mgBackground   = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 1)
+    static let mgLightBackground   = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 0.9)
+    static let mgCard         = UIColor(red: 45/255, green: 34/255, blue: 23/255, alpha: 1)
+    static let mgCardStroke   = UIColor(white: 1, alpha: 0.05)
+    static let mgTextPrimary  = UIColor.white
+    static let mgTextSecondary = UIColor.white.withAlphaComponent(0.65)
+    static let mgAccent       = UIColor(red: 171/255, green: 120/255, blue: 52/255, alpha: 1)
+    static let textFieldTextColor = UIColor(red: 0.70, green: 0.52, blue: 0.26, alpha: 1.0)
+    static let cardBg = UIColor.systemGray6.withAlphaComponent(0.9)
 }
 
 extension String {
     func timeAgoString() -> String {
         let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
         guard let date = isoFormatter.date(from: self) else {
             return ""
         }
@@ -184,7 +199,7 @@ extension UIViewController {
             accentView.backgroundColor = UIColor.systemRed
             iconView.image = UIImage(systemName: "exclamationmark.triangle.fill")
         case .info:
-            accentView.backgroundColor = UIColor.systemBlue
+            accentView.backgroundColor = .mgAccent
             iconView.image = UIImage(systemName: "info.circle.fill")
         }
 

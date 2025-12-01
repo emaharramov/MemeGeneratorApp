@@ -19,7 +19,7 @@ final class SettingsViewController: BaseController<SettingsVM>, UITableViewDataS
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = .mgBackground
         title = "Settings"
         
         view.addSubview(tableView)

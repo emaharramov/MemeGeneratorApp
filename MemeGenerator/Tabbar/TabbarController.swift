@@ -13,7 +13,13 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
     private let createNav: UINavigationController
     private let profileNav: UINavigationController
 
-    private let middleButton = UIButton()
+    private let middleButton = UIButton(type: .system)
+    private let middleTitleLabel = UILabel()
+
+    // Status bar rəngi üçün (selected VC-dən götür)
+    override var childForStatusBarStyle: UIViewController? {
+        selectedViewController
+    }
 
     // MARK: - Init
 
@@ -40,44 +46,61 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         configureAppearance()
         configureTabs()
         setupMiddleButton()
+        setupMiddleTitle()
     }
 
     // MARK: - Tab Bar UI
 
     private func configureAppearance() {
-        tabBar.tintColor = UIColor.black
-        tabBar.unselectedItemTintColor = .systemGray3
+        view.backgroundColor = .mgBackground
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .mgBackground
+        appearance.shadowColor = .clear
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.6)
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor.white.withAlphaComponent(0.6),
+            .font: UIFont.systemFont(ofSize: 11, weight: .regular)
+        ]
+
+        appearance.stackedLayoutAppearance.selected.iconColor = .mgAccent
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor.mgAccent,
+            .font: UIFont.systemFont(ofSize: 11, weight: .semibold)
+        ]
+
+        tabBar.standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            tabBar.scrollEdgeAppearance = appearance
+        }
+
+        tabBar.isTranslucent = false
+        tabBar.tintColor = .mgAccent
+        tabBar.unselectedItemTintColor = UIColor.white.withAlphaComponent(0.6)
 
         tabBar.layer.cornerRadius = 26
         tabBar.layer.masksToBounds = false
         tabBar.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
 
-        let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterialLight))
-        blurView.frame = tabBar.bounds
-        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        tabBar.insertSubview(blurView, at: 0)
-
         tabBar.layer.shadowColor = UIColor.black.cgColor
-        tabBar.layer.shadowOpacity = 0.15
+        tabBar.layer.shadowOpacity = 0.35
         tabBar.layer.shadowOffset = CGSize(width: 0, height: -4)
-        tabBar.layer.shadowRadius = 10
+        tabBar.layer.shadowRadius = 16
     }
 
     // MARK: - Tabs
 
     private func configureTabs() {
-        // Home item
         homeNav.tabBarItem = UITabBarItem(
-            title: "Memes",
+            title: "Home",
             image: UIImage(systemName: "house"),
             selectedImage: UIImage(systemName: "house.fill")
         )
-
-        // Create – ortadakı tab əslində placeholder kimi işləyir
+        
         createNav.tabBarItem = UITabBarItem(title: nil, image: nil, selectedImage: nil)
         createNav.tabBarItem.isEnabled = false
 
-        // Profile item
         profileNav.tabBarItem = UITabBarItem(
             title: "Profile",
             image: UIImage(systemName: "person"),
@@ -90,15 +113,16 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
     // MARK: - Middle Button
 
     private func setupMiddleButton() {
-        middleButton.backgroundColor = UIColor.systemBlue
-        middleButton.tintColor = .white
-        middleButton.layer.cornerRadius = 32
+        middleButton.backgroundColor = .mgAccent
+        middleButton.tintColor = .black
         middleButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        middleButton.layer.cornerRadius = 32
 
-        middleButton.layer.shadowColor = UIColor.black.cgColor
-        middleButton.layer.shadowOpacity = 0.25
-        middleButton.layer.shadowOffset = CGSize(width: 0, height: 4)
-        middleButton.layer.shadowRadius = 8
+        // Glow effekti
+        middleButton.layer.shadowColor = UIColor.mgAccent.cgColor
+        middleButton.layer.shadowOpacity = 0.8
+        middleButton.layer.shadowOffset = .zero
+        middleButton.layer.shadowRadius = 18
 
         view.addSubview(middleButton)
         middleButton.translatesAutoresizingMaskIntoConstraints = false
@@ -113,7 +137,23 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         middleButton.addTarget(self, action: #selector(openCreate), for: .touchUpInside)
     }
 
+    private func setupMiddleTitle() {
+        middleTitleLabel.text = "Create"
+        middleTitleLabel.textColor = .mgAccent
+        middleTitleLabel.font = .systemFont(ofSize: 11, weight: .semibold)
+        middleTitleLabel.textAlignment = .center
+
+        view.addSubview(middleTitleLabel)
+        middleTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            middleTitleLabel.topAnchor.constraint(equalTo: middleButton.bottomAnchor, constant: 6),
+            middleTitleLabel.centerXAnchor.constraint(equalTo: middleButton.centerXAnchor)
+        ])
+    }
+
     @objc private func openCreate() {
+        // Kiçik tap effekt
         UIView.animate(withDuration: 0.12, animations: {
             self.middleButton.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
         }, completion: { _ in
@@ -131,7 +171,8 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
                           didSelect viewController: UIViewController) {
 
         guard
-            let itemView = viewController.tabBarItem.value(forKey: "view") as? UIView
+            let itemView = viewController.tabBarItem.value(forKey: "view") as? UIView,
+            viewController !== createNav
         else { return }
 
         UIView.animate(withDuration: 0.12, animations: {

@@ -15,7 +15,7 @@ final class ManageSubscriptionVC: BaseController<ManageSubscriptionVM> {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "Manage Subscription"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .mgBackground
 
         label.text = "Manage Subscription screen\n(coming soon)"
         label.numberOfLines = 0

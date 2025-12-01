@@ -15,6 +15,8 @@ final class ProfileHeaderCell: UITableViewCell {
     var onEditProfile: (() -> Void)?
     var onGoPremium: (() -> Void)?
 
+    private let cardView = UIView()
+
     private let avatarView = UIView()
     private let initialsLabel = UILabel()
     private let nameLabel = UILabel()
@@ -34,39 +36,69 @@ final class ProfileHeaderCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
+        // CARD
+        cardView.backgroundColor = .mgCard
+        cardView.layer.cornerRadius = 22
+        cardView.layer.masksToBounds = false
+        cardView.layer.borderWidth = 1
+        cardView.layer.borderColor = UIColor.mgCardStroke.cgColor
+        cardView.layer.shadowColor = UIColor.black.cgColor
+        cardView.layer.shadowOpacity = 0.35
+        cardView.layer.shadowOffset = CGSize(width: 0, height: 10)
+        cardView.layer.shadowRadius = 18
+
+        contentView.addSubview(cardView)
+        cardView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16))
+        }
+
         // Avatar
-        avatarView.backgroundColor = .systemGray5
+        avatarView.backgroundColor = UIColor.white.withAlphaComponent(0.06)
         avatarView.layer.cornerRadius = 32
         avatarView.clipsToBounds = true
+        avatarView.layer.borderWidth = 1
+        avatarView.layer.borderColor = UIColor.white.withAlphaComponent(0.08).cgColor
         avatarView.snp.makeConstraints { $0.width.height.equalTo(64) }
 
         initialsLabel.font = .systemFont(ofSize: 24, weight: .semibold)
         initialsLabel.textAlignment = .center
-        initialsLabel.textColor = .systemGray
+        initialsLabel.textColor = .mgTextPrimary.withAlphaComponent(0.8)
+
         avatarView.addSubview(initialsLabel)
         initialsLabel.snp.makeConstraints { $0.edges.equalToSuperview() }
 
+        // Labels
         nameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
-        nameLabel.textColor = .label
+        nameLabel.textColor = .mgTextPrimary
 
-        emailLabel.font = .systemFont(ofSize: 14)
-        emailLabel.textColor = .secondaryLabel
+        emailLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        emailLabel.textColor = .mgTextSecondary
 
         let textStack = UIStackView(arrangedSubviews: [nameLabel, emailLabel])
         textStack.axis = .vertical
-        textStack.spacing = 2
+        textStack.spacing = 4
 
         let topStack = UIStackView(arrangedSubviews: [avatarView, textStack])
         topStack.axis = .horizontal
-        topStack.spacing = 12
+        topStack.spacing = 14
         topStack.alignment = .center
 
-        configureButton(editButton,
-                        title: "Edit Profile",
-                        filled: false)
-        configureButton(premiumButton,
-                        title: "Go Premium",
-                        filled: true)
+        // Buttons
+        configureButton(
+            editButton,
+            title: "Edit Profile",
+            background: UIColor.white.withAlphaComponent(0.06),
+            foreground: .mgTextPrimary,
+            hasShadow: false
+        )
+
+        configureButton(
+            premiumButton,
+            title: "Go Premium",
+            background: .mgAccent,
+            foreground: .black,
+            hasShadow: true
+        )
 
         editButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
         premiumButton.addTarget(self, action: #selector(premiumTapped), for: .touchUpInside)
@@ -78,20 +110,9 @@ final class ProfileHeaderCell: UITableViewCell {
 
         let mainStack = UIStackView(arrangedSubviews: [topStack, buttonsStack])
         mainStack.axis = .vertical
-        mainStack.spacing = 12
+        mainStack.spacing = 16
 
-        let card = UIView()
-        card.backgroundColor = .systemBackground
-        card.layer.cornerRadius = 20
-        card.layer.masksToBounds = true
-
-        contentView.addSubview(card)
-        card.addSubview(mainStack)
-
-        card.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16))
-        }
-
+        cardView.addSubview(mainStack)
         mainStack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(16)
         }
@@ -99,24 +120,18 @@ final class ProfileHeaderCell: UITableViewCell {
 
     private func configureButton(_ button: UIButton,
                                  title: String,
-                                 filled: Bool) {
-        if filled {
-            button.applyFilledStyle(
-                title: title,
-                baseBackgroundColor: .systemBlue,
-                baseForegroundColor: .white,
-                contentInsets: .init(top: 8, leading: 8, bottom: 8, trailing: 8),
-                addShadow: true
-            )
-        } else {
-            button.applyFilledStyle(
-                title: title,
-                baseBackgroundColor: .systemGray6,
-                baseForegroundColor: .label,
-                contentInsets: .init(top: 8, leading: 8, bottom: 8, trailing: 8),
-                addShadow: false
-            )
-        }
+                                 background: UIColor,
+                                 foreground: UIColor,
+                                 hasShadow: Bool) {
+        button.applyFilledStyle(
+            title: title,
+            baseBackgroundColor: background,
+            baseForegroundColor: foreground,
+            contentInsets: .init(top: 9, leading: 10, bottom: 9, trailing: 10),
+            addShadow: hasShadow
+        )
+        button.layer.cornerRadius = 16
+        button.clipsToBounds = false
     }
 
     func configure(name: String, email: String) {

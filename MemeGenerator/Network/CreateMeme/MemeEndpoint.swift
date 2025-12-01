@@ -10,6 +10,7 @@ import Foundation
 enum MemeEndpoint {
     // MEME
     case create
+    case createAI
     case userMemes(userId: String)
     case all
 
@@ -20,6 +21,9 @@ enum MemeEndpoint {
         switch self {
         case .create:
             return NetworkHelper.shared.configureURL(endpoint: "/memes")
+            
+        case .createAI:
+            return NetworkHelper.shared.configureURL(endpoint: "/memes/create-ai")
 
         case .userMemes(let userId):
             return NetworkHelper.shared.configureURL(endpoint: "/memes/\(userId)")

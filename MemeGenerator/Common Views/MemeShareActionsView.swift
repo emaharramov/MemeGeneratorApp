@@ -13,10 +13,12 @@ final class MemeShareActionsView: UIView {
     var onSave: (() -> Void)?
     var onShare: (() -> Void)?
     var onTryAgain: (() -> Void)?
+    var onRegenerate: (() -> Void)?
 
     private let saveButton = UIButton(type: .system)
     private let shareButton = UIButton(type: .system)
     private let retryButton = UIButton(type: .system)
+    private let regenerateButton = UIButton(type: .system)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -41,12 +43,16 @@ final class MemeShareActionsView: UIView {
         configure(button: retryButton,
                   title: "Try Again",
                   systemImage: "arrow.clockwise")
+        configure(button: regenerateButton,
+                  title: "Reset",
+                  systemImage: "arrow.counterclockwise")
 
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(shareTapped), for: .touchUpInside)
         retryButton.addTarget(self, action: #selector(retryTapped), for: .touchUpInside)
+        regenerateButton.addTarget(self, action: #selector(regenerateTapped), for: .touchUpInside)
 
-        let stack = UIStackView(arrangedSubviews: [saveButton, shareButton, retryButton])
+        let stack = UIStackView(arrangedSubviews: [saveButton, shareButton, retryButton, regenerateButton])
         stack.axis = .horizontal
         stack.distribution = .fillEqually
         stack.spacing = 10
@@ -60,35 +66,34 @@ final class MemeShareActionsView: UIView {
     private func configure(button: UIButton, title: String, systemImage: String) {
         var config = UIButton.Configuration.plain()
 
-        // Icon + title
-        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)
         config.image = UIImage(systemName: systemImage, withConfiguration: symbolConfig)
         config.imagePlacement = .top
-        config.imagePadding = 4
+        config.imagePadding = 6
 
         var titleAttr = AttributedString(title)
         titleAttr.font = .systemFont(ofSize: 12.5, weight: .medium)
         config.attributedTitle = titleAttr
-        config.baseForegroundColor = .label
+        config.baseForegroundColor = .mgTextSecondary
 
         config.contentInsets = NSDirectionalEdgeInsets(
-            top: 8,
+            top: 10,
             leading: 6,
-            bottom: 8,
+            bottom: 10,
             trailing: 6
         )
 
         button.configuration = config
 
-        // Daha zərif kart stili
-        button.backgroundColor = .systemBackground
-        button.layer.cornerRadius = 14
-        button.layer.masksToBounds = true
-        button.layer.borderWidth = 0.6
-        button.layer.borderColor = UIColor.systemGray4.withAlphaComponent(0.9).cgColor
+        button.backgroundColor = .mgCard
+        button.layer.cornerRadius = 16
+        button.layer.masksToBounds = false
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.mgCardStroke.cgColor
     }
 
     @objc private func saveTapped() { onSave?() }
     @objc private func shareTapped() { onShare?() }
     @objc private func retryTapped() { onTryAgain?() }
+    @objc private func regenerateTapped() { onRegenerate?() }
 }

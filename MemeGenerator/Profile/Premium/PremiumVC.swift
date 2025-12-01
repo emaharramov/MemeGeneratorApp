@@ -9,108 +9,245 @@ import UIKit
 import SnapKit
 
 final class PremiumViewController: BaseController<PremiumVM> {
-    
+
+    // MARK: - Sections / Rows
+
+    private enum Section: Int, CaseIterable {
+        case header
+        case perks
+        case plans
+    }
+
+    private enum Plan: Int, CaseIterable {
+        case yearly
+        case monthly
+    }
+
+    // MARK: - UI
+
+    private let tableView = UITableView(frame: .zero, style: .plain)
+
+    // Perk məlumatları (ikon + text)
+    private let perks: [(String, String)] = [
+        ("infinity",    "Unlimited AI Generations"),
+        ("drop.fill",   "No More Watermarks"),
+        ("rocket.fill", "Early Access to New Styles")
+    ]
+
+    // State
+    private var selectedPlan: Plan = .yearly {
+        didSet { reloadPlansSection() }
+    }
+
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+
         title = "Go Premium"
-        
-        let scroll = UIScrollView()
-        let content = UIView()
-        view.addSubview(scroll)
-        scroll.snp.makeConstraints { $0.edges.equalTo(view.safeAreaLayoutGuide) }
-        scroll.addSubview(content)
-        content.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.width.equalToSuperview()
+        view.backgroundColor = .mgBackground
+
+        setupTableView()
+        setupFooter()
+    }
+
+    // MARK: - Setup
+
+    private func setupTableView() {
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
-        
-        let iconView = UIView()
-        iconView.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
-        iconView.layer.cornerRadius = 52
-        
-        let iconImage = UIImageView(image: UIImage(systemName: "sparkles"))
-        iconImage.tintColor = .systemBlue
-        iconImage.contentMode = .scaleAspectFit
-        iconView.addSubview(iconImage)
-        iconImage.snp.makeConstraints { $0.center.equalToSuperview() }
-        
-        let titleLabel = UILabel()
-        titleLabel.text = "Unlock Your Full Meme Potential"
-        titleLabel.font = .systemFont(ofSize: 26, weight: .bold)
-        titleLabel.textColor = .label
-        titleLabel.numberOfLines = 0
-        titleLabel.textAlignment = .center
-        
-        let subtitle = UILabel()
-        subtitle.text = "Go Premium to get unlimited AI generations, remove watermarks, and access exclusive content."
-        subtitle.font = .systemFont(ofSize: 15)
-        subtitle.textColor = .secondaryLabel
-        subtitle.numberOfLines = 0
-        subtitle.textAlignment = .center
-        
-        let perksStack = UIStackView()
-        perksStack.axis = .vertical
-        perksStack.spacing = 10
-        
-        let perks = [
-            "Unlimited AI meme generations",
-            "No watermark on exported memes",
-            "Exclusive premium templates",
-            "Priority support"
-        ]
-        
-        perks.forEach { text in
-            let row = UIStackView()
-            row.axis = .horizontal
-            row.spacing = 8
-            row.alignment = .center
-            
-            let tick = UIImageView(image: UIImage(systemName: "checkmark.circle.fill"))
-            tick.tintColor = .systemBlue
-            tick.snp.makeConstraints { $0.width.height.equalTo(20) }
-            
-            let label = UILabel()
-            label.text = text
-            label.font = .systemFont(ofSize: 15)
-            label.textColor = .label
-            label.numberOfLines = 0
-            
-            row.addArrangedSubview(tick)
-            row.addArrangedSubview(label)
-            perksStack.addArrangedSubview(row)
-        }
-        
-        let upgradeButton = UIButton.makeFilledAction(
+
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
+        tableView.showsVerticalScrollIndicator = false
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 140
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 16, right: 0)
+
+        tableView.dataSource = self
+        tableView.delegate   = self
+
+        tableView.register(PremiumHeaderCell.self,
+                           forCellReuseIdentifier: PremiumHeaderCell.reuseID)
+        tableView.register(PremiumPerkCell.self,
+                           forCellReuseIdentifier: PremiumPerkCell.reuseID)
+        tableView.register(PremiumPlanCell.self,
+                           forCellReuseIdentifier: PremiumPlanCell.reuseID)
+    }
+
+    private func setupFooter() {
+        let footer = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 140))
+        footer.backgroundColor = .clear
+
+        let upgradeButton = UIButton(type: .system)
+        upgradeButton.applyFilledStyle(
             title: "Upgrade Now",
-            baseBackgroundColor: .systemBlue,
-            baseForegroundColor: .white,
-            contentInsets: .init(top: 14, leading: 16, bottom: 14, trailing: 16)
+            baseBackgroundColor: .mgAccent,
+            baseForegroundColor: .black,
+            contentInsets: .init(top: 14, leading: 16, bottom: 14, trailing: 16),
+            addShadow: true
         )
-        
+        upgradeButton.layer.cornerRadius = 24
+        upgradeButton.clipsToBounds = false
+        upgradeButton.addTarget(self, action: #selector(upgradeTapped), for: .touchUpInside)
+
         let restoreButton = UIButton(type: .system)
         restoreButton.setTitle("Restore Purchases", for: .normal)
-        
-        let mainStack = UIStackView(arrangedSubviews: [
-            iconView, titleLabel, subtitle, perksStack, upgradeButton, restoreButton
-        ])
-        mainStack.axis = .vertical
-        mainStack.spacing = 20
-        mainStack.alignment = .fill
-        
-        content.addSubview(mainStack)
-        mainStack.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(32)
-            make.leading.trailing.equalToSuperview().inset(24)
-            make.bottom.equalToSuperview().inset(24)
+        restoreButton.setTitleColor(.mgTextSecondary, for: .normal)
+        restoreButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
+        restoreButton.addTarget(self, action: #selector(restoreTapped), for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [upgradeButton, restoreButton])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.alignment = .fill
+
+        footer.addSubview(stack)
+        stack.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(12)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().inset(12)
         }
-        
-        iconView.snp.makeConstraints { make in
-            make.height.equalTo(104)
-        }
-        
+
         upgradeButton.snp.makeConstraints { make in
-            make.height.equalTo(50)
+            make.height.equalTo(54)
         }
+
+        tableView.tableFooterView = footer
+    }
+
+    // MARK: - Helpers
+
+    private func reloadPlansSection() {
+        guard let index = Section.allCases.firstIndex(of: .plans) else { return }
+        let indexSet = IndexSet(integer: index)
+        tableView.reloadSections(indexSet, with: .none)
+    }
+
+    // MARK: - Actions
+
+    @objc private func upgradeTapped() {
+        print("Upgrade with plan:", selectedPlan)
+    }
+
+    @objc private func restoreTapped() {
+        print("Restore purchases tapped")
+    }
+}
+
+extension PremiumViewController: UITableViewDataSource {
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        Section.allCases.count
+    }
+
+    func tableView(_ tableView: UITableView,
+                   numberOfRowsInSection section: Int) -> Int {
+
+        guard let section = Section(rawValue: section) else { return 0 }
+
+        switch section {
+        case .header: return 1
+        case .perks:  return perks.count
+        case .plans:  return Plan.allCases.count
+        }
+    }
+
+    func tableView(_ tableView: UITableView,
+                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+        guard let section = Section(rawValue: indexPath.section) else {
+            return UITableViewCell()
+        }
+
+        switch section {
+
+        case .header:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: PremiumHeaderCell.reuseID,
+                for: indexPath
+            ) as! PremiumHeaderCell
+
+            cell.configure(
+                title: "Go Premium",
+                subtitle: "Unlock unlimited AI memes, remove watermarks, and get early access to new templates."
+            )
+            return cell
+
+        case .perks:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: PremiumPerkCell.reuseID,
+                for: indexPath
+            ) as! PremiumPerkCell
+
+            let perk = perks[indexPath.row]
+            cell.configure(iconName: perk.0, text: perk.1)
+            return cell
+
+        case .plans:
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: PremiumPlanCell.reuseID,
+                for: indexPath
+            ) as! PremiumPlanCell
+
+            guard let plan = Plan(rawValue: indexPath.row) else { return cell }
+
+            switch plan {
+            case .yearly:
+                cell.configure(
+                    title: "Yearly",
+                    priceText: "$39.99 /year",
+                    subText: "$3.33 /month",
+                    badgeText: "BEST VALUE",
+                    isSelected: selectedPlan == .yearly
+                )
+            case .monthly:
+                cell.configure(
+                    title: "Monthly",
+                    priceText: "$7.99 /month",
+                    subText: "Flexible billing",
+                    badgeText: nil,
+                    isSelected: selectedPlan == .monthly
+                )
+            }
+
+            return cell
+        }
+    }
+}
+
+extension PremiumViewController: UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView,
+                   didSelectRowAt indexPath: IndexPath) {
+
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        guard
+            let section = Section(rawValue: indexPath.section),
+            section == .plans,
+            let plan = Plan(rawValue: indexPath.row)
+        else { return }
+
+        selectedPlan = plan
+    }
+
+    func tableView(_ tableView: UITableView,
+                   heightForHeaderInSection section: Int) -> CGFloat {
+        section == 0 ? 4 : 16
+    }
+
+    func tableView(_ tableView: UITableView,
+                   viewForHeaderInSection section: Int) -> UIView? {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }
+
+    func tableView(_ tableView: UITableView,
+                   heightForFooterInSection section: Int) -> CGFloat {
+        0.01
     }
 }

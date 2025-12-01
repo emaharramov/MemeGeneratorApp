@@ -30,7 +30,7 @@ final class ProfileViewController: UIViewController {
 
     private let tableView = UITableView(frame: .zero, style: .plain)
 
-    // Demo data
+    // Demo data (sonra real user modeldən gələcək)
     private let displayName = "Meme Master"
     private let email = "user@example.com"
     private let memesCount = "142"
@@ -47,9 +47,11 @@ final class ProfileViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = .mgBackground
         navigationItem.title = "Profile"
         setupTableView()
     }
@@ -61,12 +63,14 @@ final class ProfileViewController: UIViewController {
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
 
-        tableView.backgroundColor = .systemGroupedBackground
+        tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
 
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 140
+        tableView.estimatedRowHeight = 160
+
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 24, right: 0)
 
         tableView.register(ProfileHeaderCell.self,
                            forCellReuseIdentifier: ProfileHeaderCell.reuseID)
@@ -79,7 +83,7 @@ final class ProfileViewController: UIViewController {
         tableView.delegate   = self
     }
 
-    // MARK: - Router helper-lər (push YOX, sadəcə router çağırır)
+    // MARK: - Router helper-lər
 
     private func openEditProfile() {
         router?.showEditProfile()
@@ -153,7 +157,6 @@ extension ProfileViewController: UITableViewDataSource {
                 self?.openPremium()
             }
 
-            cell.selectionStyle = .none
             return cell
 
         case .stats:
@@ -163,7 +166,6 @@ extension ProfileViewController: UITableViewDataSource {
             )
 
             cell.configure(memes: memesCount, saved: savedCount)
-            cell.selectionStyle = .none
             return cell
 
         case .menu:
@@ -176,20 +178,31 @@ extension ProfileViewController: UITableViewDataSource {
 
             switch row {
             case .myMemes:
-                cell.configure(iconName: "square.grid.2x2.fill",
-                               title: "My Memes")
+                cell.configure(
+                    iconName: "square.grid.2x2.fill",
+                    title: "My Memes"
+                )
             case .savedMemes:
-                cell.configure(iconName: "bookmark.fill",
-                               title: "Saved Memes")
+                cell.configure(
+                    iconName: "bookmark.fill",
+                    title: "Saved Memes"
+                )
             case .settings:
-                cell.configure(iconName: "gearshape.fill",
-                               title: "Settings")
+                cell.configure(
+                    iconName: "gearshape.fill",
+                    title: "Settings"
+                )
             case .help:
-                cell.configure(iconName: "questionmark.circle.fill",
-                               title: "Help & Feedback")
+                cell.configure(
+                    iconName: "questionmark.circle.fill",
+                    title: "Help & Feedback"
+                )
             case .logout:
-                cell.configure(iconName: "figure.run",
-                               title: "Logout")
+                cell.configure(
+                    iconName: "figure.run",
+                    title: "Logout",
+                    isDestructive: true
+                )
             }
 
             return cell
@@ -210,7 +223,6 @@ extension ProfileViewController: UITableViewDelegate {
               section == .menu,
               let row = MenuRow(rawValue: indexPath.row) else { return }
 
-        // 🔹 Burada da router istifadə edirik
         switch row {
         case .myMemes:    openMyMemes()
         case .savedMemes: openSavedMemes()
@@ -222,12 +234,14 @@ extension ProfileViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView,
                    heightForHeaderInSection section: Int) -> CGFloat {
-        return section == 0 ? 12 : 8
+        section == 0 ? 4 : 8
     }
 
     func tableView(_ tableView: UITableView,
                    viewForHeaderInSection section: Int) -> UIView? {
-        UIView()
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
     }
 
     func tableView(_ tableView: UITableView,

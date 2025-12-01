@@ -35,7 +35,7 @@ final class MainTabbarCoordinator: Coordinator {
         homeNavigation: UINavigationController = UINavigationController(),
         createNavigation: UINavigationController = UINavigationController(),
         profileNavigation: UINavigationController = UINavigationController(),
-        homeFactory: HomeFactory = DefaultHomeFactory(),
+        homeFactory: HomeFactory = HomeFeedFactory(),
         createFactory: CreateFactory = DefaultCreateFactory(),
         profileFactory: ProfileFactory = DefaultProfileFactory()
     ) {
@@ -56,7 +56,7 @@ final class MainTabbarCoordinator: Coordinator {
 
     // MARK: - Start
     func start() {
-        let homeCoordinator = HomeCoordinator(
+        let homeCoordinator = FeedCoordinator(
             navigation: homeNavigation,
             factory: homeFactory
         )

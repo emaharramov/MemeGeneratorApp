@@ -21,27 +21,26 @@ final class ProfileStatCardView: UIView {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        backgroundColor = .systemBackground
+        backgroundColor = .mgCard
         layer.cornerRadius = 18
-        layer.masksToBounds = true
+        layer.masksToBounds = false
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.mgCardStroke.cgColor
 
         valueLabel.font = .systemFont(ofSize: 22, weight: .semibold)
-        valueLabel.textColor = .label
-        valueLabel.textAlignment = .center
+        valueLabel.textColor = .mgTextPrimary
 
-        titleLabel.font = .systemFont(ofSize: 13)
-        titleLabel.textColor = .secondaryLabel
-        titleLabel.textAlignment = .center
+        titleLabel.font = .systemFont(ofSize: 13, weight: .regular)
+        titleLabel.textColor = .mgTextSecondary
 
         let stack = UIStackView(arrangedSubviews: [valueLabel, titleLabel])
         stack.axis = .vertical
-        stack.alignment = .center
-        stack.spacing = 2
+        stack.spacing = 4
+        stack.alignment = .leading
 
         addSubview(stack)
         stack.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(8)
+            make.edges.equalToSuperview().inset(12)
         }
     }
 
@@ -50,4 +49,3 @@ final class ProfileStatCardView: UIView {
         titleLabel.text = title
     }
 }
-

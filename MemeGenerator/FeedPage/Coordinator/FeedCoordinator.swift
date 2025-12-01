@@ -1,5 +1,5 @@
 //
-//  HomeCoordinator.swift
+//  FeedCoordinator.swift
 //  MemeGenerator
 //
 //  Created by Emil Maharramov on 29.11.25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class HomeCoordinator: Coordinator {
+final class FeedCoordinator: Coordinator {
 
     var childCoordinators: [Coordinator] = []
     private let navigation: UINavigationController
