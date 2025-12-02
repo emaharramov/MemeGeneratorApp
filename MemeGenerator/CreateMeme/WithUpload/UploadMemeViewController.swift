@@ -37,9 +37,9 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private let hintLabel = UILabel()
 
     private let toolsTitleLabel = UILabel()
-    private let toolsView = MemeEditToolsView()          // Gallery / Camera / Templates / Color
+    private let toolsView = MemeEditToolsView()
 
-    private let shareActionsView = MemeShareActionsView() // Save / Share / Try Again / Reset
+    private let shareActionsView = MemeShareActionsView()
 
     // MARK: - Overlay State
 
@@ -130,7 +130,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private func setupEditorCard() {
         styleCard(editorCard)
 
-        // dashed border – yalnız placeholder olanda görünür
         dashedBorderLayer.strokeColor = UIColor.mgCardStroke.withAlphaComponent(0.5).cgColor
         dashedBorderLayer.fillColor = UIColor.clear.cgColor
         dashedBorderLayer.lineDashPattern = [6, 4]
@@ -158,7 +157,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             make.edges.equalTo(baseImageView.snp.edges)
         }
 
-        // Placeholder
         placeholderIcon.image = UIImage(systemName: "photo.on.rectangle")
         placeholderIcon.tintColor = .systemGray3
 
@@ -179,7 +177,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             make.center.equalToSuperview()
         }
 
-        // Watermark preview (yalnız image olanda)
         watermarkPreviewLabel.text = viewModel.appWatermarkText
         watermarkPreviewLabel.font = .boldSystemFont(ofSize: 40)
         watermarkPreviewLabel.textColor = UIColor.white.withAlphaComponent(0.18)
@@ -229,7 +226,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             make.height.equalTo(60)
         }
 
-        // Tools callbacks
         toolsView.onGallery = { [weak self] in
             self?.openGallery()
         }
@@ -246,7 +242,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             self?.openColorPicker()
         }
 
-        // Share Actions – hər zaman görünür
         contentView.addSubview(shareActionsView)
         shareActionsView.snp.makeConstraints { make in
             make.top.equalTo(toolsView.snp.bottom).offset(24)
@@ -261,17 +256,13 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         shareActionsView.onShare = { [weak self] in
             self?.handleShare()
         }
-        // Try Again – yalnız text overlay-ləri təmizləyir
         shareActionsView.onTryAgain = { [weak self] in
             self?.clearAllOverlays()
         }
-        // Reset – hər şeyi sıfırlayır (image + overlays)
         shareActionsView.onRegenerate = { [weak self] in
             self?.handleReset()
         }
     }
-
-    // MARK: - Templates
 
     private func loadTemplates() {
         MemeService.shared.fetchTemplates { [weak self] list, error in
@@ -312,8 +303,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         present(picker, animated: true)
     }
 
-    // MARK: - Placeholder state
-
     private func updatePlaceholderState(hasImage: Bool) {
         placeholderStack.isHidden = hasImage
         watermarkPreviewLabel.isHidden = !hasImage
@@ -325,27 +314,11 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         }
     }
 
-    // MARK: - Bindings
-
     private func setupBindings() {
         viewModel.onImageChanged = { [weak self] image in
             guard let self else { return }
             self.baseImageView.image = image
-
-            if let img = image {
-                let aspect = img.size.height / max(img.size.width, 1)
-                self.editorCard.snp.remakeConstraints { make in
-                    make.top.equalTo(self.headerView.snp.bottom).offset(16)
-                    make.leading.trailing.equalToSuperview().inset(16)
-                    make.height.equalTo(self.editorCard.snp.width).multipliedBy(aspect)
-                }
-                UIView.animate(withDuration: 0.25) {
-                    self.view.layoutIfNeeded()
-                }
-                self.updatePlaceholderState(hasImage: true)
-            } else {
-                self.updatePlaceholderState(hasImage: false)
-            }
+            self.updatePlaceholderState(hasImage: image != nil)
         }
 
         viewModel.onSavingStateChange = { [weak self] isSaving in
@@ -363,8 +336,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             self?.showToast(message: message)
         }
     }
-
-    // MARK: - Overlay helpers
 
     private func createOverlay(at point: CGPoint, initialText: String = "Your text") {
         let overlay = MemeTextOverlayView()
@@ -387,14 +358,19 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         }
 
         overlayContainer.addSubview(overlay)
-        let size = CGSize(width: 140, height: 60)
-        overlay.frame = CGRect(origin: .zero, size: size)
-        overlay.center = point.clamped(in: overlayContainer.bounds.insetBy(dx: 20, dy: 20))
+
+        let maxWidth = overlayContainer.bounds.width * 0.8
+        overlay.adjustSize(maxWidth: maxWidth)
+
+        overlay.center = point.clamped(
+            in: overlayContainer.bounds.insetBy(dx: 20, dy: 20)
+        )
 
         overlays.append(overlay)
         activeOverlay = overlay
         updateEditMode()
     }
+
 
     private func removeOverlay(_ overlay: MemeTextOverlayView) {
         if let index = overlays.firstIndex(where: { $0 === overlay }) {
@@ -428,13 +404,13 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             guard let self else { return }
             let newText = alert.textFields?.first?.text ?? ""
             overlay.label.text = newText
+            let maxWidth = self.overlayContainer.bounds.width * 0.8
+            overlay.adjustSize(maxWidth: maxWidth)
             self.activeOverlay = overlay
         }))
 
         present(alert, animated: true)
     }
-
-    // MARK: - Actions
 
     @objc private func handleCanvasTap(_ recognizer: UITapGestureRecognizer) {
         let location = recognizer.location(in: overlayContainer)

@@ -7,7 +7,6 @@
 
 import UIKit
 import SnapKit
-// MARK: - Overlay View (hər text üçün ayrıca)
 
 final class MemeTextOverlayView: UIView {
 
@@ -31,6 +30,22 @@ final class MemeTextOverlayView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func adjustSize(maxWidth: CGFloat) {
+        setNeedsLayout()
+        layoutIfNeeded()
+
+        let targetSize = CGSize(width: maxWidth,
+                                height: UIView.layoutFittingCompressedSize.height)
+
+        let size = systemLayoutSizeFitting(
+            targetSize,
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+
+        bounds.size = size
+    }
+    
     private func setupUI() {
         backgroundColor = .clear
 
@@ -38,6 +53,7 @@ final class MemeTextOverlayView: UIView {
         label.textColor = .white
         label.numberOfLines = 0
         label.textAlignment = .center
+        label.lineBreakMode = .byWordWrapping
         label.layer.shadowColor = UIColor.black.cgColor
         label.layer.shadowOpacity = 0.75
         label.layer.shadowRadius = 3
@@ -72,7 +88,6 @@ final class MemeTextOverlayView: UIView {
             make.trailing.equalToSuperview().offset(2)
         }
 
-        // default olaraq edit mode-da deyil, X gizlidir
         closeButton.isHidden = true
     }
 
@@ -97,7 +112,8 @@ final class MemeTextOverlayView: UIView {
         let translation = recognizer.translation(in: superview)
 
         if recognizer.state == .began || recognizer.state == .changed {
-            center = CGPoint(x: center.x + translation.x, y: center.y + translation.y)
+            center = CGPoint(x: center.x + translation.x,
+                             y: center.y + translation.y)
             recognizer.setTranslation(.zero, in: superview)
         } else if recognizer.state == .ended {
             onDragChanged?(center)

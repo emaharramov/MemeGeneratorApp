@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 @MainActor
-class BaseViewModel {
+class BaseViewModel: NSObject {
 
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
@@ -17,7 +17,7 @@ class BaseViewModel {
 
     var cancellables = Set<AnyCancellable>()
 
-    init() {}
+    override init() {}
 
     deinit {
         cancellables.removeAll()
