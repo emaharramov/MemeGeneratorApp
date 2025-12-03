@@ -162,7 +162,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = J4QKJ2964W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MemeGenerator/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to add your generated memes to your Photos library.";
@@ -199,7 +199,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = J4QKJ2964W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MemeGenerator/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to add your generated memes to your Photos library.";

@@ -286,9 +286,9 @@
             filePath = "MemeGenerator/CreateMeme/WithAI/AIVC.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "218"
-            endingLineNumber = "218"
-            landmarkName = "resetForNewMeme()"
+            startingLineNumber = "207"
+            endingLineNumber = "207"
+            landmarkName = "shareMeme()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

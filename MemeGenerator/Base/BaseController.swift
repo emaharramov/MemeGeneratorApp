@@ -13,40 +13,89 @@ class BaseController<ViewModel: BaseViewModel>: UIViewController {
     var viewModel: ViewModel
     private var cancellables = Set<AnyCancellable>()
 
+    var usesBaseLoadingOverlay: Bool { true }
+
+    private let loadingMessages: [String] = [
+        "Cooking your meme in the AI kitchen... 🔥",
+        "Adding extra sarcasm to your meme... 😏",
+        "Asking the internet if this meme is legal... 🌐",
+        "Teaching AI what 'relatable' means... 🤖",
+        "Optimizing pixels for maximum fun... 🎯",
+        "Googling: 'why is this so funny?' 😂",
+        "Ensuring your meme passes the vibe check... ✅"
+    ]
+
+    private var currentMessageIndex: Int = 0
+    private var loadingMessageTimer: Timer?
+
+    private let loadingTitleLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 15, weight: .semibold)
+        lbl.textColor = .white
+        lbl.textAlignment = .center
+        lbl.numberOfLines = 0
+        return lbl
+    }()
+
+    private let loadingSubtitleLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 13, weight: .regular)
+        lbl.textColor = UIColor.white.withAlphaComponent(0.8)
+        lbl.textAlignment = .center
+        lbl.numberOfLines = 0
+        return lbl
+    }()
+
     private lazy var loadingOverlay: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.2)
-        view.alpha = 0
-        view.isUserInteractionEnabled = true
+        let overlay = UIView()
+        overlay.backgroundColor = UIColor.black.withAlphaComponent(0.35)
+        overlay.alpha = 0
+        overlay.isUserInteractionEnabled = true
 
         let blur = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterialDark))
-        blur.layer.cornerRadius = 16
+        blur.layer.cornerRadius = 20
         blur.clipsToBounds = true
         blur.translatesAutoresizingMaskIntoConstraints = false
 
-        let indicator = UIActivityIndicatorView(style: .large)
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        indicator.color = .white
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 10
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        let icon = UIImageView(image: UIImage(systemName: "sparkles"))
+        icon.tintColor = .white
+        icon.preferredSymbolConfiguration = .init(pointSize: 26, weight: .semibold)
+
+        let indicator = UIActivityIndicatorView(style: .medium)
         indicator.startAnimating()
+        indicator.tintColor = .white
 
-        blur.contentView.addSubview(indicator)
+        loadingTitleLabel.text = "Cooking your meme... 🔥"
+        loadingSubtitleLabel.text = "Tap for a new fun status 😄"
 
-        NSLayoutConstraint.activate([
-            indicator.centerXAnchor.constraint(equalTo: blur.contentView.centerXAnchor),
-            indicator.centerYAnchor.constraint(equalTo: blur.contentView.centerYAnchor)
-        ])
+        stack.addArrangedSubview(icon)
+        stack.addArrangedSubview(loadingTitleLabel)
+        stack.addArrangedSubview(loadingSubtitleLabel)
+        stack.addArrangedSubview(indicator)
 
-        view.addSubview(blur)
+        blur.contentView.addSubview(stack)
+        overlay.addSubview(blur)
 
         blur.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.width.height.greaterThanOrEqualTo(80)
+            make.leading.greaterThanOrEqualTo(overlay.safeAreaLayoutGuide).offset(32)
+            make.trailing.lessThanOrEqualTo(overlay.safeAreaLayoutGuide).inset(32)
         }
 
-        blur.setContentHuggingPriority(.required, for: .horizontal)
-        blur.setContentCompressionResistancePriority(.required, for: .horizontal)
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 16, left: 18, bottom: 16, right: 18))
+        }
 
-        return view
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleLoadingOverlayTap))
+        overlay.addGestureRecognizer(tap)
+
+        return overlay
     }()
 
     init(viewModel: ViewModel) {
@@ -89,6 +138,8 @@ class BaseController<ViewModel: BaseViewModel>: UIViewController {
             }
             .store(in: &cancellables)
 
+        guard usesBaseLoadingOverlay else { return }
+
         viewModel.$isLoading
             .removeDuplicates()
             .receive(on: RunLoop.main)
@@ -108,6 +159,7 @@ class BaseController<ViewModel: BaseViewModel>: UIViewController {
 
     private func showLoadingOverlay() {
         guard loadingOverlay.superview == nil else {
+            startLoadingMessages()
             animateLoadingOverlay(show: true)
             return
         }
@@ -117,11 +169,13 @@ class BaseController<ViewModel: BaseViewModel>: UIViewController {
         loadingOverlay.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         view.layoutIfNeeded()
+        startLoadingMessages()
         animateLoadingOverlay(show: true)
     }
 
     private func hideLoadingOverlay() {
         guard loadingOverlay.superview != nil else { return }
+        stopLoadingMessages()
         animateLoadingOverlay(show: false) { [weak self] in
             self?.loadingOverlay.removeFromSuperview()
         }
@@ -137,6 +191,49 @@ class BaseController<ViewModel: BaseViewModel>: UIViewController {
         } completion: { _ in
             completion?()
         }
+    }
+
+    private func startLoadingMessages() {
+        currentMessageIndex = 0
+        updateLoadingMessage()
+
+        loadingMessageTimer?.invalidate()
+        loadingMessageTimer = Timer.scheduledTimer(
+            timeInterval: 1.5,
+            target: self,
+            selector: #selector(handleLoadingMessageTick),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+
+    private func stopLoadingMessages() {
+        loadingMessageTimer?.invalidate()
+        loadingMessageTimer = nil
+    }
+
+    private func updateLoadingMessage() {
+        guard !loadingMessages.isEmpty else { return }
+        let message = loadingMessages[currentMessageIndex]
+        loadingTitleLabel.text = message
+    }
+
+    @objc private func handleLoadingMessageTick() {
+        guard !loadingMessages.isEmpty else { return }
+        currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.count
+        UIView.transition(
+            with: loadingTitleLabel,
+            duration: 0.25,
+            options: .transitionCrossDissolve,
+            animations: { [weak self] in
+                self?.updateLoadingMessage()
+            },
+            completion: nil
+        )
+    }
+
+    @objc private func handleLoadingOverlayTap() {
+        handleLoadingMessageTick()
     }
 
     func configureNavigation(

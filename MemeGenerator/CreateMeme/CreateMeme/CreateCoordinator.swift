@@ -7,6 +7,16 @@
 
 import UIKit
 
+protocol CreateRouting: AnyObject {
+
+    func makeAIMeme() -> UIViewController
+    func makeAIWithTemplate() -> UIViewController
+    func makeCustomMeme() -> UIViewController
+
+    func showPremium()
+    func showAuth()
+}
+
 final class CreateCoordinator: Coordinator {
 
     var childCoordinators: [Coordinator] = []

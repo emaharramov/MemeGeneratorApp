@@ -16,6 +16,7 @@ final class FeedController: BaseController<FeedViewModel> {
         .lightContent
     }
 
+    override var usesBaseLoadingOverlay: Bool { false }
     // MARK: - Section
 
     private enum Section: Int, CaseIterable {
@@ -72,6 +73,11 @@ final class FeedController: BaseController<FeedViewModel> {
 
         viewModel.getAllMemes()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+           super.viewWillAppear(animated)
+           viewModel.getAllMemes()
+       }
 
     // MARK: - Setup
 
@@ -179,7 +185,7 @@ final class FeedController: BaseController<FeedViewModel> {
 
     private func saveImageToPhotos(_ image: UIImage) {
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-        showToast(message: "Saved to Photos")
+        showToast(message: "Saved to Photos", type: .success)
     }
 }
 
@@ -227,7 +233,7 @@ extension FeedController: UICollectionViewDataSource {
 
             cell.onSaveTapped = { [weak self] _ in
                 guard let self else { return }
-                self.showToast(message: "Saved in App")
+                self.showToast(message: "Saved in App", type: .success)
             }
 
             return cell

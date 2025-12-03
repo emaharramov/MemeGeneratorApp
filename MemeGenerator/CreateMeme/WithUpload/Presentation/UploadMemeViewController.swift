@@ -7,41 +7,118 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
                                       UIImagePickerControllerDelegate,
                                       UINavigationControllerDelegate,
                                       UIColorPickerViewControllerDelegate {
 
-    // MARK: - UI
+    private let scrollView: UIScrollView = {
+        let v = UIScrollView()
+        v.backgroundColor = .clear
+        v.alwaysBounceVertical = true
+        v.showsVerticalScrollIndicator = false
+        return v
+    }()
 
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
+    private let contentView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }()
 
-    private let headerView = MemeHeaderView(
-        title: "Custom Meme",
-        subtitle: "Use your own image and add custom text."
-    )
+    private let headerView: MemeHeaderView = {
+        MemeHeaderView(
+            title: "Custom Meme",
+            subtitle: "Use your own image and add custom text."
+        )
+    }()
 
-    private let editorCard = UIView()
-    private let baseImageView = UIImageView()
-    private let overlayContainer = UIView()
+    private let editorCard: UIView = {
+        let v = UIView()
+        return v
+    }()
 
-    private let placeholderStack = UIStackView()
-    private let placeholderIcon = UIImageView()
-    private let placeholderLabel = UILabel()
+    private let baseImageView: UIImageView = {
+        let v = UIImageView()
+        v.contentMode = .scaleAspectFit
+        v.backgroundColor = .clear
+        return v
+    }()
 
-    private let watermarkPreviewLabel = UILabel()
-    private let dashedBorderLayer = CAShapeLayer()
+    private let overlayContainer: UIView = {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }()
 
-    private let hintLabel = UILabel()
+    private let placeholderStack: UIStackView = {
+        let s = UIStackView()
+        s.axis = .vertical
+        s.alignment = .center
+        s.spacing = 8
+        return s
+    }()
 
-    private let toolsTitleLabel = UILabel()
+    private let placeholderIcon: UIImageView = {
+        let v = UIImageView()
+        v.image = UIImage(systemName: "photo.on.rectangle")
+        v.tintColor = .systemGray3
+        return v
+    }()
+
+    private let placeholderLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.text = "Tap to upload or take a photo"
+        lbl.font = .systemFont(ofSize: 14, weight: .medium)
+        lbl.textColor = .mgTextSecondary
+        lbl.textAlignment = .center
+        lbl.numberOfLines = 0
+        return lbl
+    }()
+
+    private let watermarkPreviewLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .boldSystemFont(ofSize: 40)
+        lbl.textColor = UIColor.white.withAlphaComponent(0.18)
+        lbl.textAlignment = .center
+        lbl.numberOfLines = 0
+        lbl.transform = CGAffineTransform(rotationAngle: -.pi / 8)
+        return lbl
+    }()
+
+    private let dashedBorderLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.strokeColor = UIColor.mgCardStroke.withAlphaComponent(0.5).cgColor
+        layer.fillColor = UIColor.clear.cgColor
+        layer.lineDashPattern = [6, 4]
+        layer.lineWidth = 1
+        return layer
+    }()
+
+    private let hintLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.text = "Tap on the image to add text"
+        lbl.font = .systemFont(ofSize: 14, weight: .medium)
+        lbl.textColor = .secondaryLabel
+        lbl.textAlignment = .center
+        return lbl
+    }()
+
+    private let toolsTitleLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.text = "Tools"
+        lbl.font = .systemFont(ofSize: 16, weight: .semibold)
+        lbl.textColor = .mgTextPrimary
+        return lbl
+    }()
+
     private let toolsView = MemeEditToolsView()
 
     private let shareActionsView = MemeShareActionsView()
 
-    // MARK: - Overlay State
+    override var usesBaseLoadingOverlay: Bool { false }
 
     private var overlays: [MemeTextOverlayView] = []
     private var activeOverlay: MemeTextOverlayView?
@@ -49,11 +126,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         didSet { updateEditMode() }
     }
 
-    // MARK: - Templates
-
-    private var templates: [TemplateDTO] = []
-
-    // MARK: - Init
+    private var cancellables = Set<AnyCancellable>()
 
     override init(viewModel: UploadMemeViewModel) {
         super.init(viewModel: viewModel)
@@ -62,8 +135,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,7 +149,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         setupBindings()
 
         updatePlaceholderState(hasImage: false)
-        loadTemplates()
+
+        viewModel.loadTemplatesIfNeeded()
     }
 
     override func viewDidLayoutSubviews() {
@@ -91,31 +163,16 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         ).cgPath
     }
 
-    // MARK: - Layout & Style
-
     private func setupScrollLayout() {
         view.addSubview(scrollView)
-        scrollView.backgroundColor = .clear
-        scrollView.alwaysBounceVertical = true
-        scrollView.showsVerticalScrollIndicator = false
-
         scrollView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
 
         scrollView.addSubview(contentView)
-        contentView.backgroundColor = .clear
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
-        }
-    }
-
-    private func setupHeader() {
-        contentView.addSubview(headerView)
-        headerView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.leading.trailing.equalToSuperview().inset(16)
         }
     }
 
@@ -127,13 +184,17 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         view.layer.borderColor = UIColor.mgCardStroke.cgColor
     }
 
+    private func setupHeader() {
+        contentView.addSubview(headerView)
+        headerView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+    }
+
     private func setupEditorCard() {
         styleCard(editorCard)
 
-        dashedBorderLayer.strokeColor = UIColor.mgCardStroke.withAlphaComponent(0.5).cgColor
-        dashedBorderLayer.fillColor = UIColor.clear.cgColor
-        dashedBorderLayer.lineDashPattern = [6, 4]
-        dashedBorderLayer.lineWidth = 1
         editorCard.layer.addSublayer(dashedBorderLayer)
 
         contentView.addSubview(editorCard)
@@ -143,32 +204,16 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             make.height.equalTo(editorCard.snp.width).multipliedBy(0.75)
         }
 
-        baseImageView.contentMode = .scaleAspectFit
-        baseImageView.backgroundColor = .clear
-
         editorCard.addSubview(baseImageView)
         baseImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(8)
         }
 
-        overlayContainer.backgroundColor = .clear
         editorCard.addSubview(overlayContainer)
         overlayContainer.snp.makeConstraints { make in
             make.edges.equalTo(baseImageView.snp.edges)
         }
 
-        placeholderIcon.image = UIImage(systemName: "photo.on.rectangle")
-        placeholderIcon.tintColor = .systemGray3
-
-        placeholderLabel.text = "Tap to upload or take a photo"
-        placeholderLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        placeholderLabel.textColor = .mgTextSecondary
-        placeholderLabel.textAlignment = .center
-        placeholderLabel.numberOfLines = 0
-
-        placeholderStack.axis = .vertical
-        placeholderStack.alignment = .center
-        placeholderStack.spacing = 8
         placeholderStack.addArrangedSubview(placeholderIcon)
         placeholderStack.addArrangedSubview(placeholderLabel)
 
@@ -178,22 +223,11 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         }
 
         watermarkPreviewLabel.text = viewModel.appWatermarkText
-        watermarkPreviewLabel.font = .boldSystemFont(ofSize: 40)
-        watermarkPreviewLabel.textColor = UIColor.white.withAlphaComponent(0.18)
-        watermarkPreviewLabel.textAlignment = .center
-        watermarkPreviewLabel.numberOfLines = 0
-        watermarkPreviewLabel.transform = CGAffineTransform(rotationAngle: -.pi / 8)
-
         overlayContainer.addSubview(watermarkPreviewLabel)
         watermarkPreviewLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.width.lessThanOrEqualToSuperview().multipliedBy(0.8)
         }
-
-        hintLabel.text = "Tap on the image to add text"
-        hintLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        hintLabel.textColor = .secondaryLabel
-        hintLabel.textAlignment = .center
 
         contentView.addSubview(hintLabel)
         hintLabel.snp.makeConstraints { make in
@@ -209,10 +243,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     }
 
     private func setupToolsAndActions() {
-        toolsTitleLabel.text = "Tools"
-        toolsTitleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        toolsTitleLabel.textColor = .mgTextPrimary
-
         contentView.addSubview(toolsTitleLabel)
         toolsTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(hintLabel.snp.bottom).offset(20)
@@ -264,34 +294,64 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         }
     }
 
-    private func loadTemplates() {
-        MemeService.shared.fetchTemplates { [weak self] list, error in
+    private func setupBindings() {
+        viewModel.onImageChanged = { [weak self] image in
             guard let self else { return }
-
-            if let error {
-                print("Templates error:", error)
-                return
-            }
-            self.templates = list ?? []
+            self.baseImageView.image = image
+            self.updatePlaceholderState(hasImage: image != nil)
         }
+
+        viewModel.onTemplatesLoaded = { [weak self] _ in
+            self?.showToast(message: "Now you can choose your favorite one!", type: .success)
+        }
+
+        viewModel.$isLoading
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isLoading in
+                guard let self else { return }
+                if isLoading {
+                    self.showToast(message: "Working on it…", type: .info)
+                }
+            }
+            .store(in: &cancellables)
+
+        viewModel.$errorMessage
+            .compactMap { $0 }
+            .receive(on: RunLoop.main)
+            .sink { [weak self] message in
+                self?.showToast(message: message)
+            }
+            .store(in: &cancellables)
+
+        viewModel.$successMessage
+            .compactMap { $0 }
+            .receive(on: RunLoop.main)
+            .sink { [weak self] message in
+                self?.showToast(message: message, type: .success)
+            }
+            .store(in: &cancellables)
     }
 
     private func openTemplatePicker() {
+        if !viewModel.templates.isEmpty {
+            presentTemplatePicker(with: viewModel.templates)
+            return
+        }
+
+        showToast(message: "Loading templates…", type: .info)
+        viewModel.loadTemplatesIfNeeded()
+    }
+
+    private func presentTemplatePicker(with templates: [TemplateDTO]) {
         guard !templates.isEmpty else {
-            showToast(message: "Templates are loading, please try again.")
-            loadTemplates()
+            showToast(message: "No templates available yet.", type: .error)
             return
         }
 
         let picker = TemplatePickerViewController(templates: templates)
         picker.onTemplateSelected = { [weak self] template in
-            guard let self else { return }
-            MemeService.shared.loadImage(url: template.url) { image in
-                DispatchQueue.main.async {
-                    self.clearAllOverlays()
-                    self.viewModel.setImage(image)
-                }
-            }
+            self?.viewModel.applyTemplate(template)
+            self?.clearAllOverlays()
         }
 
         picker.modalPresentationStyle = .pageSheet
@@ -311,29 +371,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         overlayContainer.isUserInteractionEnabled = hasImage
         if !hasImage {
             clearAllOverlays()
-        }
-    }
-
-    private func setupBindings() {
-        viewModel.onImageChanged = { [weak self] image in
-            guard let self else { return }
-            self.baseImageView.image = image
-            self.updatePlaceholderState(hasImage: image != nil)
-        }
-
-        viewModel.onSavingStateChange = { [weak self] isSaving in
-            guard let self else { return }
-            if isSaving {
-                self.showToast(message: "Saving meme…")
-            }
-        }
-
-        viewModel.onSaveSuccess = { [weak self] in
-            self?.showToast(message: "Saved to Photos ✅")
-        }
-
-        viewModel.onError = { [weak self] message in
-            self?.showToast(message: message)
         }
     }
 
@@ -370,7 +407,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         activeOverlay = overlay
         updateEditMode()
     }
-
 
     private func removeOverlay(_ overlay: MemeTextOverlayView) {
         if let index = overlays.firstIndex(where: { $0 === overlay }) {
@@ -453,7 +489,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
 
     @objc private func openColorPicker() {
         guard activeOverlay != nil else {
-            showToast(message: "Tap on a text to edit color")
+            showToast(message: "Tap on a text to edit color", type: .info)
             return
         }
         let picker = UIColorPickerViewController()
@@ -477,20 +513,18 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         present(picker, animated: true)
     }
 
-    // MARK: - ShareActions handlers
-
     private func handleSave() {
-        guard baseImageView.image != nil else {
-            showToast(message: "Add an image first")
+        guard let image = renderMemeImage() else {
+            showToast(message: "Add an image first", type: .info)
             return
         }
         view.endEditing(true)
-        viewModel.saveMeme(from: editorCard, includeWatermark: false)
+        viewModel.saveMeme(image: image, includeWatermark: false)
     }
 
     private func handleShare() {
         guard let image = renderMemeImage() else {
-            showToast(message: "Add an image first")
+            showToast(message: "Add an image first", type: .info)
             return
         }
         let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
@@ -515,8 +549,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         }
     }
 
-    // MARK: - UIImagePicker Delegate
-
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
@@ -530,15 +562,11 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         picker.dismiss(animated: true)
     }
 
-    // MARK: - Color Picker Delegate
-
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
         guard let overlay = activeOverlay else { return }
         overlay.label.textColor = viewController.selectedColor
     }
 }
-
-// MARK: - CGPoint helper
 
 private extension CGPoint {
     func clamped(in rect: CGRect) -> CGPoint {

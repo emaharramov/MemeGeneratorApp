@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Combine
 
 final class FromTemplateVC: BaseController<FromTemplateVM> {
 
@@ -16,7 +17,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     private let contentView = UIView()
     private let stackView = UIStackView()
 
-    // Prompt – AIVC-dəki ilə eyni stil, sadəcə text fərqlidir
     private lazy var promptView: MemePromptView = {
         let view = MemePromptView(
             title: "AI + Template",
@@ -30,24 +30,22 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         )
         return view
     }()
+    
+    override var usesBaseLoadingOverlay: Bool { false }
 
-    // Template seçimi üçün card
     private let templateCard = UIView()
     private let templateTitleLabel = UILabel()
     private let templateSubtitleLabel = UILabel()
     private let templatePreview = UIImageView()
     private let chooseTemplateButton = UIButton(type: .system)
 
-    // Generate button (AIVC stili)
     private let generateButton = UIButton(type: .system)
 
-    // Nəticə card-ı (AIVC ilə eyni MemeResultView)
     private let resultCard = UIView()
     private let resultView = MemeResultView(
         placeholderText: "Your AI meme will appear here"
     )
 
-    // Share card (AIVC ilə eyni MemeShareActionsView)
     private let shareCard = UIView()
     private let shareActionsView = MemeShareActionsView()
 
@@ -57,6 +55,12 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     private var selectedTemplate: TemplateDTO? {
         didSet { updateTemplateCardUI() }
     }
+
+    // loading toast-ları template load zamanı göstərməmək üçün
+    private var didRequestGeneration = false
+
+    // Combine
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
 
@@ -83,7 +87,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     override func configureUI() {
         super.configureUI()
 
-        // Scroll + Stack
         scrollView.alwaysBounceVertical = true
         scrollView.showsVerticalScrollIndicator = false
 
@@ -94,14 +97,9 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         scrollView.addSubview(contentView)
         contentView.addSubview(stackView)
 
-        // Prompt card – sadəcə view-in özünü stack-ə qoyuruq (MemePromptView özü card kimi dizaynlanıbsa super),
-        // yox əgər yoxdursa, AIVC-dəki kimi ayrıca card içində saxlaya bilərsən.
         styleCard(promptView)
-
-        // Template card
         setupTemplateCard()
 
-        // Generate button – AIVC-dəki stil
         generateButton.applyFilledStyle(
             title: "Generate with Template",
             systemImageName: "sparkles",
@@ -111,21 +109,19 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         generateButton.layer.cornerRadius = 20
         generateButton.clipsToBounds = false
 
-        // Result + Share cardlar
         styleCard(resultCard)
         resultCard.addSubview(resultView)
 
         styleCard(shareCard)
         shareCard.addSubview(shareActionsView)
         shareCard.isHidden = true
-        // Stack sırası (AIVC pattern)
+
         stackView.addArrangedSubview(promptView)
         stackView.addArrangedSubview(templateCard)
         stackView.addArrangedSubview(generateButton)
         stackView.addArrangedSubview(resultCard)
         stackView.addArrangedSubview(shareCard)
 
-        // Actions
         generateButton.addTarget(
             self,
             action: #selector(handleGenerateTapped),
@@ -190,35 +186,39 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
             guard let self else { return }
             DispatchQueue.main.async {
                 self.resultView.image = image
-                self.shareCard.isHidden = false
-                self.scrollToResult()
+                self.shareCard.isHidden = (image == nil)
+                if image != nil {
+                    self.scrollToResult()
+                }
             }
         }
 
-        // Loading state – AIVC ilə eyni davranış
-        viewModel.onLoadingStateChange = { [weak self] isLoading in
-            guard let self else { return }
+        // LOADING: BaseViewModel.$isLoading
+        viewModel.$isLoading
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isLoading in
+                guard let self else { return }
 
-            self.generateButton.isEnabled = !isLoading
-            self.generateButton.alpha = isLoading ? 0.6 : 1.0
+                self.generateButton.isEnabled = !isLoading
+                self.generateButton.alpha = isLoading ? 0.6 : 1.0
 
-            if isLoading {
-                self.showToast(
-                    message: "Cooking your meme in the AI kitchen... 🔥",
-                    type: .info
-                )
-                self.resultView.image = nil
-            } else {
-                self.showToast(
-                    message: "Meme is ready! 🧀",
-                    type: .success
-                )
+                guard self.didRequestGeneration else { return }
+
+                if isLoading {
+                    self.showToast(
+                        message: "Cooking your meme in the AI kitchen... 🔥",
+                        type: .info
+                    )
+                    self.resultView.image = nil
+                    self.shareCard.isHidden = true
+                } else if self.resultView.image != nil {
+                    self.showToast(
+                        message: "Meme is ready! 🧀",
+                        type: .success
+                    )
+                }
             }
-        }
-
-        viewModel.onError = { [weak self] message in
-            self?.showToast(message: message, type: .error)
-        }
+            .store(in: &cancellables)
     }
 
     // MARK: - Template Card
@@ -280,9 +280,10 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
             templatePreview.backgroundColor = UIColor.systemGray5.withAlphaComponent(0.6)
             return
         }
+
         templateSubtitleLabel.text = template.name
         chooseTemplateButton.setTitle("Change Template", for: .normal)
-        
+
         MemeService.shared.loadImage(url: template.url) { [weak self] image in
             DispatchQueue.main.async {
                 guard let self else { return }
@@ -312,6 +313,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     @objc private func handleGenerateTapped() {
         view.endEditing(true)
+        didRequestGeneration = true
         viewModel.generateMeme(prompt: promptView.text)
     }
 
@@ -340,7 +342,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
         present(picker, animated: true)
     }
-    
+
     private func resetForNewMeme() {
         view.endEditing(true)
         promptView.text = ""
@@ -357,7 +359,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     private func saveImageToPhotos() {
         guard let image = resultView.image else { return }
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-        showToast(message: "Saved to Photos")
+        showToast(message: "Saved to Photos", type: .success)
     }
 
     private func shareMeme() {
