@@ -13,17 +13,23 @@ enum EncodingType {
     case json
 }
 
-class NetworkHelper {
+final class NetworkHelper {
     static let shared = NetworkHelper()
-    
+    private init() {}
+
     var headers: HTTPHeaders {
-          if let token = UserDefaults.standard.string(forKey: "authToken"), !token.isEmpty {
-              return ["Authorization": "Bearer \(token)"]
-          } else {
-              return [:]
-          }
-      }
-    
+        var headers: HTTPHeaders = [
+            "Content-Type": "application/json"
+        ]
+
+        if let token = AppStorage.shared.token,
+           !token.isEmpty {
+            headers["Authorization"] = "Bearer \(token)"
+        }
+
+        return headers
+    }
+
     func configureURL(endpoint: String) -> String {
         return Constants.baseURL + endpoint
     }

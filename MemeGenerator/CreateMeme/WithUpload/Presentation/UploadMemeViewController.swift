@@ -115,10 +115,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     }()
 
     private let toolsView = MemeEditToolsView()
-
     private let shareActionsView = MemeShareActionsView()
-
-    override var usesBaseLoadingOverlay: Bool { false }
 
     private var overlays: [MemeTextOverlayView] = []
     private var activeOverlay: MemeTextOverlayView?
@@ -194,7 +191,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
 
     private func setupEditorCard() {
         styleCard(editorCard)
-
         editorCard.layer.addSublayer(dashedBorderLayer)
 
         contentView.addSubview(editorCard)
@@ -300,20 +296,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             self.baseImageView.image = image
             self.updatePlaceholderState(hasImage: image != nil)
         }
-
-        viewModel.onTemplatesLoaded = { [weak self] _ in
-            self?.showToast(message: "Now you can choose your favorite one!", type: .success)
-        }
-
-        viewModel.$isLoading
-            .receive(on: RunLoop.main)
-            .sink { [weak self] isLoading in
-                guard let self else { return }
-                if isLoading {
-                    self.showToast(message: "Working on it…", type: .info)
-                }
-            }
-            .store(in: &cancellables)
 
         viewModel.$errorMessage
             .compactMap { $0 }
@@ -543,10 +525,23 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
 
     private func renderMemeImage() -> UIImage? {
         view.layoutIfNeeded()
-        let renderer = UIGraphicsImageRenderer(bounds: editorCard.bounds)
-        return renderer.image { _ in
-            editorCard.drawHierarchy(in: editorCard.bounds, afterScreenUpdates: true)
+
+        guard overlayContainer.bounds.width > 0,
+              overlayContainer.bounds.height > 0 else {
+            return nil
         }
+        let captureRect = overlayContainer.convert(overlayContainer.bounds, to: editorCard)
+        let renderer = UIGraphicsImageRenderer(bounds: captureRect)
+
+        let image = renderer.image { _ in
+            let drawRect = editorCard.bounds.offsetBy(
+                dx: -captureRect.origin.x,
+                dy: -captureRect.origin.y
+            )
+            editorCard.drawHierarchy(in: drawRect, afterScreenUpdates: true)
+        }
+
+        return image
     }
 
     func imagePickerController(_ picker: UIImagePickerController,

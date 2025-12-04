@@ -11,12 +11,13 @@ protocol AuthRepository {
     func login(
         email: String,
         password: String,
-        completion: @escaping (Result<AuthSession, AuthError>) -> Void
+        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
     )
 
     func register(
         email: String,
+        username: String,
         password: String,
-        completion: @escaping (Result<AuthSession, AuthError>) -> Void
+        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
     )
 }

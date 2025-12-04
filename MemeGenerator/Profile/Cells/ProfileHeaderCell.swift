@@ -15,75 +15,106 @@ final class ProfileHeaderCell: UITableViewCell {
     var onEditProfile: (() -> Void)?
     var onGoPremium: (() -> Void)?
 
-    private let cardView = UIView()
+    private let cardView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .mgCard
+        v.layer.cornerRadius = 22
+        v.layer.masksToBounds = false
+        v.layer.borderWidth = 1
+        v.layer.borderColor = UIColor.mgCardStroke.cgColor
+        v.layer.shadowColor = UIColor.black.cgColor
+        v.layer.shadowOpacity = 0.35
+        v.layer.shadowOffset = CGSize(width: 0, height: 10)
+        v.layer.shadowRadius = 18
+        return v
+    }()
 
-    private let avatarView = UIView()
-    private let initialsLabel = UILabel()
-    private let nameLabel = UILabel()
-    private let emailLabel = UILabel()
+    private let avatarContainerView: UIView = {
+        let v = UIView()
+        v.backgroundColor = UIColor.white.withAlphaComponent(0.06)
+        v.layer.borderWidth = 1
+        v.layer.borderColor = UIColor.white.withAlphaComponent(0.08).cgColor
+        v.clipsToBounds = true
+        return v
+    }()
 
-    private let editButton = UIButton(type: .system)
-    private let premiumButton = UIButton(type: .system)
+    private let avatarImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.tintColor = .white
+        iv.image = UIImage(systemName: "person.fill")
+        iv.clipsToBounds = true
+        return iv
+    }()
+
+    private let nameLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 20, weight: .semibold)
+        lbl.textColor = .mgTextPrimary
+        lbl.numberOfLines = 1
+        return lbl
+    }()
+
+    private let emailLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 14, weight: .regular)
+        lbl.textColor = .mgTextSecondary
+        lbl.numberOfLines = 1
+        return lbl
+    }()
+
+    private let editButton: UIButton = {
+        let btn = UIButton(type: .system)
+        return btn
+    }()
+
+    private let premiumButton: UIButton = {
+        let btn = UIButton(type: .system)
+        return btn
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setup()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        avatarContainerView.layer.cornerRadius = 32
+    }
+
+    private func setup() {
         selectionStyle = .none
         backgroundColor = .clear
         contentView.backgroundColor = .clear
-        setupUI()
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-
-    private func setupUI() {
-        // CARD
-        cardView.backgroundColor = .mgCard
-        cardView.layer.cornerRadius = 22
-        cardView.layer.masksToBounds = false
-        cardView.layer.borderWidth = 1
-        cardView.layer.borderColor = UIColor.mgCardStroke.cgColor
-        cardView.layer.shadowColor = UIColor.black.cgColor
-        cardView.layer.shadowOpacity = 0.35
-        cardView.layer.shadowOffset = CGSize(width: 0, height: 10)
-        cardView.layer.shadowRadius = 18
 
         contentView.addSubview(cardView)
         cardView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16))
         }
 
-        // Avatar
-        avatarView.backgroundColor = UIColor.white.withAlphaComponent(0.06)
-        avatarView.layer.cornerRadius = 32
-        avatarView.clipsToBounds = true
-        avatarView.layer.borderWidth = 1
-        avatarView.layer.borderColor = UIColor.white.withAlphaComponent(0.08).cgColor
-        avatarView.snp.makeConstraints { $0.width.height.equalTo(64) }
+        avatarContainerView.snp.makeConstraints { make in
+            make.width.height.equalTo(64)
+        }
 
-        initialsLabel.font = .systemFont(ofSize: 24, weight: .semibold)
-        initialsLabel.textAlignment = .center
-        initialsLabel.textColor = .mgTextPrimary.withAlphaComponent(0.8)
-
-        avatarView.addSubview(initialsLabel)
-        initialsLabel.snp.makeConstraints { $0.edges.equalToSuperview() }
-
-        // Labels
-        nameLabel.font = .systemFont(ofSize: 20, weight: .semibold)
-        nameLabel.textColor = .mgTextPrimary
-
-        emailLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        emailLabel.textColor = .mgTextSecondary
+        avatarContainerView.addSubview(avatarImageView)
+        avatarImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(12)
+        }
 
         let textStack = UIStackView(arrangedSubviews: [nameLabel, emailLabel])
         textStack.axis = .vertical
         textStack.spacing = 4
 
-        let topStack = UIStackView(arrangedSubviews: [avatarView, textStack])
+        let topStack = UIStackView(arrangedSubviews: [avatarContainerView, textStack])
         topStack.axis = .horizontal
-        topStack.spacing = 14
         topStack.alignment = .center
+        topStack.spacing = 14
 
-        // Buttons
         configureButton(
             editButton,
             title: "Edit Profile",
@@ -134,15 +165,35 @@ final class ProfileHeaderCell: UITableViewCell {
         button.clipsToBounds = false
     }
 
-    func configure(name: String, email: String) {
+    func configure(name: String,
+                   email: String,
+                   isPremium: Bool,
+                   avatarImage: UIImage? = nil) {
         nameLabel.text = name
         emailLabel.text = email
 
-        let comps = name.split(separator: " ")
-        let initials = comps.prefix(2).compactMap { $0.first }.map(String.init).joined()
-        initialsLabel.text = initials.uppercased()
+        if let image = avatarImage {
+            avatarImageView.image = image
+            avatarImageView.contentMode = .scaleAspectFill
+        } else {
+            avatarImageView.image = UIImage(systemName: "person.fill")
+            avatarImageView.contentMode = .scaleAspectFit
+        }
+
+        configureButton(
+            premiumButton,
+            title: isPremium ? "Subscription" : "Go Premium",
+            background: .mgAccent,
+            foreground: .black,
+            hasShadow: true
+        )
     }
 
-    @objc private func editTapped() { onEditProfile?() }
-    @objc private func premiumTapped() { onGoPremium?() }
+    @objc private func editTapped() {
+        onEditProfile?()
+    }
+
+    @objc private func premiumTapped() {
+        onGoPremium?()
+    }
 }

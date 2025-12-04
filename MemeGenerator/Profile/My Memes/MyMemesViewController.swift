@@ -8,6 +8,11 @@
 import UIKit
 import SnapKit
 
+protocol ProfileCountsDelegate: AnyObject {
+    func didUpdateMemesCount(_ count: Int)
+    func didUpdateSavedCount(_ count: Int)
+}
+
 final class MyMemesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()

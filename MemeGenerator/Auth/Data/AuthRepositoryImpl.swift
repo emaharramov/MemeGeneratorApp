@@ -21,14 +21,14 @@ final class AuthRepositoryImpl: AuthRepository {
     func login(
         email: String,
         password: String,
-        completion: @escaping (Result<AuthSession, AuthError>) -> Void
+        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
     ) {
-        let credentials = AuthModel(email: email, password: password)
+        let credentials = AuthLoginRequestModel(email: email, password: password)
 
         performAuthRequest(
             endpoint: .login,
             credentials: credentials,
-            responseType: AuthLoginModel.self
+            responseType: AuthLoginResponseModel.self
         ) { response, errorMessage in
 
             if let errorMessage {
@@ -41,7 +41,7 @@ final class AuthRepositoryImpl: AuthRepository {
                 return
             }
 
-            let session = AuthSession(token: model.token, userId: model.userId)
+            let session = AuthLoginResponseModel(token: model.token, userId: model.userId)
             completion(.success(session))
         }
     }
@@ -50,15 +50,20 @@ final class AuthRepositoryImpl: AuthRepository {
 
     func register(
         email: String,
+        username: String,
         password: String,
-        completion: @escaping (Result<AuthSession, AuthError>) -> Void
+        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
     ) {
-        let credentials = AuthModel(email: email, password: password)
+        let credentials = AuthRegisterRequestModel(
+            email: email,
+            username: username,
+            password: password
+        )
 
         performAuthRequest(
             endpoint: .register,
             credentials: credentials,
-            responseType: AuthLoginModel.self
+            responseType: AuthLoginResponseModel.self
         ) { response, errorMessage in
 
             if let errorMessage {
@@ -71,18 +76,18 @@ final class AuthRepositoryImpl: AuthRepository {
                 return
             }
 
-            let session = AuthSession(token: model.token, userId: model.userId)
+            let session = AuthLoginResponseModel(token: model.token, userId: model.userId)
             completion(.success(session))
         }
     }
 
     // MARK: - Private generic helper
 
-    private func performAuthRequest<T: Codable>(
+    private func performAuthRequest<Response: Codable, Request: AuthRequestModel>(
         endpoint: AuthEndpoint,
-        credentials: AuthModel,
-        responseType: T.Type,
-        completion: @escaping (T?, String?) -> Void
+        credentials: Request,
+        responseType: Response.Type,
+        completion: @escaping (Response?, String?) -> Void
     ) {
         guard let params = credentials.toDictionary() else {
             completion(nil, "Encoding error")
@@ -117,7 +122,6 @@ final class AuthRepositoryImpl: AuthRepository {
             return .network(message)
         }
 
-        // Digər bütün string-lər "server" error kimi gəlsin
         return .server(message)
     }
 }

@@ -17,6 +17,7 @@ struct FeedMemes: Codable, Sendable {
 struct MemesTemplate: Codable, Hashable, Sendable {
     let id: String?
     let userID: String?
+    let username: String?
     let templateID: String?
     let topText: String?
     let bottomText: String?
@@ -27,6 +28,7 @@ struct MemesTemplate: Codable, Hashable, Sendable {
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case userID = "userId"
+        case username
         case templateID = "templateId"
         case topText, bottomText
         case imageURL = "imageUrl"

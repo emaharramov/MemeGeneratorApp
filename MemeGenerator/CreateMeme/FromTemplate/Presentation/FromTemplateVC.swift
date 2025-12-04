@@ -31,8 +31,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         return view
     }()
     
-    override var usesBaseLoadingOverlay: Bool { false }
-
     private let templateCard = UIView()
     private let templateTitleLabel = UILabel()
     private let templateSubtitleLabel = UILabel()
@@ -175,12 +173,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     override func bindViewModel() {
         super.bindViewModel()
-
-        // Template list
-        viewModel.onTemplatesLoaded = { [weak self] list in
-            self?.templates = list
-        }
-
         // Meme generated
         viewModel.onMemeGenerated = { [weak self] image in
             guard let self else { return }
@@ -193,7 +185,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
             }
         }
 
-        // LOADING: BaseViewModel.$isLoading
         viewModel.$isLoading
             .receive(on: RunLoop.main)
             .sink { [weak self] isLoading in
@@ -219,9 +210,12 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
                 }
             }
             .store(in: &cancellables)
+        
+        viewModel.onTemplatesLoaded = { [weak self] list in
+            self?.templates = list
+            self?.showToast(message: "Now you can choose one of your favorite templates!", type: .success)
+        }
     }
-
-    // MARK: - Template Card
 
     private func setupTemplateCard() {
         styleCard(templateCard)

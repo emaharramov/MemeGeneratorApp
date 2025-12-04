@@ -14,9 +14,7 @@ final class AIVC: BaseController<AIVM> {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let stackView = UIStackView()
-    
-    override var usesBaseLoadingOverlay: Bool { false }
-    
+        
     private lazy var promptView: MemePromptView = {
         let view = MemePromptView(
             title: "AI Meme",

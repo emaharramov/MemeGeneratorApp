@@ -16,7 +16,6 @@ final class FeedController: BaseController<FeedViewModel> {
         .lightContent
     }
 
-    override var usesBaseLoadingOverlay: Bool { false }
     // MARK: - Section
 
     private enum Section: Int, CaseIterable {

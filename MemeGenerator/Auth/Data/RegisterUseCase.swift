@@ -10,8 +10,9 @@ import Foundation
 protocol RegisterUseCase {
     func execute(
         email: String,
+        username: String,
         password: String,
-        completion: @escaping (Result<AuthSession, AuthError>) -> Void
+        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
     )
 }
 
@@ -24,9 +25,15 @@ final class RegisterUseCaseImpl: RegisterUseCase {
 
     func execute(
         email: String,
+        username: String,
         password: String,
-        completion: @escaping (Result<AuthSession, AuthError>) -> Void
+        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
     ) {
-        repository.register(email: email, password: password, completion: completion)
+        repository.register(
+            email: email,
+            username: username,
+            password: password,
+            completion: completion
+        )
     }
 }

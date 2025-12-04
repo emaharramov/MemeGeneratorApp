@@ -321,26 +321,6 @@ extension UIButton {
 }
 
 extension UIButton {
-    static func makeFilledAction(
-        title: String,
-        systemImageName: String? = nil,
-        baseBackgroundColor: UIColor = .systemBlue,
-        baseForegroundColor: UIColor = .white,
-        contentInsets: NSDirectionalEdgeInsets = .init(top: 12, leading: 12, bottom: 12, trailing: 12),
-        addShadow: Bool = true
-    ) -> UIButton {
-        let btn = UIButton(type: .system)
-        btn.applyFilledStyle(
-            title: title,
-            systemImageName: systemImageName,
-            baseBackgroundColor: baseBackgroundColor,
-            baseForegroundColor: baseForegroundColor,
-            contentInsets: contentInsets,
-            addShadow: addShadow
-        )
-        return btn
-    }
-
     func applyFilledStyle(
         title: String,
         systemImageName: String? = nil,

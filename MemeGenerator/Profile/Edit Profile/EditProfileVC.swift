@@ -7,8 +7,9 @@
 
 import UIKit
 import SnapKit
+import Combine
 
-final class EditProfileViewController: BaseController<EditProfileVM> {
+final class EditProfileViewController: BaseController<ProfileVM> {
 
     private enum Section: Int, CaseIterable {
         case avatar
@@ -25,15 +26,11 @@ final class EditProfileViewController: BaseController<EditProfileVM> {
 
     private let tableView = UITableView(frame: .zero, style: .plain)
 
-    // Controller-dan lazım olsa istifadə üçün weak reference-lər
     private weak var fullNameField: UITextField?
     private weak var usernameField: UITextField?
     private weak var emailField: UITextField?
 
-    // Demo / VM-dən gələ bilər
-    private let initialFullName = "Jamie Anderson"
-    private let initialUsername = "@jamie_memelord"
-    private let initialEmail = "jamie.anderson@email.com"
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Lifecycle
 
@@ -41,9 +38,38 @@ final class EditProfileViewController: BaseController<EditProfileVM> {
         super.viewDidLoad()
         title = "Edit Profile"
         view.backgroundColor = .mgBackground
+
         setupTableView()
         setupFooter()
+        bindViewModel()
+
+        if viewModel.userProfile == nil {
+            viewModel.getUserProfile()
+        }
     }
+
+    // MARK: - Bindings
+
+    override func bindViewModel() {
+        viewModel.$userProfile
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+
+        viewModel.$successMessage
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                guard let self else { return }
+//                 self.showToast(message: message, type: .success)
+
+                self.navigationController?.popViewController(animated: true)
+            }
+            .store(in: &cancellables)
+    }
+
 
     // MARK: - Setup
 
@@ -57,7 +83,6 @@ final class EditProfileViewController: BaseController<EditProfileVM> {
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 16, right: 0)
-
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 120
 
@@ -96,15 +121,37 @@ final class EditProfileViewController: BaseController<EditProfileVM> {
         tableView.tableFooterView = footer
     }
 
+    // MARK: - Helpers
+
+    private var currentFullName: String {
+        viewModel.userProfile?.data.fullName ?? ""
+    }
+
+    private var currentUsername: String {
+        viewModel.userProfile?.data.username ?? ""
+    }
+
+    private var currentEmail: String {
+        viewModel.userProfile?.data.email ?? ""
+    }
+
     // MARK: - Actions
 
     @objc private func saveTapped() {
-        let name = fullNameField?.text ?? ""
-        let username = usernameField?.text ?? ""
-        let email = emailField?.text ?? ""
+        let fullName = fullNameField?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let username = usernameField?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let email = emailField?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
-        // TODO: viewModel.updateProfile(...)
-        print("Save:", name, username, email)
+        guard !username.isEmpty, !email.isEmpty else {
+            showToast(message: "Username and email are required", type: .error)
+            return
+        }
+
+        viewModel.updateProfile(
+            fullName: fullName,
+            username: username,
+            email: email
+        )
     }
 }
 
@@ -141,10 +188,11 @@ extension EditProfileViewController: UITableViewDataSource {
                 for: indexPath
             ) as! EditProfileAvatarCell
 
-            cell.configure(initialsFrom: initialFullName)
+            let nameForInitials = currentFullName.isEmpty ? currentUsername : currentFullName
+            cell.configure(initialsFrom: nameForInitials)
             cell.onChangePhoto = { [weak self] in
-                // TODO: image picker aç
-                print("Change photo tapped")
+                // gələcəkdə avatar seçimi üçün
+                self?.showToast(message: "Change photo coming soon", type: .info)
             }
             return cell
 
@@ -158,24 +206,33 @@ extension EditProfileViewController: UITableViewDataSource {
 
             switch row {
             case .fullName:
-                cell.configure(title: "Full Name",
-                               placeholder: "Enter your full name",
-                               text: initialFullName,
-                               keyboardType: .default)
+                cell.configure(
+                    title: "Full Name",
+                    placeholder: "Enter your full name",
+                    text: currentFullName,
+                    keyboardType: .default,
+                    isEditable: true      // dəyişmək olar
+                )
                 fullNameField = cell.textField
 
             case .username:
-                cell.configure(title: "Username",
-                               placeholder: "@username",
-                               text: initialUsername,
-                               keyboardType: .default)
+                cell.configure(
+                    title: "Username",
+                    placeholder: "@username",
+                    text: currentUsername,
+                    keyboardType: .default,
+                    isEditable: false     // read-only
+                )
                 usernameField = cell.textField
 
             case .email:
-                cell.configure(title: "Email",
-                               placeholder: "you@example.com",
-                               text: initialEmail,
-                               keyboardType: .emailAddress)
+                cell.configure(
+                    title: "Email",
+                    placeholder: "you@example.com",
+                    text: currentEmail,
+                    keyboardType: .emailAddress,
+                    isEditable: false  
+                )
                 emailField = cell.textField
             }
 

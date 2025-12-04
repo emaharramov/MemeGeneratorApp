@@ -84,6 +84,7 @@ final class AuthViewModel: BaseViewModel {
                 guard let self else { return }
                 self.registerUseCase.execute(
                     email: email,
+                    username: username,
                     password: password,
                     completion: completion
                 )

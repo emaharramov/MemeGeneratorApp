@@ -204,9 +204,9 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
             titleLabel.text = "Awesome meme from AI"
         }
 
-        let user = template.userID ?? "unknown"
+        let author = (template.username ?? "unknown").trimmingCharacters(in: .whitespacesAndNewlines)
         let time = template.createdAt?.timeAgoString() ?? ""
-        subtitleLabel.text = "by @\(user) • \(time)"
+        subtitleLabel.text = "by @\(author) • \(time)"
     }
 
     // MARK: - Actions

@@ -124,28 +124,38 @@ final class AuthController: BaseController<AuthViewModel> {
         tf.font = .systemFont(ofSize: 15, weight: .medium)
         return tf
     }()
-    private let passwordVisibilityButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.tintColor = .mgTextSecondary
-        btn.setImage(UIImage(systemName: "eye"), for: .normal)
-        return btn
-    }()
 
-    private let forgotPasswordButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitle("Forgot Password?", for: .normal)
-        btn.setTitleColor(.systemPurple, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
-        return btn
-    }()
+    private let passwordVisibilityButton = UIButton.makeIconButton(
+        systemName: "eye",
+        pointSize: 16,
+        weight: .medium,
+        tintColor: .mgTextSecondary,
+        contentInsets: .init(top: 6, left: 6, bottom: 6, right: 6),
+        backgroundColor: .clear,
+        cornerRadius: 0
+    )
+
+    private let forgotPasswordButton = UIButton.makeTextButton(
+        title: "Forgot Password?",
+        titleColor: .systemPurple,
+        font: .systemFont(ofSize: 13, weight: .semibold),
+        alignment: .right
+    )
 
     // Primary button
 
     private let primaryButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.layer.cornerRadius = 22
-        btn.clipsToBounds = true
-        return btn
+        let button = UIButton(type: .system)
+        button.applyFilledStyle(
+            title: "",
+            systemImageName: nil,
+            baseBackgroundColor: .mgAccent,
+            baseForegroundColor: .white,
+            contentInsets: .init(top: 12, leading: 16, bottom: 12, trailing: 16),
+            cornerStyle: .large,
+            addShadow: true
+        )
+        return button
     }()
 
     // OR divider
@@ -179,19 +189,6 @@ final class AuthController: BaseController<AuthViewModel> {
         return stack
     }()
 
-    // Google button
-
-    private let googleButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.layer.cornerRadius = 22
-        btn.layer.masksToBounds = true
-        btn.layer.borderWidth = 1
-        btn.layer.borderColor = UIColor.mgCardStroke.cgColor
-        return btn
-    }()
-
-    // Bottom section
-
     private let bottomTextLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
@@ -199,12 +196,12 @@ final class AuthController: BaseController<AuthViewModel> {
         return label
     }()
 
-    private let bottomActionButton: UIButton = {
-        let btn = UIButton(type: .system)
-        btn.setTitleColor(.systemPurple, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-        return btn
-    }()
+    private let bottomActionButton = UIButton.makeTextButton(
+        title: "",
+        titleColor: .systemPurple,
+        font: .systemFont(ofSize: 14, weight: .semibold),
+        alignment: .center
+    )
 
     // MARK: - Init
 
@@ -251,7 +248,6 @@ final class AuthController: BaseController<AuthViewModel> {
         contentView.addSubview(forgotPasswordButton)
         contentView.addSubview(primaryButton)
         contentView.addSubview(orStack)
-        contentView.addSubview(googleButton)
 
         let bottomStack = UIStackView(arrangedSubviews: [bottomTextLabel, bottomActionButton])
         bottomStack.axis = .horizontal
@@ -281,7 +277,6 @@ final class AuthController: BaseController<AuthViewModel> {
         // Form card
 
         formCard.backgroundColor = .clear
-        contentView.addSubview(formCard)
         formCard.snp.makeConstraints { make in
             make.top.equalTo(subtitleLabel.snp.bottom).offset(24)
             make.leading.trailing.equalToSuperview().inset(24)
@@ -372,20 +367,12 @@ final class AuthController: BaseController<AuthViewModel> {
 
         // Forgot password
 
-        contentView.addSubview(forgotPasswordButton)
         forgotPasswordButton.snp.makeConstraints { make in
             make.top.equalTo(formCard.snp.bottom).offset(8)
             make.trailing.equalTo(formCard.snp.trailing)
         }
 
-        // Primary button
-
-        primaryButton.applyFilledStyle(
-            title: "",
-            systemImageName: nil,
-            baseBackgroundColor: .mgAccent,
-            baseForegroundColor: .mgTextSecondary
-        )
+        // Primary button (stil artıq closure-da verilib, burada yalnız constraints)
 
         primaryButton.snp.makeConstraints { make in
             make.top.equalTo(forgotPasswordButton.snp.bottom).offset(16)
@@ -412,20 +399,8 @@ final class AuthController: BaseController<AuthViewModel> {
             make.height.equalTo(20)
         }
 
-        // Google button
-
-        configureGoogleButton()
-
-        googleButton.snp.makeConstraints { make in
-            make.top.equalTo(orStack.snp.bottom).offset(18)
-            make.leading.trailing.equalTo(formCard)
-            make.height.equalTo(46)
-        }
-
-        // Bottom
-
         bottomStack.snp.makeConstraints { make in
-            make.top.equalTo(googleButton.snp.bottom).offset(24)
+            make.top.equalTo(orStack.snp.bottom).offset(24)
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(24)
         }
@@ -440,31 +415,6 @@ final class AuthController: BaseController<AuthViewModel> {
         view.layer.borderColor = UIColor.mgCardStroke.cgColor
         view.layer.masksToBounds = true
     }
-
-    private func configureGoogleButton() {
-        var config = UIButton.Configuration.plain()
-        config.baseForegroundColor = .mgTextPrimary
-        config.background.backgroundColor = .mgCard
-        config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
-        config.cornerStyle = .capsule
-
-        let title = AttributedString(
-            "", // mode-a görə sonra set olunacaq
-            attributes: AttributeContainer([
-                .font: UIFont.systemFont(ofSize: 15, weight: .semibold)
-            ])
-        )
-        config.attributedTitle = title
-
-        let gImage = UIImage(named: "google_logo")
-        config.image = gImage
-        config.imagePadding = 8
-        config.imagePlacement = .leading
-
-        googleButton.configuration = config
-    }
-
-    // MARK: - Mode
 
     private func updateForMode() {
         switch mode {
@@ -497,14 +447,6 @@ final class AuthController: BaseController<AuthViewModel> {
             forgotPasswordButton.isHidden = false
 
             primaryButton.setTitle("Log In", for: .normal)
-
-            googleButton.configuration?.attributedTitle = AttributedString(
-                "Sign in with Google",
-                attributes: AttributeContainer([
-                    .font: UIFont.systemFont(ofSize: 15, weight: .semibold)
-                ])
-            )
-
             bottomTextLabel.text = "Don't have an account?"
             bottomActionButton.setTitle("Sign Up", for: .normal)
 
@@ -537,14 +479,6 @@ final class AuthController: BaseController<AuthViewModel> {
             forgotPasswordButton.isHidden = true
 
             primaryButton.setTitle("Sign Up", for: .normal)
-
-            googleButton.configuration?.attributedTitle = AttributedString(
-                "Sign up with Google",
-                attributes: AttributeContainer([
-                    .font: UIFont.systemFont(ofSize: 15, weight: .semibold)
-                ])
-            )
-
             bottomTextLabel.text = "Already have an account?"
             bottomActionButton.setTitle("Log In", for: .normal)
         }
@@ -555,7 +489,6 @@ final class AuthController: BaseController<AuthViewModel> {
     private func setupActions() {
         primaryButton.addTarget(self, action: #selector(handlePrimaryTapped), for: .touchUpInside)
         passwordVisibilityButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
-        googleButton.addTarget(self, action: #selector(handleGoogleTapped), for: .touchUpInside)
         bottomActionButton.addTarget(self, action: #selector(handleToggleMode), for: .touchUpInside)
         forgotPasswordButton.addTarget(self, action: #selector(handleForgotPassword), for: .touchUpInside)
     }
@@ -579,11 +512,6 @@ final class AuthController: BaseController<AuthViewModel> {
         passwordField.isSecureTextEntry.toggle()
         let name = passwordField.isSecureTextEntry ? "eye" : "eye.slash"
         passwordVisibilityButton.setImage(UIImage(systemName: name), for: .normal)
-    }
-
-    @objc private func handleGoogleTapped() {
-        view.endEditing(true)
-//        viewModel.signInWithGoogle(mode: mode)
     }
 
     @objc private func handleToggleMode() {

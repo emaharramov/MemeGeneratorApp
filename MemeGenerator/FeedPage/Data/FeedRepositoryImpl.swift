@@ -17,7 +17,8 @@ final class FeedRepositoryImpl: FeedRepository {
     }
 
     func getAllMemes(
-        completion: @escaping (Result<FeedMemes, FeedError>) -> Void
+        completion: @escaping (Result<FeedMemes, FeedError>
+        ) -> Void
     ) {
         let path = FeedEndpoint.allAIMemes.path
 

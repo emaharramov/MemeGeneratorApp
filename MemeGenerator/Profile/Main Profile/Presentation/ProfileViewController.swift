@@ -7,11 +7,13 @@
 
 import UIKit
 import SnapKit
+import Combine
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: BaseController<ProfileVM> {
 
     private weak var router: ProfileRouting?
-    
+    private var cancellables = Set<AnyCancellable>()
+
     private enum Section: Int, CaseIterable {
         case header
         case stats
@@ -26,36 +28,68 @@ final class ProfileViewController: UIViewController {
         case logout
     }
 
-    // MARK: - UI
-
     private let tableView = UITableView(frame: .zero, style: .plain)
+    private let refreshControl = UIRefreshControl()
 
-    // Demo data (sonra real user modeldən gələcək)
-    private let displayName = "Meme Master"
-    private let email = "user@example.com"
-    private let memesCount = "142"
-    private let savedCount = "56"
+    private var memesCount: Int = 0
+    private var savedCount: Int = 0
 
-    // MARK: - Init
+    private var displayName: String {
+        let user = viewModel.userProfile?.data
 
-    init(router: ProfileRouting) {
+        if let fullName = user?.fullName, !fullName.isEmpty {
+            return fullName
+        }
+
+        return "Meme Master"
+    }
+
+    private var email: String {
+        viewModel.userProfile?.data.email.lowercased() ?? "user@example.com"
+    }
+
+    private var memesCountText: String {
+        String(memesCount)
+    }
+
+    private var savedCountText: String {
+        String(savedCount)
+    }
+
+    init(viewModel: ProfileVM, router: ProfileRouting) {
         self.router = router
-        super.init(nibName: nil, bundle: nil)
+        super.init(viewModel: viewModel)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .mgBackground
         navigationItem.title = "Profile"
+
         setupTableView()
+        setupRefreshControl()
+        bindViewModel()
     }
-    
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.getUserProfile()
+    }
+
+    override func bindViewModel() {
+        viewModel.$userProfile
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.refreshControl.endRefreshing()
+                self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
     private func setupTableView() {
         view.addSubview(tableView)
 
@@ -66,10 +100,8 @@ final class ProfileViewController: UIViewController {
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
-
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 160
-
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 24, right: 0)
 
         tableView.register(ProfileHeaderCell.self,
@@ -83,7 +115,15 @@ final class ProfileViewController: UIViewController {
         tableView.delegate   = self
     }
 
-    // MARK: - Router helper-lər
+    private func setupRefreshControl() {
+        refreshControl.tintColor = .white
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        tableView.refreshControl = refreshControl
+    }
+
+    @objc private func handleRefresh() {
+        viewModel.getUserProfile()
+    }
 
     private func openEditProfile() {
         router?.showEditProfile()
@@ -112,9 +152,12 @@ final class ProfileViewController: UIViewController {
     private func logout() {
         router?.performLogout()
     }
-}
 
-// MARK: - UITableViewDataSource
+    private func reloadStatsSection() {
+        let indexSet = IndexSet(integer: Section.stats.rawValue)
+        tableView.reloadSections(indexSet, with: .automatic)
+    }
+}
 
 extension ProfileViewController: UITableViewDataSource {
 
@@ -148,7 +191,13 @@ extension ProfileViewController: UITableViewDataSource {
                 for: indexPath
             )
 
-            cell.configure(name: displayName, email: email)
+            let isPremium = viewModel.userProfile?.data.isPremium ?? false
+
+            cell.configure(
+                name: displayName,
+                email: email,
+                isPremium: isPremium
+            )
 
             cell.onEditProfile = { [weak self] in
                 self?.openEditProfile()
@@ -165,7 +214,7 @@ extension ProfileViewController: UITableViewDataSource {
                 for: indexPath
             )
 
-            cell.configure(memes: memesCount, saved: savedCount)
+            cell.configure(memes: memesCountText, saved: savedCountText)
             return cell
 
         case .menu:
@@ -210,8 +259,6 @@ extension ProfileViewController: UITableViewDataSource {
     }
 }
 
-// MARK: - UITableViewDelegate
-
 extension ProfileViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView,
@@ -247,5 +294,17 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    heightForFooterInSection section: Int) -> CGFloat {
         0.01
+    }
+}
+
+extension ProfileViewController: ProfileCountsDelegate {
+    func didUpdateMemesCount(_ count: Int) {
+        memesCount = count
+        reloadStatsSection()
+    }
+
+    func didUpdateSavedCount(_ count: Int) {
+        savedCount = count
+        reloadStatsSection()
     }
 }

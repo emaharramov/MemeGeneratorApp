@@ -63,19 +63,18 @@ final class EditProfileTextFieldCell: UITableViewCell {
         }
     }
 
-    func configure(title: String,
-                   placeholder: String,
-                   text: String?,
-                   keyboardType: UIKeyboardType) {
-        titleLabel.text = title
-        textField.text = text
-        textField.keyboardType = keyboardType
+    func configure(
+            title: String,
+            placeholder: String,
+            text: String,
+            keyboardType: UIKeyboardType,
+            isEditable: Bool = true
+        ) {
+            textField.placeholder = placeholder
+            textField.text = text
+            textField.keyboardType = keyboardType
 
-        textField.attributedPlaceholder = NSAttributedString(
-            string: placeholder,
-            attributes: [
-                .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7)
-            ]
-        )
-    }
+            textField.isEnabled = isEditable
+            textField.textColor = isEditable ? .mgTextPrimary : .mgTextSecondary
+        }
 }

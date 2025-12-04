@@ -11,7 +11,7 @@ protocol LoginUseCase {
     func execute(
         email: String,
         password: String,
-        completion: @escaping (Result<AuthSession, AuthError>) -> Void
+        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
     )
 }
 
@@ -25,7 +25,7 @@ final class LoginUseCaseImpl: LoginUseCase {
     func execute(
         email: String,
         password: String,
-        completion: @escaping (Result<AuthSession, AuthError>) -> Void
+        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
     ) {
         repository.login(email: email, password: password, completion: completion)
     }

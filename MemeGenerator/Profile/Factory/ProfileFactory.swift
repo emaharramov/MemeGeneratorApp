@@ -19,13 +19,24 @@ protocol ProfileFactory {
 
 final class DefaultProfileFactory: ProfileFactory {
 
+    private let networkManager: NetworkManager
+
+    init(networkManager: NetworkManager = NetworkManager()) {
+        self.networkManager = networkManager
+    }
+
     func makeProfile(router: ProfileRouting) -> UIViewController {
-        let vc = ProfileViewController(router: router)
+        let repository = UserRepositoryImp(networkManager: networkManager)
+        let useCase = UserUseCase(repository: repository)
+        let viewModel = ProfileVM(userUseCase: useCase)
+        let vc = ProfileViewController(viewModel: viewModel, router: router)
         return vc
     }
 
     func makeEditProfile() -> UIViewController {
-        let vm = EditProfileVM()
+        let repository = UserRepositoryImp(networkManager: networkManager)
+        let useCase = UserUseCase(repository: repository)
+        let vm = ProfileVM(userUseCase: useCase)
         let vc = EditProfileViewController(viewModel: vm)
         return vc
     }
@@ -45,7 +56,7 @@ final class DefaultProfileFactory: ProfileFactory {
         let vc = SavedMemesViewController()
         return vc
     }
-
+    
     func makeSettings() -> UIViewController {
         let vm = SettingsVM()
         let vc = SettingsViewController(viewModel: vm)
