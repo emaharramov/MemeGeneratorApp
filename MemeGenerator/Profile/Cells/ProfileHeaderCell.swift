@@ -10,10 +10,14 @@ import SnapKit
 
 final class ProfileHeaderCell: UITableViewCell {
 
+    // MARK: - Public
+
     static let reuseID = "ProfileHeaderCell"
 
     var onEditProfile: (() -> Void)?
     var onGoPremium: (() -> Void)?
+
+    // MARK: - UI
 
     private let cardView: UIView = {
         let v = UIView()
@@ -63,15 +67,10 @@ final class ProfileHeaderCell: UITableViewCell {
         return lbl
     }()
 
-    private let editButton: UIButton = {
-        let btn = UIButton(type: .system)
-        return btn
-    }()
+    private let editButton = UIButton(type: .system)
+    private let premiumButton = UIButton(type: .system)
 
-    private let premiumButton: UIButton = {
-        let btn = UIButton(type: .system)
-        return btn
-    }()
+    // MARK: - Init
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -82,10 +81,24 @@ final class ProfileHeaderCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Lifecycle
+
     override func layoutSubviews() {
         super.layoutSubviews()
-        avatarContainerView.layer.cornerRadius = 32
+        // dinamik dairə
+        avatarContainerView.layer.cornerRadius = avatarContainerView.bounds.width / 2
+        avatarImageView.layer.cornerRadius     = avatarImageView.bounds.width / 2
     }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        nameLabel.text  = nil
+        emailLabel.text = nil
+        avatarImageView.image = UIImage(systemName: "person.fill")
+        avatarImageView.contentMode = .scaleAspectFit
+    }
+
+    // MARK: - Setup
 
     private func setup() {
         selectionStyle = .none
@@ -94,7 +107,9 @@ final class ProfileHeaderCell: UITableViewCell {
 
         contentView.addSubview(cardView)
         cardView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16))
+            make.edges.equalToSuperview().inset(
+                UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+            )
         }
 
         avatarContainerView.snp.makeConstraints { make in
@@ -103,7 +118,7 @@ final class ProfileHeaderCell: UITableViewCell {
 
         avatarContainerView.addSubview(avatarImageView)
         avatarImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(12)
+            make.edges.equalToSuperview()
         }
 
         let textStack = UIStackView(arrangedSubviews: [nameLabel, emailLabel])
@@ -165,20 +180,17 @@ final class ProfileHeaderCell: UITableViewCell {
         button.clipsToBounds = false
     }
 
+    // MARK: - Public configure
+
+    /// `avatarBase64` – backend-dən gələn base64 şəkil string-i
     func configure(name: String,
                    email: String,
                    isPremium: Bool,
-                   avatarImage: UIImage? = nil) {
+                   avatarBase64: String? = nil) {
         nameLabel.text = name
         emailLabel.text = email
 
-        if let image = avatarImage {
-            avatarImageView.image = image
-            avatarImageView.contentMode = .scaleAspectFill
-        } else {
-            avatarImageView.image = UIImage(systemName: "person.fill")
-            avatarImageView.contentMode = .scaleAspectFit
-        }
+        updateAvatar(with: avatarBase64)
 
         configureButton(
             premiumButton,
@@ -188,6 +200,26 @@ final class ProfileHeaderCell: UITableViewCell {
             hasShadow: true
         )
     }
+
+    // MARK: - Avatar
+
+    private func updateAvatar(with base64: String?) {
+        guard
+            let base64,
+            !base64.isEmpty,
+            let data  = Data(base64Encoded: base64),
+            let image = UIImage(data: data)
+        else {
+            avatarImageView.image = UIImage(systemName: "person.fill")
+            avatarImageView.contentMode = .scaleAspectFit
+            return
+        }
+
+        avatarImageView.image = image
+        avatarImageView.contentMode = .scaleAspectFill
+    }
+
+    // MARK: - Actions
 
     @objc private func editTapped() {
         onEditProfile?()

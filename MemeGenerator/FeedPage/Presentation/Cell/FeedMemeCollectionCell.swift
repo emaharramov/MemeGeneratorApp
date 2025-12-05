@@ -55,9 +55,10 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
 
     private let subtitleLabel: UILabel = {
         let lbl = UILabel()
-        lbl.font = .systemFont(ofSize: 12, weight: .regular)
-        lbl.textColor = .mgTextSecondary
-        lbl.numberOfLines = 1
+        lbl.font = .systemFont(ofSize: 13, weight: .regular)
+        lbl.textColor = .mgPromptColor
+        lbl.textAlignment = .justified
+        lbl.numberOfLines = 0
         return lbl
     }()
 
@@ -71,7 +72,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         let btn = UIButton(type: .system)
         let image = UIImage(systemName: "square.and.arrow.down")
         btn.setImage(image, for: .normal)
-        btn.tintColor = .mgAccent
+        btn.tintColor = .mgPromptColor
         btn.backgroundColor = UIColor.white.withAlphaComponent(0.06)
         btn.layer.cornerRadius = 16
         btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
@@ -82,7 +83,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         let btn = UIButton(type: .system)
         let image = UIImage(systemName: "bookmark")
         btn.setImage(image, for: .normal)
-        btn.tintColor = .mgAccent
+        btn.tintColor = .mgPromptColor
         btn.backgroundColor = UIColor.white.withAlphaComponent(0.06)
         btn.layer.cornerRadius = 16
         btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
@@ -151,7 +152,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         }
 
         subtitleLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(4)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(8)
             $0.left.right.equalToSuperview().inset(16)
         }
 
@@ -193,20 +194,11 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
 
         memeImageView.loadImage(template.imageURL ?? "")
 
-        let top = (template.topText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        let bottom = (template.bottomText ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if !top.isEmpty || !bottom.isEmpty {
-            titleLabel.text = [top, bottom]
-                .joined(separator: " ")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-        } else {
-            titleLabel.text = "Awesome meme from AI"
-        }
-
         let author = (template.username ?? "unknown").trimmingCharacters(in: .whitespacesAndNewlines)
         let time = template.createdAt?.timeAgoString() ?? ""
-        subtitleLabel.text = "by @\(author) • \(time)"
+
+        titleLabel.text = "by @\(author) • \(time)"
+        subtitleLabel.text = template.prompt
     }
 
     // MARK: - Actions

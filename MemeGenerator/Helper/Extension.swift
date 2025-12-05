@@ -56,12 +56,29 @@ extension CGPoint {
     }
 }
 
+extension UIImage {
+    func resizedToMaxDimension(_ maxDimension: CGFloat) -> UIImage {
+        let maxSide = max(size.width, size.height)
+        guard maxSide > maxDimension else { return self }
+
+        let scale = maxDimension / maxSide
+        let newSize = CGSize(width: size.width * scale,
+                             height: size.height * scale)
+
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+    }
+}
+
 extension UIColor {
     static let mgBackground   = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 1)
     static let mgLightBackground   = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 0.9)
     static let mgCard         = UIColor(red: 45/255, green: 34/255, blue: 23/255, alpha: 1)
     static let mgCardStroke   = UIColor(white: 1, alpha: 0.05)
     static let mgTextPrimary  = UIColor.white
+    static let mgPromptColor = UIColor.white.withAlphaComponent(0.90)
     static let mgTextSecondary = UIColor.white.withAlphaComponent(0.65)
     static let mgAccent       = UIColor(red: 171/255, green: 120/255, blue: 52/255, alpha: 1)
     static let textFieldTextColor = UIColor(red: 0.70, green: 0.52, blue: 0.26, alpha: 1.0)

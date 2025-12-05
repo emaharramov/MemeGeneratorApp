@@ -30,6 +30,8 @@ final class EditProfileViewController: BaseController<ProfileVM> {
     private weak var usernameField: UITextField?
     private weak var emailField: UITextField?
 
+    private var selectedAvatarImage: UIImage?
+
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Lifecycle
@@ -54,7 +56,9 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         viewModel.$userProfile
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.tableView.reloadData()
+                guard let self else { return }
+                self.selectedAvatarImage = nil
+                self.tableView.reloadData()
             }
             .store(in: &cancellables)
 
@@ -63,13 +67,11 @@ final class EditProfileViewController: BaseController<ProfileVM> {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
                 guard let self else { return }
-//                 self.showToast(message: message, type: .success)
-
+                self.showToast(message: message, type: .success)
                 self.navigationController?.popViewController(animated: true)
             }
             .store(in: &cancellables)
     }
-
 
     // MARK: - Setup
 
@@ -135,6 +137,10 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         viewModel.userProfile?.data.email ?? ""
     }
 
+    private var currentAvatarUrl: String {
+        viewModel.userProfile?.data.avatarUrl ?? ""
+    }
+
     // MARK: - Actions
 
     @objc private func saveTapped() {
@@ -147,11 +153,33 @@ final class EditProfileViewController: BaseController<ProfileVM> {
             return
         }
 
+        var avatarUrlToSend = currentAvatarUrl
+
+        if let image = selectedAvatarImage {
+            let resized = image.resizedToMaxDimension(256)
+            if let data = resized.jpegData(compressionQuality: 0.35) {
+
+                print("Avatar bytes:", data.count)
+
+                let base64String = data.base64EncodedString()
+                avatarUrlToSend = base64String
+            }
+        }
+
         viewModel.updateProfile(
+            avatarUrl: avatarUrlToSend,
             fullName: fullName,
             username: username,
             email: email
         )
+    }
+
+    private func presentAvatarPicker() {
+        let picker = UIImagePickerController()
+        picker.sourceType = .photoLibrary
+        picker.allowsEditing = false
+        picker.delegate = self
+        present(picker, animated: true)
     }
 }
 
@@ -189,10 +217,15 @@ extension EditProfileViewController: UITableViewDataSource {
             ) as! EditProfileAvatarCell
 
             let nameForInitials = currentFullName.isEmpty ? currentUsername : currentFullName
-            cell.configure(initialsFrom: nameForInitials)
+
+            cell.configure(
+                initialsFrom: nameForInitials,
+                avatarBase64: currentAvatarUrl,
+                pickedImage: selectedAvatarImage
+            )
+
             cell.onChangePhoto = { [weak self] in
-                // gələcəkdə avatar seçimi üçün
-                self?.showToast(message: "Change photo coming soon", type: .info)
+                self?.presentAvatarPicker()
             }
             return cell
 
@@ -211,7 +244,7 @@ extension EditProfileViewController: UITableViewDataSource {
                     placeholder: "Enter your full name",
                     text: currentFullName,
                     keyboardType: .default,
-                    isEditable: true      // dəyişmək olar
+                    isEditable: true
                 )
                 fullNameField = cell.textField
 
@@ -221,7 +254,7 @@ extension EditProfileViewController: UITableViewDataSource {
                     placeholder: "@username",
                     text: currentUsername,
                     keyboardType: .default,
-                    isEditable: false     // read-only
+                    isEditable: false
                 )
                 usernameField = cell.textField
 
@@ -231,7 +264,7 @@ extension EditProfileViewController: UITableViewDataSource {
                     placeholder: "you@example.com",
                     text: currentEmail,
                     keyboardType: .emailAddress,
-                    isEditable: false  
+                    isEditable: false
                 )
                 emailField = cell.textField
             }
@@ -260,5 +293,35 @@ extension EditProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    heightForFooterInSection section: Int) -> CGFloat {
         0.01
+    }
+}
+
+extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+
+    func imagePickerController(_ picker: UIImagePickerController,
+                               didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+
+        let image = (info[.editedImage] as? UIImage)
+            ?? (info[.originalImage] as? UIImage)
+
+        picker.dismiss(animated: true) { [weak self] in
+            guard let self, let image else { return }
+
+            let cropVC = AvatarCropViewController(image: image)
+            cropVC.onCrop = { [weak self] croppedImage in
+                guard let self else { return }
+
+                self.selectedAvatarImage = croppedImage
+
+                let avatarSection = IndexSet(integer: Section.avatar.rawValue)
+                self.tableView.reloadSections(avatarSection, with: .automatic)
+            }
+
+            self.present(cropVC, animated: true)
+        }
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
     }
 }

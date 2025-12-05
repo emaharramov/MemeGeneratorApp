@@ -43,6 +43,7 @@ final class UserRepositoryImp: UserRepository {
         let path = ProfileEndpoint.me.path
 
         let params: Parameters = [
+            "avatarUrl": request.avatarUrl,
             "fullName": request.fullName,
             "username": request.username,
             "email": request.email

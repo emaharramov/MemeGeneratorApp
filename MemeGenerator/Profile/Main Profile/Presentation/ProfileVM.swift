@@ -40,11 +40,13 @@ final class ProfileVM: BaseViewModel {
     }
 
     func updateProfile(
+        avatarUrl: String,
         fullName: String,
         username: String,
         email: String
     ) {
         let request = UpdateProfileRequestDTO(
+            avatarUrl: avatarUrl,
             fullName: fullName,
             username: username,
             email: email

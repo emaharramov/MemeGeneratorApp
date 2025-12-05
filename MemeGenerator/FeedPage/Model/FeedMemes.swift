@@ -15,24 +15,21 @@ struct FeedMemes: Codable, Sendable {
 
 // MARK: - MemesTemplate
 struct MemesTemplate: Codable, Hashable, Sendable {
-    let id: String?
-    let userID: String?
-    let username: String?
-    let templateID: String?
-    let topText: String?
-    let bottomText: String?
-    let imageURL: String?
-    let createdAt: String?
-    let v: Int?
+     let id: String?
+     let userID: String?
+     let prompt: String?
+     let imageURL: String?
+     let createdAt, updatedAt: String?
+     let v: Int?
+     let username: String?
 
-    enum CodingKeys: String, CodingKey {
-        case id = "_id"
-        case userID = "userId"
-        case username
-        case templateID = "templateId"
-        case topText, bottomText
-        case imageURL = "imageUrl"
-        case createdAt
-        case v = "__v"
-    }
+     enum CodingKeys: String, CodingKey {
+         case id = "_id"
+         case userID = "userId"
+         case prompt
+         case imageURL = "imageUrl"
+         case createdAt, updatedAt
+         case v = "__v"
+         case username
+     }
 }

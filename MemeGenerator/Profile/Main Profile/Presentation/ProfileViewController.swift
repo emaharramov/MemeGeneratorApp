@@ -43,6 +43,10 @@ final class ProfileViewController: BaseController<ProfileVM> {
         return "Meme Master"
     }
 
+    private var avatarUrl: String {
+        viewModel.userProfile?.data.avatarUrl ?? ""
+    }
+
     private var email: String {
         viewModel.userProfile?.data.email.lowercased() ?? "user@example.com"
     }
@@ -191,7 +195,8 @@ extension ProfileViewController: UITableViewDataSource {
             cell.configure(
                 name: displayName,
                 email: email,
-                isPremium: isPremium
+                isPremium: isPremium,
+                avatarBase64: avatarUrl
             )
 
             cell.onEditProfile = { [weak self] in

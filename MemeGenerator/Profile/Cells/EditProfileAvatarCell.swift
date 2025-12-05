@@ -15,10 +15,13 @@ final class EditProfileAvatarCell: UITableViewCell {
     var onChangePhoto: (() -> Void)?
 
     private let avatarContainer = UIView()
-    private let avatarCircle = UIView()
-    private let initialsLabel = UILabel()
-    private let editBadge = UIButton(type: .system)
-    private let tapLabel = UILabel()
+    private let avatarCircle    = UIView()
+    private let avatarImageView = UIImageView()
+    private let initialsLabel   = UILabel()
+    private let editBadge       = UIButton(type: .system)
+    private let tapLabel        = UILabel()
+
+    // MARK: - Init
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -28,7 +31,17 @@ final class EditProfileAvatarCell: UITableViewCell {
         setupUI()
     }
 
-    required init?(coder: NSCoder) { fatalError() }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        avatarCircle.layer.cornerRadius = avatarCircle.bounds.width / 2
+        avatarImageView.layer.cornerRadius = avatarImageView.bounds.width / 2
+    }
+
+    // MARK: - Setup
 
     private func setupUI() {
         contentView.addSubview(avatarContainer)
@@ -40,7 +53,6 @@ final class EditProfileAvatarCell: UITableViewCell {
 
         // Circle
         avatarCircle.backgroundColor = UIColor.white.withAlphaComponent(0.06)
-        avatarCircle.layer.cornerRadius = 60
         avatarCircle.layer.masksToBounds = false
         avatarCircle.layer.borderWidth = 1
         avatarCircle.layer.borderColor = UIColor.white.withAlphaComponent(0.15).cgColor
@@ -55,13 +67,24 @@ final class EditProfileAvatarCell: UITableViewCell {
             make.width.height.equalTo(120)
         }
 
-        // initials
+        // Image view
+        avatarImageView.contentMode = .scaleAspectFill
+        avatarImageView.clipsToBounds = true
+
+        avatarCircle.addSubview(avatarImageView)
+        avatarImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        // Initials
         initialsLabel.font = .systemFont(ofSize: 34, weight: .semibold)
         initialsLabel.textAlignment = .center
         initialsLabel.textColor = .mgTextPrimary
 
         avatarCircle.addSubview(initialsLabel)
-        initialsLabel.snp.makeConstraints { $0.edges.equalToSuperview().inset(12) }
+        initialsLabel.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(12)
+        }
 
         // Edit badge
         editBadge.backgroundColor = .mgAccent
@@ -98,11 +121,47 @@ final class EditProfileAvatarCell: UITableViewCell {
         avatarContainer.addGestureRecognizer(tap)
     }
 
-    func configure(initialsFrom name: String) {
+    // MARK: - Configure
+
+    /// `pickedImage` varsa onu göstər, yoxdursa `avatarBase64`-dən şəkil yarad, o da yoxdursa initials.
+    func configure(initialsFrom name: String,
+                   avatarBase64: String?,
+                   pickedImage: UIImage?) {
+
+        if let pickedImage {
+            // Bu ekranda user-in indi seçdiyi şəkil
+            avatarImageView.image = pickedImage
+            avatarImageView.isHidden = false
+            initialsLabel.isHidden = true
+            return
+        }
+
+        if let base64 = avatarBase64,
+           !base64.isEmpty,
+           let data  = Data(base64Encoded: base64),
+           let image = UIImage(data: data) {
+
+            avatarImageView.image = image
+            avatarImageView.isHidden = false
+            initialsLabel.isHidden = true
+            return
+        }
+
+        // Heç bir şəkil yoxdursa → initials
+        avatarImageView.image = nil
+        avatarImageView.isHidden = true
+        initialsLabel.isHidden = false
+
         let parts = name.split(separator: " ")
-        let initials = parts.prefix(2).compactMap { $0.first }.map(String.init).joined()
+        let initials = parts
+            .prefix(2)
+            .compactMap { $0.first }
+            .map(String.init)
+            .joined()
         initialsLabel.text = initials.uppercased()
     }
+
+    // MARK: - Actions
 
     @objc private func changeTapped() {
         onChangePhoto?()
