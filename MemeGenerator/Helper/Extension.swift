@@ -47,6 +47,15 @@ extension Date {
     }
 }
 
+extension CGPoint {
+    func clamped(in rect: CGRect) -> CGPoint {
+        CGPoint(
+            x: max(rect.minX, min(rect.maxX, x)),
+            y: max(rect.minY, min(rect.maxY, y))
+        )
+    }
+}
+
 extension UIColor {
     static let mgBackground   = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 1)
     static let mgLightBackground   = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 0.9)
@@ -81,13 +90,19 @@ extension UIViewController {
     }
 }
 
+extension UIColor {
+    func isEqualTo(_ other: UIColor) -> Bool {
+        return self.isEqual(other)
+    }
+}
+
 extension UITextField {
     func setLeftPaddingPoints(_ amount: CGFloat) {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.height))
         self.leftView = paddingView
         self.leftViewMode = .always
     }
-    
+
     func setRightPaddingPoints(_ amount: CGFloat) {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: amount, height: self.frame.height))
         self.rightView = paddingView
@@ -128,10 +143,10 @@ extension UITableView {
 extension UIColor {
     convenience init(hexStr: String, colorAlpha: CGFloat = 1) {
         var rgbHexInt: UInt64 = 0
-        
+
         let scanner = Scanner(string: hexStr)
         scanner.scanHexInt64(&rgbHexInt)
-        
+
         self.init(red: CGFloat((rgbHexInt & 0xff0000) >> 16) / 0xff,
                   green: CGFloat((rgbHexInt & 0xff00) >> 8) / 0xff,
                   blue: CGFloat(rgbHexInt & 0xff) / 0xff,

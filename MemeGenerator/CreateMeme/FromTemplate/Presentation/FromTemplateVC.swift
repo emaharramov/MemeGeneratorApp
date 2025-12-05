@@ -11,8 +11,6 @@ import Combine
 
 final class FromTemplateVC: BaseController<FromTemplateVM> {
 
-    // MARK: - UI
-
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let stackView = UIStackView()
@@ -30,12 +28,8 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         )
         return view
     }()
-    
-    private let templateCard = UIView()
-    private let templateTitleLabel = UILabel()
-    private let templateSubtitleLabel = UILabel()
-    private let templatePreview = UIImageView()
-    private let chooseTemplateButton = UIButton(type: .system)
+
+    private let templateSelectionView = TemplateSelectionView()
 
     private let generateButton = UIButton(type: .system)
 
@@ -47,20 +41,13 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     private let shareCard = UIView()
     private let shareActionsView = MemeShareActionsView()
 
-    // MARK: - Data
-
     private var templates: [TemplateDTO] = []
     private var selectedTemplate: TemplateDTO? {
         didSet { updateTemplateCardUI() }
     }
 
-    // loading toast-ları template load zamanı göstərməmək üçün
     private var didRequestGeneration = false
-
-    // Combine
     private var cancellables = Set<AnyCancellable>()
-
-    // MARK: - Init
 
     override init(viewModel: FromTemplateVM) {
         super.init(viewModel: viewModel)
@@ -70,8 +57,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .mgBackground
@@ -79,8 +64,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
         viewModel.loadTemplates()
     }
-
-    // MARK: - BaseController hooks
 
     override func configureUI() {
         super.configureUI()
@@ -96,7 +79,11 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         contentView.addSubview(stackView)
 
         styleCard(promptView)
-        setupTemplateCard()
+
+        templateSelectionView.configureInitialState()
+        templateSelectionView.onButtonTapped = { [weak self] in
+            self?.handleChooseTemplateTapped()
+        }
 
         generateButton.applyFilledStyle(
             title: "Generate with Template",
@@ -115,7 +102,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         shareCard.isHidden = true
 
         stackView.addArrangedSubview(promptView)
-        stackView.addArrangedSubview(templateCard)
+        stackView.addArrangedSubview(templateSelectionView)
         stackView.addArrangedSubview(generateButton)
         stackView.addArrangedSubview(resultCard)
         stackView.addArrangedSubview(shareCard)
@@ -173,7 +160,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     override func bindViewModel() {
         super.bindViewModel()
-        // Meme generated
         viewModel.onMemeGenerated = { [weak self] image in
             guard let self else { return }
             DispatchQueue.main.async {
@@ -213,81 +199,34 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         
         viewModel.onTemplatesLoaded = { [weak self] list in
             self?.templates = list
-            self?.showToast(message: "Now you can choose one of your favorite templates!", type: .success)
-        }
-    }
-
-    private func setupTemplateCard() {
-        styleCard(templateCard)
-
-        templateTitleLabel.font = .systemFont(ofSize: 17, weight: .bold)
-        templateTitleLabel.textColor = .mgTextPrimary
-        templateTitleLabel.text = "Choose a Template"
-
-        templateSubtitleLabel.font = .systemFont(ofSize: 14)
-        templateSubtitleLabel.textColor = .mgTextSecondary
-        templateSubtitleLabel.numberOfLines = 0
-        templateSubtitleLabel.text = "Pick a classic meme format. You can change it later."
-
-        templatePreview.contentMode = .scaleAspectFill
-        templatePreview.layer.cornerRadius = 16
-        templatePreview.layer.masksToBounds = true
-        templatePreview.backgroundColor = UIColor.systemGray5.withAlphaComponent(0.6)
-
-        chooseTemplateButton.setTitle("Select Template", for: .normal)
-        chooseTemplateButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
-        chooseTemplateButton.setTitleColor(.mgTextPrimary, for: .normal)
-        chooseTemplateButton.addTarget(
-            self,
-            action: #selector(handleChooseTemplateTapped),
-            for: .touchUpInside
-        )
-
-        let bottomRow = UIStackView(arrangedSubviews: [templatePreview, chooseTemplateButton])
-        bottomRow.axis = .horizontal
-        bottomRow.alignment = .center
-        bottomRow.spacing = 12
-
-        templatePreview.snp.makeConstraints { make in
-            make.width.height.equalTo(64)
-        }
-
-        let contentStack = UIStackView(arrangedSubviews: [
-            templateTitleLabel,
-            templateSubtitleLabel,
-            bottomRow
-        ])
-        contentStack.axis = .vertical
-        contentStack.spacing = 8
-
-        templateCard.addSubview(contentStack)
-        contentStack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(16)
+            self?.showToast(
+                message: "Now you can choose one of your favorite templates!",
+                type: .success
+            )
         }
     }
 
     private func updateTemplateCardUI() {
         guard let template = selectedTemplate else {
-            templateSubtitleLabel.text = "Pick a classic meme format. You can change it later."
-            chooseTemplateButton.setTitle("Select Template", for: .normal)
-            templatePreview.image = nil
-            templatePreview.backgroundColor = UIColor.systemGray5.withAlphaComponent(0.6)
+            templateSelectionView.configureInitialState()
             return
         }
 
-        templateSubtitleLabel.text = template.name
-        chooseTemplateButton.setTitle("Change Template", for: .normal)
+        templateSelectionView.updateForSelectedTemplate(
+            name: template.name,
+            previewImage: nil
+        )
 
         MemeService.shared.loadImage(url: template.url) { [weak self] image in
             DispatchQueue.main.async {
                 guard let self else { return }
-                self.templatePreview.image = image
-                self.templatePreview.backgroundColor = .clear
+                self.templateSelectionView.updateForSelectedTemplate(
+                    name: template.name,
+                    previewImage: image
+                )
             }
         }
     }
-
-    // MARK: - Helpers
 
     private func styleCard(_ view: UIView) {
         view.backgroundColor = .mgCard
@@ -303,8 +242,6 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: true)
     }
 
-    // MARK: - Actions
-
     @objc private func handleGenerateTapped() {
         view.endEditing(true)
         didRequestGeneration = true
@@ -317,7 +254,10 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     @objc private func handleChooseTemplateTapped() {
         guard !templates.isEmpty else {
-            showToast(message: "Templates are loading. Please try again.", type: .info)
+            showToast(
+                message: "Templates are loading. Please try again.",
+                type: .info
+            )
             return
         }
 

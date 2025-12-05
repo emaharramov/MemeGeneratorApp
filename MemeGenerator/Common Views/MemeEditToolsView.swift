@@ -12,13 +12,11 @@ final class MemeEditToolsView: UIView {
 
     var onGallery: (() -> Void)?
     var onCamera: (() -> Void)?
-    var onTemplates: (() -> Void)?
-    var onColor: (() -> Void)?
+    var onTemplate: (() -> Void)?
 
     private let galleryButton = UIButton(type: .system)
     private let cameraButton = UIButton(type: .system)
-    private let templatesButton = UIButton(type: .system)
-    private let colorButton = UIButton(type: .system)
+    private let templateButton = UIButton(type: .system)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -32,18 +30,24 @@ final class MemeEditToolsView: UIView {
     private func setupUI() {
         backgroundColor = .clear
 
-        configure(button: galleryButton, title: "Gallery", systemImage: "photo.on.rectangle")
-        configure(button: cameraButton, title: "Camera", systemImage: "camera")
-        configure(button: templatesButton, title: "Templates", systemImage: "square.grid.2x2")
-        configure(button: colorButton, title: "Text color", systemImage: "eyedropper")
+        configure(button: galleryButton,
+                  title: "Gallery",
+                  systemImage: "photo.on.rectangle")
+        configure(button: cameraButton,
+                  title: "Camera",
+                  systemImage: "camera")
+        configure(button: templateButton,
+                  title: "Template",
+                  systemImage: "square.grid.2x2")
 
         galleryButton.addTarget(self, action: #selector(galleryTapped), for: .touchUpInside)
         cameraButton.addTarget(self, action: #selector(cameraTapped), for: .touchUpInside)
-        templatesButton.addTarget(self, action: #selector(templatesTapped), for: .touchUpInside)
-        colorButton.addTarget(self, action: #selector(colorTapped), for: .touchUpInside)
+        templateButton.addTarget(self, action: #selector(templateTapped), for: .touchUpInside)
 
         let stack = UIStackView(arrangedSubviews: [
-            galleryButton, cameraButton, templatesButton, colorButton
+            galleryButton,
+            cameraButton,
+            templateButton
         ])
         stack.axis = .horizontal
         stack.distribution = .fillEqually
@@ -67,7 +71,12 @@ final class MemeEditToolsView: UIView {
         config.attributedTitle = titleAttr
         config.baseForegroundColor = .mgTextSecondary
 
-        config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 6, bottom: 10, trailing: 6)
+        config.contentInsets = NSDirectionalEdgeInsets(
+            top: 10,
+            leading: 6,
+            bottom: 10,
+            trailing: 6
+        )
 
         button.configuration = config
         button.backgroundColor = .mgCard
@@ -77,7 +86,5 @@ final class MemeEditToolsView: UIView {
 
     @objc private func galleryTapped()   { onGallery?() }
     @objc private func cameraTapped()    { onCamera?() }
-    @objc private func templatesTapped() { onTemplates?() }
-    @objc private func colorTapped()     { onColor?() }
+    @objc private func templateTapped()  { onTemplate?() }
 }
-

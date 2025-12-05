@@ -20,6 +20,7 @@ final class MemeShareActionsView: UIView {
     private let retryButton = UIButton(type: .system)
     private let regenerateButton = UIButton(type: .system)
 
+    private let stack = UIStackView()
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -52,15 +53,25 @@ final class MemeShareActionsView: UIView {
         retryButton.addTarget(self, action: #selector(retryTapped), for: .touchUpInside)
         regenerateButton.addTarget(self, action: #selector(regenerateTapped), for: .touchUpInside)
 
-        let stack = UIStackView(arrangedSubviews: [saveButton, shareButton, retryButton, regenerateButton])
         stack.axis = .horizontal
         stack.distribution = .fillEqually
         stack.spacing = 10
+
+        stack.addArrangedSubview(saveButton)
+        stack.addArrangedSubview(shareButton)
+        stack.addArrangedSubview(retryButton)
+        stack.addArrangedSubview(regenerateButton)
 
         addSubview(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+    }
+
+    func hideTryAgain() {
+        guard stack.arrangedSubviews.contains(retryButton) else { return }
+        stack.removeArrangedSubview(retryButton)
+        retryButton.removeFromSuperview()
     }
 
     private func configure(button: UIButton, title: String, systemImage: String) {

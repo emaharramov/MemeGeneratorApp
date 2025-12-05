@@ -50,6 +50,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private let overlayContainer: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
+        // HƏR ZAMAN interactive olsun, disable eləmirik
+        v.isUserInteractionEnabled = true
         return v
     }()
 
@@ -125,6 +127,12 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
 
     private var cancellables = Set<AnyCancellable>()
 
+    // Custom text editor overlay
+    private var textEditOverlay: UIView?
+    private weak var currentTextEditor: MemeTextEditView?
+
+    // MARK: - Init
+
     override init(viewModel: UploadMemeViewModel) {
         super.init(viewModel: viewModel)
     }
@@ -132,6 +140,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -159,6 +169,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             cornerRadius: 20
         ).cgPath
     }
+
+    // MARK: - Layout
 
     private func setupScrollLayout() {
         view.addSubview(scrollView)
@@ -231,6 +243,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             make.leading.trailing.equalToSuperview().inset(24)
         }
 
+        // TAPS & LONG PRESS – BURDA ƏSAS HİSSƏ
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleCanvasTap(_:)))
         overlayContainer.addGestureRecognizer(tap)
 
@@ -252,6 +265,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             make.height.equalTo(60)
         }
 
+        shareActionsView.hideTryAgain()
+
         toolsView.onGallery = { [weak self] in
             self?.openGallery()
         }
@@ -260,12 +275,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             self?.openCamera()
         }
 
-        toolsView.onTemplates = { [weak self] in
+        toolsView.onTemplate = { [weak self] in
             self?.openTemplatePicker()
-        }
-
-        toolsView.onColor = { [weak self] in
-            self?.openColorPicker()
         }
 
         contentView.addSubview(shareActionsView)
@@ -289,6 +300,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             self?.handleReset()
         }
     }
+
+    // MARK: - Bindings
 
     private func setupBindings() {
         viewModel.onImageChanged = { [weak self] image in
@@ -314,6 +327,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             .store(in: &cancellables)
     }
 
+    // MARK: - Templates
+
     private func openTemplatePicker() {
         if !viewModel.templates.isEmpty {
             presentTemplatePicker(with: viewModel.templates)
@@ -332,8 +347,9 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
 
         let picker = TemplatePickerViewController(templates: templates)
         picker.onTemplateSelected = { [weak self] template in
-            self?.viewModel.applyTemplate(template)
-            self?.clearAllOverlays()
+            guard let self else { return }
+            self.viewModel.applyTemplate(template)
+            self.clearAllOverlays()
         }
 
         picker.modalPresentationStyle = .pageSheet
@@ -345,12 +361,14 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         present(picker, animated: true)
     }
 
+    // MARK: - State helpers
+
     private func updatePlaceholderState(hasImage: Bool) {
         placeholderStack.isHidden = hasImage
         watermarkPreviewLabel.isHidden = !hasImage
         hintLabel.isHidden = !hasImage
 
-        overlayContainer.isUserInteractionEnabled = hasImage
+        // overlayContainer-i heç vaxt disable etmirik
         if !hasImage {
             clearAllOverlays()
         }
@@ -408,31 +426,108 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         overlays.forEach { $0.isInEditMode = isEditMode }
     }
 
+    // MARK: - Custom text edit modal
+
     private func presentTextEdit(for overlay: MemeTextOverlayView) {
-        let alert = UIAlertController(
-            title: "Edit text",
-            message: nil,
-            preferredStyle: .alert
-        )
-        alert.addTextField { field in
-            field.text = overlay.label.text
+        textEditOverlay?.removeFromSuperview()
+
+        let dimView = UIView()
+        dimView.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        dimView.alpha = 0
+
+        view.addSubview(dimView)
+        dimView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
+
+        let editor = MemeTextEditView()
+        dimView.addSubview(editor)
+
+        editor.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(24)
+        }
+
+        currentTextEditor = editor
+
+        let currentText = overlay.label.text ?? ""
+        let currentSize = overlay.label.font.pointSize
+        let currentColor = overlay.label.textColor
+
+        editor.configure(
+            text: currentText,
+            currentFontSize: currentSize,
+            currentColor: currentColor
+        )
+
+        editor.onCancel = { [weak self] in
+            self?.dismissTextEditor()
+        }
+
+        editor.onColorTap = { [weak self] in
             guard let self else { return }
-            let newText = alert.textFields?.first?.text ?? ""
-            overlay.label.text = newText
+            self.activeOverlay = overlay
+            let picker = UIColorPickerViewController()
+            picker.delegate = self
+            picker.selectedColor = overlay.label.textColor
+            self.present(picker, animated: true)
+        }
+
+        editor.onSave = { [weak self] text, fontSize, color in
+            guard let self else { return }
+
+            overlay.label.text = text
+
+            if let size = fontSize {
+                overlay.label.font = .boldSystemFont(ofSize: size)
+            }
+
+            if let color {
+                overlay.label.textColor = color
+            }
+
             let maxWidth = self.overlayContainer.bounds.width * 0.8
             overlay.adjustSize(maxWidth: maxWidth)
             self.activeOverlay = overlay
-        }))
 
-        present(alert, animated: true)
+            self.dismissTextEditor()
+        }
+
+        textEditOverlay = dimView
+
+        dimView.layoutIfNeeded()
+        editor.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+        UIView.animate(withDuration: 0.25,
+                       delay: 0,
+                       usingSpringWithDamping: 0.9,
+                       initialSpringVelocity: 0.4,
+                       options: [.curveEaseOut],
+                       animations: {
+            dimView.alpha = 1
+            editor.transform = .identity
+        })
     }
+
+    private func dismissTextEditor() {
+        guard let container = textEditOverlay else { return }
+
+        UIView.animate(withDuration: 0.2,
+                       animations: {
+            container.alpha = 0
+        }, completion: { _ in
+            container.removeFromSuperview()
+        })
+
+        textEditOverlay = nil
+        currentTextEditor = nil
+    }
+
+    // MARK: - Gestures
 
     @objc private func handleCanvasTap(_ recognizer: UITapGestureRecognizer) {
         let location = recognizer.location(in: overlayContainer)
 
+        // Mütləq şəkil yoxdursa, əvvəlcə image seçdir
         guard baseImageView.image != nil else {
             presentImageSourceActionSheet()
             return
@@ -469,16 +564,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         present(sheet, animated: true)
     }
 
-    @objc private func openColorPicker() {
-        guard activeOverlay != nil else {
-            showToast(message: "Tap on a text to edit color", type: .info)
-            return
-        }
-        let picker = UIColorPickerViewController()
-        picker.delegate = self
-        picker.selectedColor = activeOverlay?.label.textColor ?? .white
-        present(picker, animated: true)
-    }
+    // MARK: - Tool actions
 
     private func openGallery() {
         let picker = UIImagePickerController()
@@ -494,6 +580,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         picker.delegate = self
         present(picker, animated: true)
     }
+
+    // MARK: - Save / share / reset
 
     private func handleSave() {
         guard let image = renderMemeImage() else {
@@ -524,6 +612,10 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     }
 
     private func renderMemeImage() -> UIImage? {
+        guard baseImageView.image != nil else {
+            return nil
+        }
+
         view.layoutIfNeeded()
 
         guard overlayContainer.bounds.width > 0,
@@ -544,6 +636,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         return image
     }
 
+    // MARK: - UIImagePicker delegate
+
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
@@ -557,17 +651,11 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         picker.dismiss(animated: true)
     }
 
-    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
-        guard let overlay = activeOverlay else { return }
-        overlay.label.textColor = viewController.selectedColor
-    }
-}
+    // MARK: - Color picker delegate
 
-private extension CGPoint {
-    func clamped(in rect: CGRect) -> CGPoint {
-        CGPoint(
-            x: max(rect.minX, min(rect.maxX, x)),
-            y: max(rect.minY, min(rect.maxY, y))
-        )
+    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        let color = viewController.selectedColor
+        activeOverlay?.label.textColor = color
+        currentTextEditor?.updateSelectedColor(color)
     }
 }
