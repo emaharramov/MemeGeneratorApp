@@ -50,11 +50,6 @@ extension ProfileCoordinator: ProfileRouting {
         navigation.pushViewController(vc, animated: true)
     }
 
-    func showSettings() {
-        let vc = factory.makeSettings()
-        navigation.pushViewController(vc, animated: true)
-    }
-
     func showHelp() {
         let vc = factory.makeHelp()
         navigation.pushViewController(vc, animated: true)
@@ -72,10 +67,16 @@ extension ProfileCoordinator: ProfileRouting {
         alert.addAction(UIAlertAction(title: "Log out", style: .destructive, handler: { [weak self] _ in
             guard let self else { return }
             AppStorage.shared.isLoggedIn = false
-            AppStorage.shared.token = nil
+            AppStorage.shared.accessToken = nil
             self.onLogout?()
         }))
 
         navigation.present(alert, animated: true)
+    }
+
+    func forceLogout() {
+        AppStorage.shared.isLoggedIn = false
+        AppStorage.shared.accessToken = nil
+        self.onLogout?()
     }
 }

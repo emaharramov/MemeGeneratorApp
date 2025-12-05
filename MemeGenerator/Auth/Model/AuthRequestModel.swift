@@ -16,7 +16,6 @@ extension AuthRequestModel {
             let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
             return jsonObject as? [String: Any]
         } catch {
-            print("❌ AuthRequestModel toDictionary error: \(error)")
             return nil
         }
     }

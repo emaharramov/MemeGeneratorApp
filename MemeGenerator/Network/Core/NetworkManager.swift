@@ -6,17 +6,26 @@
 //
 
 import Foundation
-import Alamofire
+@preconcurrency import Alamofire
+
+struct RefreshResponse: @preconcurrency Decodable, Sendable {
+    let accessToken: String
+    let refreshToken: String
+    let userId: String
+}
 
 final class NetworkManager {
 
-    func request<T: Codable>(
+    static let shared = NetworkManager()
+
+    func request<T: Decodable>(
         path: String,
         model: T.Type,
         method: HTTPMethod = .get,
         params: Parameters? = nil,
         encodingType: EncodingType = .url,
         header: HTTPHeaders? = nil,
+        retries: Int = 1,
         completion: @escaping ((T?, String?) -> Void)
     ) {
         let headers = header ?? NetworkHelper.shared.headers
@@ -29,10 +38,36 @@ final class NetworkManager {
             headers: headers
         )
         .validate()
-        .responseDecodable(of: model.self) { response in
+        .responseDecodable(of: model.self) { [weak self] response in
+            guard let self else { return }
+
+            let statusCode = response.response?.statusCode ?? -1
+
+            if statusCode == 401, retries > 0 {
+                Task {
+                    let refreshed = await self.tryRefreshToken()
+                    if refreshed {
+                        await self.request(
+                            path: path,
+                            model: model,
+                            method: method,
+                            params: params,
+                            encodingType: encodingType,
+                            header: header,
+                            retries: retries - 1,
+                            completion: completion
+                        )
+                    } else {
+                        completion(nil, "Session expired. Please log in again.")
+                    }
+                }
+                return
+            }
+
             switch response.result {
             case .success(let data):
                 completion(data, nil)
+
             case .failure:
                 let message: String
                 if let data = response.data,
@@ -40,10 +75,38 @@ final class NetworkManager {
                    !body.isEmpty {
                     message = body
                 } else {
-                    message = "Status code: \(response.response?.statusCode ?? -1)"
+                    message = "Status code: \(statusCode)"
                 }
                 completion(nil, message)
             }
         }
+    }
+
+    private func tryRefreshToken() async -> Bool {
+        do {
+            try await refreshToken()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func refreshToken() async throws {
+        let dataTask = AF.request(
+            NetworkEndpoint.refresh.path,
+            method: .post,
+            parameters: [
+                "refreshToken": AppStorage.shared.refreshToken
+            ],
+            encoding: JSONEncoding.default
+        )
+        .serializingDecodable(RefreshResponse.self)
+
+        let model = try await dataTask.value
+        AppStorage.shared.saveLogin(
+            accessToken: model.accessToken,
+            userId: model.userId,
+            refreshToken: model.refreshToken
+        )
     }
 }

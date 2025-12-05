@@ -7,7 +7,6 @@
 
 import UIKit
 
-@MainActor
 final class FromTemplateVM: BaseViewModel {
 
     var onTemplatesLoaded: (([TemplateDTO]) -> Void)?

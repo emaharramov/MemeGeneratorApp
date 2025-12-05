@@ -13,7 +13,6 @@ protocol ProfileFactory {
     func makePremium() -> UIViewController
     func makeMyMemes() -> UIViewController
     func makeSavedMemes() -> UIViewController
-    func makeSettings() -> UIViewController
     func makeHelp() -> UIViewController
 }
 
@@ -54,12 +53,6 @@ final class DefaultProfileFactory: ProfileFactory {
 
     func makeSavedMemes() -> UIViewController {
         let vc = SavedMemesViewController()
-        return vc
-    }
-    
-    func makeSettings() -> UIViewController {
-        let vm = SettingsVM()
-        let vc = SettingsViewController(viewModel: vm)
         return vc
     }
 

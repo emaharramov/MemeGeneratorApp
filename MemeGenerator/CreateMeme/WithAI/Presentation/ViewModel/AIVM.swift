@@ -9,7 +9,6 @@ import Foundation
 import Combine
 import UIKit
 
-@MainActor
 final class AIVM: BaseViewModel {
 
     enum ViewState {

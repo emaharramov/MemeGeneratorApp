@@ -22,7 +22,7 @@ final class NetworkHelper {
             "Content-Type": "application/json"
         ]
 
-        if let token = AppStorage.shared.token,
+        if let token = AppStorage.shared.accessToken,
            !token.isEmpty {
             headers["Authorization"] = "Bearer \(token)"
         }

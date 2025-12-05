@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 
-@MainActor
 final class ProfileVM: BaseViewModel {
 
     private let userUseCase: UserUseCase

@@ -10,7 +10,8 @@ import Foundation
 final class AppStorage {
 
     private enum Key: String {
-        case token
+        case accessToken
+        case refreshToken
         case userId
         case hasSeenOnboarding
     }
@@ -20,9 +21,14 @@ final class AppStorage {
 
     private let defaults = UserDefaults.standard
 
-    var token: String? {
-        get { defaults.string(forKey: "token") }
-        set { defaults.setValue(newValue, forKey: "token") }
+    var accessToken: String? {
+        get { defaults.string(forKey: Key.accessToken.rawValue) }
+        set { defaults.setValue(newValue, forKey: Key.accessToken.rawValue) }
+    }
+
+    var refreshToken: String? {
+        get { defaults.string(forKey: Key.refreshToken.rawValue) }
+        set { defaults.setValue(newValue, forKey: Key.refreshToken.rawValue) }
     }
 
     var userId: String {
@@ -31,11 +37,12 @@ final class AppStorage {
     }
 
     var isLoggedIn: Bool {
-        get { token != nil }
+        get { !(accessToken ?? "").isEmpty }
         set {
-            if newValue == false {
-                token = nil
-            }
+            guard newValue == false else { return }
+            accessToken = nil
+            refreshToken = nil
+            userId = ""
         }
     }
 
@@ -44,8 +51,15 @@ final class AppStorage {
         set { defaults.setValue(newValue, forKey: Key.hasSeenOnboarding.rawValue) }
     }
 
-    func saveLogin(token: String, userId: String) {
-        self.token = token
+    func saveLogin(
+        accessToken: String,
+        userId: String,
+        refreshToken: String? = nil
+    ) {
+        self.accessToken = accessToken
         self.userId = userId
+        if let refreshToken {
+            self.refreshToken = refreshToken
+        }
     }
 }

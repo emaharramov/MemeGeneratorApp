@@ -41,7 +41,11 @@ final class AuthRepositoryImpl: AuthRepository {
                 return
             }
 
-            let session = AuthLoginResponseModel(token: model.token, userId: model.userId)
+            let session = AuthLoginResponseModel(
+                accessToken: model.accessToken,
+                refreshToken: model.refreshToken,
+                userId: model.userId
+            )
             completion(.success(session))
         }
     }
@@ -76,7 +80,11 @@ final class AuthRepositoryImpl: AuthRepository {
                 return
             }
 
-            let session = AuthLoginResponseModel(token: model.token, userId: model.userId)
+            let session = AuthLoginResponseModel(
+                accessToken: model.accessToken,
+                refreshToken: model.refreshToken,
+                userId: model.userId
+            )
             completion(.success(session))
         }
     }

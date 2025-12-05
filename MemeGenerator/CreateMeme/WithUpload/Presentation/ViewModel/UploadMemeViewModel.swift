@@ -7,7 +7,6 @@
 
 import UIKit
 
-@MainActor
 final class UploadMemeViewModel: BaseViewModel {
     
     // MARK: - Outputs

@@ -23,7 +23,6 @@ final class ProfileViewController: BaseController<ProfileVM> {
     private enum MenuRow: Int, CaseIterable {
         case myMemes
         case savedMemes
-        case settings
         case help
         case logout
     }
@@ -141,10 +140,6 @@ final class ProfileViewController: BaseController<ProfileVM> {
         router?.showSavedMemes()
     }
 
-    private func openSettings() {
-        router?.showSettings()
-    }
-
     private func openHelp() {
         router?.showHelp()
     }
@@ -236,11 +231,6 @@ extension ProfileViewController: UITableViewDataSource {
                     iconName: "bookmark.fill",
                     title: "Saved Memes"
                 )
-            case .settings:
-                cell.configure(
-                    iconName: "gearshape.fill",
-                    title: "Settings"
-                )
             case .help:
                 cell.configure(
                     iconName: "questionmark.circle.fill",
@@ -273,7 +263,6 @@ extension ProfileViewController: UITableViewDelegate {
         switch row {
         case .myMemes:    openMyMemes()
         case .savedMemes: openSavedMemes()
-        case .settings:   openSettings()
         case .help:       openHelp()
         case .logout:     logout()
         }

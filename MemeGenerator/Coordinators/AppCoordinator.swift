@@ -59,14 +59,14 @@ final class AppCoordinator: Coordinator {
         let vc = AuthController(viewModel: vm, mode: .login)
         vm.onLoginSuccess = { [weak self] token in
             guard let self else { return }
-            AppStorage.shared.token = token
+            AppStorage.shared.accessToken = token
             AppStorage.shared.isLoggedIn = true
             self.showMainTabbar()
         }
 
         vm.onRegisterSuccess = { [weak self] token in
             guard let self else { return }
-            AppStorage.shared.token = token
+            AppStorage.shared.accessToken = token
             AppStorage.shared.isLoggedIn = true
             self.showMainTabbar()
         }
@@ -82,7 +82,7 @@ final class AppCoordinator: Coordinator {
             guard let self, let mainCoordinator else { return }
             self.remove(mainCoordinator)
             AppStorage.shared.isLoggedIn = false
-            AppStorage.shared.token = nil
+            AppStorage.shared.accessToken = nil
             self.showAuth()
         }
 

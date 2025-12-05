@@ -7,12 +7,8 @@
 
 import Foundation
 
-struct AuthLoginResponseModel: Codable {
-    let token: String
+struct AuthLoginResponseModel: Codable, Sendable {
+    let accessToken: String
+    let refreshToken: String
     let userId: String
 }
-
-//struct AuthSession {
-//    let token: String
-//    let userId: String
-//}

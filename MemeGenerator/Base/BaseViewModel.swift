@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 
-@MainActor
 class BaseViewModel: NSObject {
 
     @Published var isLoading: Bool = false

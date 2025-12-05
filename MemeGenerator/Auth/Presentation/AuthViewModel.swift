@@ -59,18 +59,19 @@ final class AuthViewModel: BaseViewModel {
             errorMapper: { [weak self] error in
                 self?.mapError(error) ?? "Something went wrong. Please try again."
             },
-            onSuccess: { [weak self] session in
+            onSuccess: { [weak self] (session: AuthLoginResponseModel)in
                 guard let self else { return }
 
                 AppStorage.shared.saveLogin(
-                    token: session.token,
-                    userId: session.userId
+                    accessToken: session.accessToken,
+                    userId: session.userId,
+                    refreshToken: session.refreshToken
                 )
 
                 self.showSuccess("Login successful!")
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    self.onLoginSuccess?(session.token)
+                    self.onLoginSuccess?(session.accessToken)
                 }
             }
         )
@@ -92,18 +93,19 @@ final class AuthViewModel: BaseViewModel {
             errorMapper: { [weak self] error in
                 self?.mapError(error) ?? "Something went wrong. Please try again."
             },
-            onSuccess: { [weak self] session in
+            onSuccess: { [weak self] (session: AuthLoginResponseModel) in
                 guard let self else { return }
 
                 AppStorage.shared.saveLogin(
-                    token: session.token,
-                    userId: session.userId
+                    accessToken: session.accessToken,
+                    userId: session.userId,
+                    refreshToken: session.refreshToken
                 )
 
                 self.showSuccess("Registration successful!")
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    self.onRegisterSuccess?(session.token)
+                    self.onRegisterSuccess?(session.accessToken)
                 }
             }
         )
