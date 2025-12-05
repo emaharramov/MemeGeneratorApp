@@ -20,7 +20,7 @@ final class ProfileMenuCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        selectionStyle = .default
+        selectionStyle = .none
         accessoryType = .none
         backgroundColor = .clear
         contentView.backgroundColor = .clear
@@ -30,7 +30,6 @@ final class ProfileMenuCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        // Card
         cardView.backgroundColor = .mgCard
         cardView.layer.cornerRadius = 18
         cardView.layer.masksToBounds = false
@@ -43,7 +42,6 @@ final class ProfileMenuCell: UITableViewCell {
             make.height.equalTo(56)
         }
 
-        // Icon background
         iconBackground.backgroundColor = UIColor.white.withAlphaComponent(0.06)
         iconBackground.layer.cornerRadius = 12
         iconBackground.snp.makeConstraints { $0.width.height.equalTo(36) }
@@ -54,11 +52,9 @@ final class ProfileMenuCell: UITableViewCell {
         iconBackground.addSubview(iconView)
         iconView.snp.makeConstraints { $0.center.equalToSuperview() }
 
-        // Title
         titleLabel.font = .systemFont(ofSize: 16, weight: .regular)
         titleLabel.textColor = .mgTextPrimary
 
-        // Chevron
         chevron.tintColor = .mgTextSecondary
 
         let stack = UIStackView(arrangedSubviews: [iconBackground, titleLabel, UIView(), chevron])

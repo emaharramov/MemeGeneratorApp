@@ -22,6 +22,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         return v
     }()
 
+    private let refreshControl = UIRefreshControl()
+
     private let contentView: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
@@ -50,7 +52,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private let overlayContainer: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
-        // HƏR ZAMAN interactive olsun, disable eləmirik
         v.isUserInteractionEnabled = true
         return v
     }()
@@ -127,11 +128,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
 
     private var cancellables = Set<AnyCancellable>()
 
-    // Custom text editor overlay
     private var textEditOverlay: UIView?
     private weak var currentTextEditor: MemeTextEditView?
-
-    // MARK: - Init
 
     override init(viewModel: UploadMemeViewModel) {
         super.init(viewModel: viewModel)
@@ -140,8 +138,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -170,13 +166,15 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         ).cgPath
     }
 
-    // MARK: - Layout
-
     private func setupScrollLayout() {
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
+
+        refreshControl.tintColor = .mgAccent
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        scrollView.refreshControl = refreshControl
 
         scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
@@ -243,7 +241,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             make.leading.trailing.equalToSuperview().inset(24)
         }
 
-        // TAPS & LONG PRESS – BURDA ƏSAS HİSSƏ
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleCanvasTap(_:)))
         overlayContainer.addGestureRecognizer(tap)
 
@@ -301,8 +298,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         }
     }
 
-    // MARK: - Bindings
-
     private func setupBindings() {
         viewModel.onImageChanged = { [weak self] image in
             guard let self else { return }
@@ -326,8 +321,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             }
             .store(in: &cancellables)
     }
-
-    // MARK: - Templates
 
     private func openTemplatePicker() {
         if !viewModel.templates.isEmpty {
@@ -361,14 +354,11 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         present(picker, animated: true)
     }
 
-    // MARK: - State helpers
-
     private func updatePlaceholderState(hasImage: Bool) {
         placeholderStack.isHidden = hasImage
         watermarkPreviewLabel.isHidden = !hasImage
         hintLabel.isHidden = !hasImage
 
-        // overlayContainer-i heç vaxt disable etmirik
         if !hasImage {
             clearAllOverlays()
         }
@@ -425,8 +415,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private func updateEditMode() {
         overlays.forEach { $0.isInEditMode = isEditMode }
     }
-
-    // MARK: - Custom text edit modal
 
     private func presentTextEdit(for overlay: MemeTextOverlayView) {
         textEditOverlay?.removeFromSuperview()
@@ -522,12 +510,9 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         currentTextEditor = nil
     }
 
-    // MARK: - Gestures
-
     @objc private func handleCanvasTap(_ recognizer: UITapGestureRecognizer) {
         let location = recognizer.location(in: overlayContainer)
 
-        // Mütləq şəkil yoxdursa, əvvəlcə image seçdir
         guard baseImageView.image != nil else {
             presentImageSourceActionSheet()
             return
@@ -564,8 +549,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         present(sheet, animated: true)
     }
 
-    // MARK: - Tool actions
-
     private func openGallery() {
         let picker = UIImagePickerController()
         picker.sourceType = .photoLibrary
@@ -580,8 +563,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         picker.delegate = self
         present(picker, animated: true)
     }
-
-    // MARK: - Save / share / reset
 
     private func handleSave() {
         guard let image = renderMemeImage() else {
@@ -611,6 +592,11 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         scrollView.setContentOffset(top, animated: true)
     }
 
+    @objc private func handleRefresh() {
+        handleReset()
+        refreshControl.endRefreshing()
+    }
+
     private func renderMemeImage() -> UIImage? {
         guard baseImageView.image != nil else {
             return nil
@@ -636,8 +622,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         return image
     }
 
-    // MARK: - UIImagePicker delegate
-
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
@@ -650,8 +634,6 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }
-
-    // MARK: - Color picker delegate
 
     func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
         let color = viewController.selectedColor

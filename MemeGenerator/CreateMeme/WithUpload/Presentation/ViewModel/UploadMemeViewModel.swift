@@ -113,10 +113,7 @@ final class UploadMemeViewModel: BaseViewModel {
             }
         )
     }
-    
-    // MARK: - Save
-    
-    /// Controller-dən render olunmuş son şəkil gəlir
+  
     func saveMeme(image: UIImage, includeWatermark: Bool) {
         guard isPremiumUser else {
             showError("This feature is available only for Premium users.")

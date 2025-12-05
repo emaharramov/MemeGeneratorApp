@@ -165,10 +165,10 @@ extension PremiumViewController: UITableViewDataSource {
         switch section {
 
         case .header:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: PremiumHeaderCell.reuseID,
+            let cell: PremiumHeaderCell = tableView.dequeueCell(
+                PremiumHeaderCell.self,
                 for: indexPath
-            ) as! PremiumHeaderCell
+            )
 
             cell.configure(
                 title: "Go Premium",
@@ -177,20 +177,20 @@ extension PremiumViewController: UITableViewDataSource {
             return cell
 
         case .perks:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: PremiumPerkCell.reuseID,
+            let cell: PremiumPerkCell = tableView.dequeueCell(
+                PremiumPerkCell.self,
                 for: indexPath
-            ) as! PremiumPerkCell
+            )
 
             let perk = perks[indexPath.row]
             cell.configure(iconName: perk.0, text: perk.1)
             return cell
 
         case .plans:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: PremiumPlanCell.reuseID,
+            let cell: PremiumPlanCell = tableView.dequeueCell(
+                PremiumPlanCell.self,
                 for: indexPath
-            ) as! PremiumPlanCell
+            )
 
             guard let plan = Plan(rawValue: indexPath.row) else { return cell }
 

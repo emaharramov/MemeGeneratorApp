@@ -26,7 +26,6 @@ final class ProfileCoordinator: Coordinator {
     }
 }
 
-// MARK: - ProfileRouting
 
 extension ProfileCoordinator: ProfileRouting {
 
@@ -45,13 +44,8 @@ extension ProfileCoordinator: ProfileRouting {
         navigation.pushViewController(vc, animated: true)
     }
 
-    func showSavedMemes() {
-        let vc = factory.makeSavedMemes()
-        navigation.pushViewController(vc, animated: true)
-    }
-
     func showHelp() {
-        let vc = factory.makeHelp()
+        let vc = factory.makeHelp(router: self)
         navigation.pushViewController(vc, animated: true)
     }
 

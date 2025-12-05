@@ -11,16 +11,25 @@ import Combine
 final class ProfileVM: BaseViewModel {
 
     private let userUseCase: UserUseCase
+
     @Published private(set) var userProfile: UserProfile?
+    @Published private(set) var aiMemes: FeedMemes?
+    @Published private(set) var aiTempMemes: AITempResponse?
 
     init(userUseCase: UserUseCase) {
         self.userUseCase = userUseCase
         super.init()
     }
 
-    func getUserProfile() {
+    func reloadProfile() {
+        getUserProfile()
+        getAiMemes(shouldRefreshProfile: false)
+        getAiTemplateMemes(shouldRefreshProfile: false)
+    }
+
+    func getUserProfile(resetMessages: Bool = true) {
         performWithLoading(
-            resetMessages: true,
+            resetMessages: resetMessages,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.fetchProfile { result in
@@ -35,6 +44,58 @@ final class ProfileVM: BaseViewModel {
             },
             onSuccess: { [weak self] profile in
                 self?.userProfile = profile
+            }
+        )
+    }
+
+    func getAiMemes(shouldRefreshProfile: Bool = true) {
+        performWithLoading(
+            resetMessages: false,
+            operation: { [weak self] completion in
+                guard let self else { return }
+                self.userUseCase.getAiMemes { result in
+                    completion(result)
+                }
+            },
+            errorMapper: { (error: ProfileError) in
+                switch error {
+                case .network(let message):
+                    return message
+                }
+            },
+            onSuccess: { [weak self] memes in
+                guard let self else { return }
+                self.aiMemes = memes
+
+                if shouldRefreshProfile {
+                    self.getUserProfile(resetMessages: false)
+                }
+            }
+        )
+    }
+
+    func getAiTemplateMemes(shouldRefreshProfile: Bool = true) {
+        performWithLoading(
+            resetMessages: false,
+            operation: { [weak self] completion in
+                guard let self else { return }
+                self.userUseCase.getAiTempMemes { result in
+                    completion(result)
+                }
+            },
+            errorMapper: { (error: ProfileError) in
+                switch error {
+                case .network(let message):
+                    return message
+                }
+            },
+            onSuccess: { [weak self] aiTempMemes in
+                guard let self else { return }
+                self.aiTempMemes = aiTempMemes
+
+                if shouldRefreshProfile {
+                    self.getUserProfile(resetMessages: false)
+                }
             }
         )
     }

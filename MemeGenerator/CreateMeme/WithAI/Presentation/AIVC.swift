@@ -10,11 +10,12 @@ import SnapKit
 import Combine
 
 final class AIVC: BaseController<AIVM> {
-    
+
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let stackView = UIStackView()
-        
+    private let refreshControl = UIRefreshControl()
+
     private lazy var promptView: MemePromptView = {
         let view = MemePromptView(
             title: "AI Meme",
@@ -28,44 +29,49 @@ final class AIVC: BaseController<AIVM> {
         )
         return view
     }()
-    
+
     private let generateButton = UIButton(type: .system)
-    
+
     private let resultCard = UIView()
     private let resultView = MemeResultView(
         placeholderText: "Your AI meme will appear here"
     )
-    
+
     private let shareCard = UIView()
     private let shareActionsView = MemeShareActionsView()
     private var cancellables = Set<AnyCancellable>()
-    
+
     override init(viewModel: AIVM) {
         super.init(viewModel: viewModel)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .mgBackground
         configureNavigation(title: "AI Meme")
     }
-    
+
     override func configureUI() {
         super.configureUI()
+
         scrollView.alwaysBounceVertical = true
         scrollView.showsVerticalScrollIndicator = false
-        
+
+        refreshControl.tintColor = .mgAccent
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        scrollView.refreshControl = refreshControl
+
         stackView.axis = .vertical
         stackView.spacing = 16
-        
+
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(stackView)
-        
+
         generateButton.applyFilledStyle(
             title: "Generate Meme",
             systemImageName: "sparkles",
@@ -74,24 +80,25 @@ final class AIVC: BaseController<AIVM> {
         )
         generateButton.layer.cornerRadius = 20
         generateButton.clipsToBounds = false
-        
+
         styleCard(resultCard)
         resultCard.addSubview(resultView)
-        
+
         styleCard(shareCard)
         shareCard.addSubview(shareActionsView)
         shareCard.isHidden = true
+
         stackView.addArrangedSubview(promptView)
         stackView.addArrangedSubview(generateButton)
         stackView.addArrangedSubview(resultCard)
         stackView.addArrangedSubview(shareCard)
-        
+
         generateButton.addTarget(
             self,
-            action: #selector(handleGenerateTapped),
+            action: #selector(retryGenerate),
             for: .touchUpInside
         )
-        
+
         shareActionsView.onSave = { [weak self] in
             self?.saveImageToPhotos()
         }
@@ -101,83 +108,77 @@ final class AIVC: BaseController<AIVM> {
         shareActionsView.onTryAgain = { [weak self] in
             self?.retryGenerate()
         }
-        
+
         shareActionsView.onRegenerate = { [weak self] in
             self?.resetForNewMeme()
         }
     }
-    
+
     override func configureConstraints() {
         scrollView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
-        
+
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
             make.width.equalTo(scrollView.snp.width)
         }
-        
+
         stackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(16)
             make.leading.trailing.equalToSuperview().inset(16)
             make.bottom.equalToSuperview().inset(24)
         }
-        
+
         generateButton.snp.makeConstraints { make in
             make.height.equalTo(52)
         }
-        
+
         resultView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(12)
         }
-        
+
         shareActionsView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(12)
         }
     }
-    
+
     override func bindViewModel() {
         super.bindViewModel()
-        
-        // ViewState
+
         viewModel.$state
             .receive(on: RunLoop.main)
             .sink { [weak self] state in
                 self?.handle(state: state)
             }
             .store(in: &cancellables)
-        
-        // Loading + button state + "Cooking..." toast
+
         viewModel.$isLoading
             .removeDuplicates()
             .receive(on: RunLoop.main)
             .sink { [weak self] isLoading in
                 guard let self else { return }
-                
+
                 self.generateButton.isEnabled = !isLoading
                 self.generateButton.alpha = isLoading ? 0.6 : 1.0
-                
+
                 if isLoading {
-                    self.showToast(
-                        message: "Cooking your meme in the AI kitchen... Please wait a bit🔥",
-                        type: .info,
-                        duration: 4
-                    )
+                    setLoadingMessage("Cooking your meme to perfection – this may take up to a minute ⏳")
                     self.resultView.image = nil
                 }
             }
             .store(in: &cancellables)
     }
-    
+
     private func handle(state: AIVM.ViewState) {
         switch state {
         case .idle:
             break
-            
+
         case .memeLoaded(let image):
             resultView.image = image
             shareCard.isHidden = false
-            self.showToast(
+            showToast(
                 message: "We hope you are smiling now 🔥",
                 type: .success
             )
@@ -186,7 +187,7 @@ final class AIVC: BaseController<AIVM> {
             shareCard.isHidden = true
         }
     }
-    
+
     private func styleCard(_ view: UIView) {
         view.backgroundColor = .mgCard
         view.layer.cornerRadius = 20
@@ -194,37 +195,31 @@ final class AIVC: BaseController<AIVM> {
         view.layer.borderWidth = 1
         view.layer.borderColor = UIColor.mgCardStroke.cgColor
     }
-    
-    @objc private func handleGenerateTapped() {
+
+    @objc private func handleRefresh() {
+        resetForNewMeme()
+        refreshControl.endRefreshing()
+    }
+
+    @objc private func retryGenerate() {
         view.endEditing(true)
-        viewModel.generateMeme(prompt: promptView.text)
+        guard let prompt = validatePrompt(promptView.text) else { return }
+        viewModel.generateMeme(prompt: prompt)
     }
-    
-    private func retryGenerate() {
-        handleGenerateTapped()
-    }
-    
+
     private func resetForNewMeme() {
         view.endEditing(true)
         promptView.text = ""
         resultView.image = nil
         shareCard.isHidden = true
-        let topOffset = CGPoint(x: 0, y: -scrollView.adjustedContentInset.top)
-        scrollView.setContentOffset(topOffset, animated: true)
+        scrollView.scrollToTop()
     }
-    
+
     private func saveImageToPhotos() {
-        guard let image = resultView.image else { return }
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-        showToast(message: "Saved to Photos", type: .success)
+        saveToPhotos(resultView.image)
     }
-    
+
     private func shareMeme() {
-        guard let image = resultView.image else { return }
-        let activityVC = UIActivityViewController(
-            activityItems: [image],
-            applicationActivities: nil
-        )
-        present(activityVC, animated: true)
+        shareImage(resultView.image, from: resultView)
     }
 }

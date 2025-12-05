@@ -211,10 +211,10 @@ extension EditProfileViewController: UITableViewDataSource {
 
         switch section {
         case .avatar:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: EditProfileAvatarCell.reuseID,
+            let cell: EditProfileAvatarCell = tableView.dequeueCell(
+                EditProfileAvatarCell.self,
                 for: indexPath
-            ) as! EditProfileAvatarCell
+            )
 
             let nameForInitials = currentFullName.isEmpty ? currentUsername : currentFullName
 
@@ -230,10 +230,10 @@ extension EditProfileViewController: UITableViewDataSource {
             return cell
 
         case .fields:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: EditProfileTextFieldCell.reuseID,
+            let cell: EditProfileTextFieldCell = tableView.dequeueCell(
+                EditProfileTextFieldCell.self,
                 for: indexPath
-            ) as! EditProfileTextFieldCell
+            )
 
             guard let row = FieldRow(rawValue: indexPath.row) else { return cell }
 

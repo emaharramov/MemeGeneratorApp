@@ -22,16 +22,12 @@ final class ProfileViewController: BaseController<ProfileVM> {
 
     private enum MenuRow: Int, CaseIterable {
         case myMemes
-        case savedMemes
         case help
         case logout
     }
 
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
-
-    private var memesCount: Int = 0
-    private var savedCount: Int = 0
 
     private var displayName: String {
         let user = viewModel.userProfile?.data
@@ -51,13 +47,15 @@ final class ProfileViewController: BaseController<ProfileVM> {
         viewModel.userProfile?.data.email.lowercased() ?? "user@example.com"
     }
 
-    private var memesCountText: String {
-        String(memesCount)
+    private var memesCount: String {
+        String(viewModel.aiMemes?.memes?.count ?? 0)
     }
 
-    private var savedCountText: String {
-        String(savedCount)
+    private var aiTempCount: String {
+        String(viewModel.aiTempMemes?.memes?.count ?? 0)
     }
+
+    // MARK: - Init
 
     init(viewModel: ProfileVM, router: ProfileRouting) {
         self.router = router
@@ -67,6 +65,8 @@ final class ProfileViewController: BaseController<ProfileVM> {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -80,7 +80,7 @@ final class ProfileViewController: BaseController<ProfileVM> {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.getUserProfile()
+        viewModel.reloadProfile()
     }
 
     override func bindViewModel() {
@@ -92,7 +92,26 @@ final class ProfileViewController: BaseController<ProfileVM> {
                 self.tableView.reloadData()
             }
             .store(in: &cancellables)
+
+        viewModel.$aiMemes
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.refreshControl.endRefreshing()
+                self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+
+        viewModel.$aiTempMemes
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.refreshControl.endRefreshing()
+                self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
     }
+
     private func setupTableView() {
         view.addSubview(tableView)
 
@@ -125,7 +144,7 @@ final class ProfileViewController: BaseController<ProfileVM> {
     }
 
     @objc private func handleRefresh() {
-        viewModel.getUserProfile()
+        viewModel.reloadProfile()
     }
 
     private func openEditProfile() {
@@ -140,21 +159,12 @@ final class ProfileViewController: BaseController<ProfileVM> {
         router?.showMyMemes()
     }
 
-    private func openSavedMemes() {
-        router?.showSavedMemes()
-    }
-
     private func openHelp() {
         router?.showHelp()
     }
 
     private func logout() {
         router?.performLogout()
-    }
-
-    private func reloadStatsSection() {
-        let indexSet = IndexSet(integer: Section.stats.rawValue)
-        tableView.reloadSections(indexSet, with: .automatic)
     }
 }
 
@@ -213,8 +223,7 @@ extension ProfileViewController: UITableViewDataSource {
                 ProfileStatsCell.self,
                 for: indexPath
             )
-
-            cell.configure(memes: memesCountText, saved: savedCountText)
+            cell.configure(aiMemes: memesCount, aiTemp: aiTempCount)
             return cell
 
         case .menu:
@@ -230,11 +239,6 @@ extension ProfileViewController: UITableViewDataSource {
                 cell.configure(
                     iconName: "square.grid.2x2.fill",
                     title: "My Memes"
-                )
-            case .savedMemes:
-                cell.configure(
-                    iconName: "bookmark.fill",
-                    title: "Saved Memes"
                 )
             case .help:
                 cell.configure(
@@ -267,7 +271,6 @@ extension ProfileViewController: UITableViewDelegate {
 
         switch row {
         case .myMemes:    openMyMemes()
-        case .savedMemes: openSavedMemes()
         case .help:       openHelp()
         case .logout:     logout()
         }
@@ -288,17 +291,5 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    heightForFooterInSection section: Int) -> CGFloat {
         0.01
-    }
-}
-
-extension ProfileViewController: ProfileCountsDelegate {
-    func didUpdateMemesCount(_ count: Int) {
-        memesCount = count
-        reloadStatsSection()
-    }
-
-    func didUpdateSavedCount(_ count: Int) {
-        savedCount = count
-        reloadStatsSection()
     }
 }

@@ -25,4 +25,16 @@ final class UserUseCase {
     ) {
         repository.updateProfile(request, completion: completion)
     }
+
+    func getAiMemes(
+        completion: @escaping (Result<FeedMemes, ProfileError>) -> Void
+    ) {
+        repository.getAiMemes(completion: completion)
+    }
+
+    func getAiTempMemes(
+        completion: @escaping (Result<AITempResponse, ProfileError>) -> Void
+    ) {
+        repository.getAiTempMemes(completion: completion)
+    }
 }

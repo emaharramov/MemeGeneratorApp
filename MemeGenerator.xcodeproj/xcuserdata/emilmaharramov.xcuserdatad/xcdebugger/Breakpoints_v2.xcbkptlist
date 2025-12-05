@@ -391,22 +391,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "88534838-1BA9-4A6A-A3C8-96268B2595E9"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MemeGenerator/FeedPage/Presentation/Cell/FeedMemeCollectionCell.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "212"
-            endingLineNumber = "212"
-            landmarkName = "handleSave()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "F42C75DC-566C-4C55-AA85-766BB31214D6"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -855,48 +839,80 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "26742DF7-5E42-4069-89E6-977F5427B15E"
+            uuid = "ED985EF0-E7BA-480D-91D8-AE3EF07DCD8A"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MemeGenerator/Profile/Main Profile/Presentation/ProfileVM.swift"
+            filePath = "MemeGenerator/Common Views/HelpFAQCardView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "66"
-            endingLineNumber = "66"
-            landmarkName = "updateProfile(avatarUrl:fullName:username:email:)"
+            startingLineNumber = "144"
+            endingLineNumber = "144"
+            landmarkName = "setExpanded(_:animated:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "2E2B3EB7-DAFD-4698-9182-3F846207C3FD"
+            uuid = "0DA4AC60-7294-4B86-86FC-EFA6CE134367"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MemeGenerator/Profile/Main Profile/Presentation/ProfileVM.swift"
+            filePath = "MemeGenerator/Common Views/HelpFAQCardView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "71"
-            endingLineNumber = "71"
-            landmarkName = "updateProfile(avatarUrl:fullName:username:email:)"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
+            landmarkName = "setExpanded(_:animated:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5DCE8F38-5674-4D01-A2A0-28F3F7D7F957"
+            uuid = "983659FE-4845-401A-962A-B0AAECFB11C6"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Common Views/HelpFAQCardView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "149"
+            endingLineNumber = "149"
+            landmarkName = "setExpanded(_:animated:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4491A4B9-222A-44F5-B065-22E1264F85A6"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Common Views/HelpFAQCardView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
+            landmarkName = "setExpanded(_:animated:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3DAAF129-7CE8-4F90-BF69-5B228ABE4463"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MemeGenerator/Profile/Main Profile/Presentation/ProfileVM.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "60"
-            endingLineNumber = "60"
-            landmarkName = "updateProfile(avatarUrl:fullName:username:email:)"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
+            landmarkName = "getAiTemplateMemes(shouldRefreshProfile:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

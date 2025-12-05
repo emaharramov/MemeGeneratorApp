@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-final class CreateViewController: UIViewController {
+final class CreateViewController: BaseController<BaseViewModel> {
 
     // MARK: - Routing
 
@@ -68,7 +68,7 @@ final class CreateViewController: UIViewController {
 
     init(router: CreateRouting) {
         self.router = router
-        super.init(nibName: nil, bundle: nil)
+        super.init(viewModel: BaseViewModel())
     }
 
     required init?(coder: NSCoder) {

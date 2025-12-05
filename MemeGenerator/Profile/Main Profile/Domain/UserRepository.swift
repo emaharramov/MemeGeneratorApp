@@ -16,4 +16,12 @@ protocol UserRepository {
          _ request: UpdateProfileRequestDTO,
          completion: @escaping (Result<UserProfile, ProfileError>) -> Void
      )
+
+    func getAiMemes(
+        completion: @escaping (Result<FeedMemes, ProfileError>) -> Void
+    )
+
+    func getAiTempMemes(
+        completion: @escaping (Result<AITempResponse, ProfileError>) -> Void
+    )
 }

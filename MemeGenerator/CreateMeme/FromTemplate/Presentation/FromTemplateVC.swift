@@ -14,6 +14,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let stackView = UIStackView()
+    private let refreshControl = UIRefreshControl()
 
     private lazy var promptView: MemePromptView = {
         let view = MemePromptView(
@@ -71,6 +72,10 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         scrollView.alwaysBounceVertical = true
         scrollView.showsVerticalScrollIndicator = false
 
+        refreshControl.tintColor = .mgAccent
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        scrollView.refreshControl = refreshControl
+
         stackView.axis = .vertical
         stackView.spacing = 16
 
@@ -109,7 +114,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
         generateButton.addTarget(
             self,
-            action: #selector(handleGenerateTapped),
+            action: #selector(retryGenerate),
             for: .touchUpInside
         )
 
@@ -196,7 +201,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
                 }
             }
             .store(in: &cancellables)
-        
+
         viewModel.onTemplatesLoaded = { [weak self] list in
             self?.templates = list
             self?.showToast(
@@ -242,14 +247,10 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: true)
     }
 
-    @objc private func handleGenerateTapped() {
+    @objc private func retryGenerate() {
         view.endEditing(true)
-        didRequestGeneration = true
-        viewModel.generateMeme(prompt: promptView.text)
-    }
-
-    private func retryGenerate() {
-        handleGenerateTapped()
+        guard let prompt = validatePrompt(promptView.text) else { return }
+        viewModel.generateMeme(prompt: prompt)
     }
 
     @objc private func handleChooseTemplateTapped() {
@@ -277,6 +278,11 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         present(picker, animated: true)
     }
 
+    @objc private func handleRefresh() {
+        resetForNewMeme()
+        refreshControl.endRefreshing()
+    }
+
     private func resetForNewMeme() {
         view.endEditing(true)
         promptView.text = ""
@@ -285,20 +291,14 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
         selectedTemplate = nil
         viewModel.clearSelectedTemplate()
-
-        let topOffset = CGPoint(x: 0, y: -scrollView.adjustedContentInset.top)
-        scrollView.setContentOffset(topOffset, animated: true)
+        scrollView.scrollToTop()
     }
 
     private func saveImageToPhotos() {
-        guard let image = resultView.image else { return }
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-        showToast(message: "Saved to Photos", type: .success)
+        saveToPhotos(resultView.image)
     }
 
     private func shareMeme() {
-        guard let image = resultView.image else { return }
-        let vc = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-        present(vc, animated: true)
+        shareImage(resultView.image, from: resultView)
     }
 }

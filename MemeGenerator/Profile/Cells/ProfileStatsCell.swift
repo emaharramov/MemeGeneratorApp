@@ -13,7 +13,7 @@ final class ProfileStatsCell: UITableViewCell {
     static let reuseID = "ProfileStatsCell"
 
     private let memesCard = ProfileStatCardView()
-    private let savedCard = ProfileStatCardView()
+    private let aiTemplateCard = ProfileStatCardView()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -26,7 +26,7 @@ final class ProfileStatsCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        let stack = UIStackView(arrangedSubviews: [memesCard, savedCard])
+        let stack = UIStackView(arrangedSubviews: [memesCard, aiTemplateCard])
         stack.axis = .horizontal
         stack.spacing = 12
         stack.distribution = .fillEqually
@@ -38,8 +38,8 @@ final class ProfileStatsCell: UITableViewCell {
         }
     }
 
-    func configure(memes: String, saved: String) {
-        memesCard.configure(value: memes, title: "Memes")
-        savedCard.configure(value: saved, title: "Saved")
+    func configure(aiMemes: String, aiTemp: String) {
+        memesCard.configure(value: aiMemes, title: "AI Memes")
+        aiTemplateCard.configure(value: aiTemp, title: "AI + Template")
     }
 }

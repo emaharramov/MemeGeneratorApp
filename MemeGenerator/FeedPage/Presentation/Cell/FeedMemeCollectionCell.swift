@@ -12,11 +12,8 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
     static let reuseId = "FeedMemeCollectionCell"
 
     var onDownloadTapped: ((UIImage?) -> Void)?
-    var onSaveTapped: ((MemesTemplate) -> Void)?
 
     private var currentTemplate: MemesTemplate?
-
-    // MARK: - Views
 
     private let cardView: UIView = {
         let v = UIView()
@@ -79,17 +76,6 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         return btn
     }()
 
-    private let saveButton: UIButton = {
-        let btn = UIButton(type: .system)
-        let image = UIImage(systemName: "bookmark")
-        btn.setImage(image, for: .normal)
-        btn.tintColor = .mgPromptColor
-        btn.backgroundColor = UIColor.white.withAlphaComponent(0.06)
-        btn.layer.cornerRadius = 16
-        btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-        return btn
-    }()
-
     private let bottomStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
@@ -97,8 +83,6 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         stack.spacing = 12
         return stack
     }()
-
-    // MARK: - Init
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -109,8 +93,6 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Setup
 
     private func configureUI() {
         contentView.backgroundColor = .clear
@@ -124,14 +106,10 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
 
         bottomStack.addArrangedSubview(UIView())
         bottomStack.addArrangedSubview(downloadButton)
-        bottomStack.addArrangedSubview(saveButton)
 
         downloadButton.addTarget(self,
                                  action: #selector(handleDownload),
                                  for: .touchUpInside)
-        saveButton.addTarget(self,
-                             action: #selector(handleSave),
-                             for: .touchUpInside)
     }
 
     private func configureConstraints() {
@@ -140,9 +118,8 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         }
 
         memeImageView.snp.makeConstraints {
-            $0.top.equalToSuperview() // .offset(12)
-            $0.left.right.equalToSuperview() // .inset(12)
-            // feeddəki böyük meme kartına oxşar olsun deyə bir az hündür
+            $0.top.equalToSuperview()
+            $0.left.right.equalToSuperview()
             $0.height.equalTo(memeImageView.snp.width).multipliedBy(1.05)
         }
 
@@ -171,13 +148,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         downloadButton.snp.makeConstraints {
             $0.width.height.equalTo(32)
         }
-
-        saveButton.snp.makeConstraints {
-            $0.width.height.equalTo(32)
-        }
     }
-
-    // MARK: - Reuse
 
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -186,8 +157,6 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         subtitleLabel.text = nil
         currentTemplate = nil
     }
-
-    // MARK: - Configure
 
     func configure(template: MemesTemplate) {
         currentTemplate = template
@@ -201,14 +170,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         subtitleLabel.text = template.prompt
     }
 
-    // MARK: - Actions
-
     @objc private func handleDownload() {
         onDownloadTapped?(memeImageView.image)
-    }
-
-    @objc private func handleSave() {
-        guard let template = currentTemplate else { return }
-        onSaveTapped?(template)
     }
 }

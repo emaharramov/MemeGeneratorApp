@@ -64,4 +64,44 @@ final class UserRepositoryImp: UserRepository {
             }
         }
     }
+
+    func getAiMemes(
+        completion: @escaping (Result<FeedMemes, ProfileError>) -> Void
+    ) {
+        let path = ProfileEndpoint.aiMemes(userId: AppStorage.shared.userId).path
+
+        networkManager.request(
+            path: path,
+            model: FeedMemes.self,
+            method: .get,
+            encodingType: .json
+        ) { model, errorMessage in
+            if let model {
+                completion(.success(model))
+            } else {
+                let message = errorMessage ?? "Unknown error"
+                completion(.failure(.network(message)))
+            }
+        }
+    }
+
+    func getAiTempMemes(
+        completion: @escaping (Result<AITempResponse, ProfileError>) -> Void
+    ) {
+        let path = ProfileEndpoint.aiTempMemes(userId: AppStorage.shared.userId).path
+
+        networkManager.request(
+            path: path,
+            model: AITempResponse.self,
+            method: .get,
+            encodingType: .json
+        ) { model, errorMessage in
+            if let model {
+                completion(.success(model))
+            } else {
+                let message = errorMessage ?? "Unknown error"
+                completion(.failure(.network(message)))
+            }
+        }
+    }
 }

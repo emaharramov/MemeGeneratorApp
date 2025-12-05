@@ -12,8 +12,7 @@ protocol ProfileFactory {
     func makeEditProfile() -> UIViewController
     func makePremium() -> UIViewController
     func makeMyMemes() -> UIViewController
-    func makeSavedMemes() -> UIViewController
-    func makeHelp() -> UIViewController
+    func makeHelp(router: ProfileRouting) -> UIViewController
 }
 
 final class DefaultProfileFactory: ProfileFactory {
@@ -51,14 +50,9 @@ final class DefaultProfileFactory: ProfileFactory {
         return vc
     }
 
-    func makeSavedMemes() -> UIViewController {
-        let vc = SavedMemesViewController()
-        return vc
-    }
-
-    func makeHelp() -> UIViewController {
+    func makeHelp(router: ProfileRouting) -> UIViewController {
         let vm = HelpFeedbackVM()
-        let vc = HelpFeedbackVC(viewModel: vm)
+        let vc = HelpFeedbackVC(viewModel: vm, router: router)
         return vc
     }
 }

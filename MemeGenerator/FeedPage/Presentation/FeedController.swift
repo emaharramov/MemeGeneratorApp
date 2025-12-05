@@ -215,12 +215,10 @@ extension FeedController: UICollectionViewDataSource {
 
         switch sectionType {
         case .feed:
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: FeedMemeCollectionCell.reuseId,
+            let cell: FeedMemeCollectionCell = collectionView.dequeueCell(
+                FeedMemeCollectionCell.self,
                 for: indexPath
-            ) as? FeedMemeCollectionCell else {
-                fatalError("Wrong cell type")
-            }
+            )
 
             let template = viewModel.allMemes[indexPath.item]
             cell.configure(template: template)
@@ -228,11 +226,6 @@ extension FeedController: UICollectionViewDataSource {
             cell.onDownloadTapped = { [weak self] image in
                 guard let self, let image else { return }
                 self.saveImageToPhotos(image)
-            }
-
-            cell.onSaveTapped = { [weak self] _ in
-                guard let self else { return }
-                self.showToast(message: "Saved in App", type: .success)
             }
 
             return cell
