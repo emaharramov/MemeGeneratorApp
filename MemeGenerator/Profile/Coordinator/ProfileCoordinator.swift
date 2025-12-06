@@ -26,6 +26,7 @@ final class ProfileCoordinator: Coordinator {
     }
 }
 
+// MARK: - ProfileRouting
 
 extension ProfileCoordinator: ProfileRouting {
 
@@ -40,7 +41,7 @@ extension ProfileCoordinator: ProfileRouting {
     }
 
     func showMyMemes() {
-        let vc = factory.makeMyMemes()
+        let vc = factory.makeMyMemes(router: self)
         navigation.pushViewController(vc, animated: true)
     }
 
@@ -50,27 +51,44 @@ extension ProfileCoordinator: ProfileRouting {
     }
 
     func performLogout() {
-        let alert = UIAlertController(
+        guard let hostView = navigation.view else { return }
+
+        MGAlertOverlay.show(
+            on: hostView,
             title: "Log out",
             message: "Are you sure you want to log out?",
-            preferredStyle: .alert
+            primaryTitle: "Log out",
+            secondaryTitle: "Cancel",
+            emoji: "🤔",
+            onPrimary: { [weak self] in
+                guard let self else { return }
+                AppStorage.shared.isLoggedIn = false
+                AppStorage.shared.accessToken = nil
+                self.onLogout?()
+            }
         )
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-
-        alert.addAction(UIAlertAction(title: "Log out", style: .destructive, handler: { [weak self] _ in
-            guard let self else { return }
-            AppStorage.shared.isLoggedIn = false
-            AppStorage.shared.accessToken = nil
-            self.onLogout?()
-        }))
-
-        navigation.present(alert, animated: true)
     }
 
     func forceLogout() {
         AppStorage.shared.isLoggedIn = false
         AppStorage.shared.accessToken = nil
         self.onLogout?()
+    }
+}
+
+// MARK: - MyMemesRouting
+
+extension ProfileCoordinator: MyMemesRouting {
+
+    func makeAllMyMemes() -> UIViewController {
+        factory.makeAllMyMemes()
+    }
+
+    func makeAIMemes() -> UIViewController {
+        factory.makeAIMemes()
+    }
+
+    func makeAIMemesWithTemplate() -> UIViewController {
+        factory.makeAIMemesWithTemplate()
     }
 }

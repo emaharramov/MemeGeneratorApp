@@ -22,8 +22,6 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         case email
     }
 
-    // MARK: - UI
-
     private let tableView = UITableView(frame: .zero, style: .plain)
 
     private weak var fullNameField: UITextField?
@@ -31,15 +29,12 @@ final class EditProfileViewController: BaseController<ProfileVM> {
     private weak var emailField: UITextField?
 
     private var selectedAvatarImage: UIImage?
-
     private var cancellables = Set<AnyCancellable>()
-
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Edit Profile"
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
 
         setupTableView()
         setupFooter()
@@ -49,8 +44,6 @@ final class EditProfileViewController: BaseController<ProfileVM> {
             viewModel.getUserProfile()
         }
     }
-
-    // MARK: - Bindings
 
     override func bindViewModel() {
         viewModel.$userProfile
@@ -73,8 +66,6 @@ final class EditProfileViewController: BaseController<ProfileVM> {
             .store(in: &cancellables)
     }
 
-    // MARK: - Setup
-
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
@@ -88,23 +79,29 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 120
 
-        tableView.register(EditProfileAvatarCell.self,
-                           forCellReuseIdentifier: EditProfileAvatarCell.reuseID)
-        tableView.register(EditProfileTextFieldCell.self,
-                           forCellReuseIdentifier: EditProfileTextFieldCell.reuseID)
+        tableView.register(
+            EditProfileAvatarCell.self,
+            forCellReuseIdentifier: EditProfileAvatarCell.reuseID
+        )
+        tableView.register(
+            EditProfileTextFieldCell.self,
+            forCellReuseIdentifier: EditProfileTextFieldCell.reuseID
+        )
 
         tableView.dataSource = self
         tableView.delegate   = self
     }
 
     private func setupFooter() {
-        let footer = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 96))
+        let footer = UIView(
+            frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 96)
+        )
         footer.backgroundColor = .clear
 
         let button = UIButton(type: .system)
         button.applyFilledStyle(
             title: "Save Changes",
-            baseBackgroundColor: .mgAccent,
+            baseBackgroundColor: Palette.mgAccent,
             baseForegroundColor: .black,
             contentInsets: .init(top: 14, leading: 16, bottom: 14, trailing: 16),
             addShadow: true
@@ -123,8 +120,6 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         tableView.tableFooterView = footer
     }
 
-    // MARK: - Helpers
-
     private var currentFullName: String {
         viewModel.userProfile?.data.fullName ?? ""
     }
@@ -141,8 +136,6 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         viewModel.userProfile?.data.avatarUrl ?? ""
     }
 
-    // MARK: - Actions
-
     @objc private func saveTapped() {
         let fullName = fullNameField?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let username = usernameField?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -158,9 +151,7 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         if let image = selectedAvatarImage {
             let resized = image.resizedToMaxDimension(256)
             if let data = resized.jpegData(compressionQuality: 0.35) {
-
                 print("Avatar bytes:", data.count)
-
                 let base64String = data.base64EncodedString()
                 avatarUrlToSend = base64String
             }
@@ -182,8 +173,6 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         present(picker, animated: true)
     }
 }
-
-// MARK: - UITableViewDataSource
 
 extension EditProfileViewController: UITableViewDataSource {
 
@@ -273,8 +262,6 @@ extension EditProfileViewController: UITableViewDataSource {
         }
     }
 }
-
-// MARK: - UITableViewDelegate
 
 extension EditProfileViewController: UITableViewDelegate {
 

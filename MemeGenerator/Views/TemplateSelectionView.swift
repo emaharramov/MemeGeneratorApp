@@ -10,10 +10,36 @@ import SnapKit
 
 final class TemplateSelectionView: UIView {
 
-    private let titleLabel = UILabel()
-    private let subtitleLabel = UILabel()
-    private let previewImageView = UIImageView()
-    private let actionButton = UIButton(type: .system)
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 17, weight: .bold)
+        label.textColor = Palette.mgTextPrimary
+        return label
+    }()
+
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = Palette.mgTextSecondary
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let previewImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.layer.cornerRadius = 16
+        iv.layer.masksToBounds = true
+        iv.backgroundColor = Palette.mgLightBackground
+        return iv
+    }()
+
+    private let actionButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.setTitleColor(Palette.mgTextPrimary, for: .normal)
+        return button
+    }()
 
     var onButtonTapped: (() -> Void)?
 
@@ -29,26 +55,11 @@ final class TemplateSelectionView: UIView {
     }
 
     private func setupUI() {
-        backgroundColor = .mgCard
+        backgroundColor = Palette.mgCard
         layer.cornerRadius = 20
         layer.masksToBounds = false
         layer.borderWidth = 1
-        layer.borderColor = UIColor.mgCardStroke.cgColor
-
-        titleLabel.font = .systemFont(ofSize: 17, weight: .bold)
-        titleLabel.textColor = .mgTextPrimary
-
-        subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .mgTextSecondary
-        subtitleLabel.numberOfLines = 0
-
-        previewImageView.contentMode = .scaleAspectFill
-        previewImageView.layer.cornerRadius = 16
-        previewImageView.layer.masksToBounds = true
-        previewImageView.backgroundColor = UIColor.systemGray5.withAlphaComponent(0.6)
-
-        actionButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
-        actionButton.setTitleColor(.mgTextPrimary, for: .normal)
+        layer.borderColor = Palette.mgCardStroke.cgColor
 
         let bottomRow = UIStackView(arrangedSubviews: [previewImageView, actionButton])
         bottomRow.axis = .horizontal
@@ -94,7 +105,7 @@ final class TemplateSelectionView: UIView {
         subtitleLabel.text = subtitle
         actionButton.setTitle("Select Template", for: .normal)
         previewImageView.image = nil
-        previewImageView.backgroundColor = UIColor.systemGray5.withAlphaComponent(0.6)
+        previewImageView.backgroundColor = Palette.mgLightBackground
     }
 
     func updateForSelectedTemplate(name: String, previewImage: UIImage?) {
@@ -105,7 +116,7 @@ final class TemplateSelectionView: UIView {
         if previewImage != nil {
             previewImageView.backgroundColor = .clear
         } else {
-            previewImageView.backgroundColor = UIColor.systemGray5.withAlphaComponent(0.6)
+            previewImageView.backgroundColor = Palette.mgLightBackground
         }
     }
 }

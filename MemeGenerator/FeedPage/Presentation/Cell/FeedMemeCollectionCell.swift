@@ -17,7 +17,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
 
     private let cardView: UIView = {
         let v = UIView()
-        v.backgroundColor = .mgCard
+        v.backgroundColor = Palette.mgCard
         v.layer.cornerRadius = 26
         v.layer.masksToBounds = false
         v.layer.shadowColor = UIColor.black.cgColor
@@ -25,7 +25,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         v.layer.shadowRadius = 22
         v.layer.shadowOffset = CGSize(width: 0, height: 14)
         v.layer.borderWidth = 1
-        v.layer.borderColor = UIColor.mgCardStroke.cgColor
+        v.layer.borderColor = Palette.mgCardStroke.cgColor
         return v
     }()
 
@@ -38,14 +38,14 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
             .layerMinXMinYCorner,
             .layerMaxXMinYCorner
         ]
-        iv.backgroundColor = UIColor.black.withAlphaComponent(0.25)
+        iv.backgroundColor = Palette.mgBackground.withAlphaComponent(0.35)
         return iv
     }()
 
     private let titleLabel: UILabel = {
         let lbl = UILabel()
         lbl.font = .systemFont(ofSize: 15, weight: .semibold)
-        lbl.textColor = .mgTextPrimary
+        lbl.textColor = Palette.mgTextPrimary
         lbl.numberOfLines = 0
         return lbl
     }()
@@ -53,7 +53,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
     private let subtitleLabel: UILabel = {
         let lbl = UILabel()
         lbl.font = .systemFont(ofSize: 13, weight: .regular)
-        lbl.textColor = .mgPromptColor
+        lbl.textColor = Palette.mgPromptColor
         lbl.textAlignment = .justified
         lbl.numberOfLines = 0
         return lbl
@@ -61,7 +61,7 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
 
     private let bottomDivider: UIView = {
         let v = UIView()
-        v.backgroundColor = UIColor.white.withAlphaComponent(0.06)
+        v.backgroundColor = Palette.mgCardStroke
         return v
     }()
 
@@ -69,8 +69,8 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         let btn = UIButton(type: .system)
         let image = UIImage(systemName: "square.and.arrow.down")
         btn.setImage(image, for: .normal)
-        btn.tintColor = .mgPromptColor
-        btn.backgroundColor = UIColor.white.withAlphaComponent(0.06)
+        btn.tintColor = Palette.mgAccent
+        btn.backgroundColor = Palette.mgAccentSoft
         btn.layer.cornerRadius = 16
         btn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         return btn
@@ -107,14 +107,17 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
         bottomStack.addArrangedSubview(UIView())
         bottomStack.addArrangedSubview(downloadButton)
 
-        downloadButton.addTarget(self,
-                                 action: #selector(handleDownload),
-                                 for: .touchUpInside)
+        downloadButton.addTarget(
+            self,
+            action: #selector(handleDownload),
+            for: .touchUpInside
+        )
     }
 
     private func configureConstraints() {
         cardView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16))
+            $0.edges.equalToSuperview()
+                .inset(UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16))
         }
 
         memeImageView.snp.makeConstraints {

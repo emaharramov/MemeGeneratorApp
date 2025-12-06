@@ -14,15 +14,48 @@ final class MemeResultView: UIView {
         didSet { updateState() }
     }
 
-    private let innerBackground = UIView()
-    private let imageView = UIImageView()
-    private let placeholderStack = UIStackView()
-    private let placeholderIcon = UIImageView()
-    private let placeholderLabel = UILabel()
+    private let innerBackground: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = 18
+        view.layer.masksToBounds = true
+        return view
+    }()
+
+    private let imageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFit
+        iv.clipsToBounds = true
+        return iv
+    }()
+
+    private let placeholderStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 8
+        return stack
+    }()
+
+    private let placeholderIcon: UIImageView = {
+        let iv = UIImageView()
+        iv.image = UIImage(systemName: "sparkles")
+        iv.tintColor = Palette.mgAccent
+        return iv
+    }()
+
+    private let placeholderLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15)
+        label.textColor = Palette.mgAccent
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
 
     init(placeholderText: String) {
         super.init(frame: .zero)
-        setupUI(placeholderText: placeholderText)
+        setupUI()
+        placeholderLabel.text = placeholderText
         updateState()
     }
 
@@ -30,38 +63,20 @@ final class MemeResultView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setupUI(placeholderText: String) {
+    private func setupUI() {
         backgroundColor = .clear
-
-        innerBackground.layer.cornerRadius = 18
-        innerBackground.layer.masksToBounds = true
 
         addSubview(innerBackground)
         innerBackground.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.height.equalTo(innerBackground.snp.width).multipliedBy(4.0/5.0)
+            make.height.equalTo(innerBackground.snp.width).multipliedBy(4.0 / 5.0)
         }
-
-        imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
 
         innerBackground.addSubview(imageView)
         imageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
-        placeholderIcon.image = UIImage(systemName: "sparkles")
-        placeholderIcon.tintColor = .mgAccent
-
-        placeholderLabel.text = placeholderText
-        placeholderLabel.font = .systemFont(ofSize: 15)
-        placeholderLabel.textColor = .mgAccent
-        placeholderLabel.textAlignment = .center
-        placeholderLabel.numberOfLines = 0
-
-        placeholderStack.axis = .vertical
-        placeholderStack.alignment = .center
-        placeholderStack.spacing = 8
         placeholderStack.addArrangedSubview(placeholderIcon)
         placeholderStack.addArrangedSubview(placeholderLabel)
 
@@ -80,7 +95,7 @@ final class MemeResultView: UIView {
             imageView.image = img
             placeholderStack.isHidden = true
         } else {
-            innerBackground.backgroundColor = .cardBg
+            innerBackground.backgroundColor = Palette.cardBg
             imageView.isHidden = true
             imageView.image = nil
             placeholderStack.isHidden = false

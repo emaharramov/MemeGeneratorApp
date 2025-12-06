@@ -11,8 +11,11 @@ protocol ProfileFactory {
     func makeProfile(router: ProfileRouting) -> UIViewController
     func makeEditProfile() -> UIViewController
     func makePremium() -> UIViewController
-    func makeMyMemes() -> UIViewController
+    func makeMyMemes(router: MyMemesRouting) -> UIViewController
     func makeHelp(router: ProfileRouting) -> UIViewController
+    func makeAllMyMemes() -> UIViewController
+    func makeAIMemes() -> UIViewController
+    func makeAIMemesWithTemplate() -> UIViewController
 }
 
 final class DefaultProfileFactory: ProfileFactory {
@@ -45,14 +48,41 @@ final class DefaultProfileFactory: ProfileFactory {
         return vc
     }
 
-    func makeMyMemes() -> UIViewController {
-        let vc = MyMemesViewController()
+    func makeMyMemes(router: MyMemesRouting) -> UIViewController {
+        let repository = UserRepositoryImp(networkManager: networkManager)
+        let useCase = UserUseCase(repository: repository)
+        let viewModel = MyMemesVM(userUseCase: useCase)
+        let vc = MyMemesViewController(router: router, viewModel: viewModel)
         return vc
     }
 
     func makeHelp(router: ProfileRouting) -> UIViewController {
         let vm = HelpFeedbackVM()
         let vc = HelpFeedbackVC(viewModel: vm, router: router)
+        return vc
+    }
+
+    private func makeMyMemesVM() -> MyMemesVM {
+        let repository = UserRepositoryImp(networkManager: networkManager)
+        let useCase = UserUseCase(repository: repository)
+        return MyMemesVM(userUseCase: useCase)
+    }
+
+    func makeAllMyMemes() -> UIViewController {
+        let vm = makeMyMemesVM()
+        let vc = MyAllMemes(viewModel: vm)
+        return vc
+    }
+
+    func makeAIMemes() -> UIViewController {
+        let vm = makeMyMemesVM()
+        let vc = MyAiMemesVC(viewModel: vm)
+        return vc
+    }
+
+    func makeAIMemesWithTemplate() -> UIViewController {
+        let vm = makeMyMemesVM()
+        let vc = MyAiTempVC(viewModel: vm)
         return vc
     }
 }

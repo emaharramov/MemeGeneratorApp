@@ -16,6 +16,7 @@ final class OnboardingController: BaseController<OnBoardingViewModel>, UIScrollV
         s.showsHorizontalScrollIndicator = false
         s.showsVerticalScrollIndicator = false
         s.bounces = false
+        s.backgroundColor = .clear
         return s
     }()
 
@@ -30,14 +31,15 @@ final class OnboardingController: BaseController<OnBoardingViewModel>, UIScrollV
 
     private let pageControl: UIPageControl = {
         let pc = UIPageControl()
-        pc.currentPageIndicatorTintColor = .baseBackgroundColor
-        pc.pageIndicatorTintColor = UIColor.white.withAlphaComponent(0.3)
+        pc.currentPageIndicatorTintColor = Palette.mgAccent
+        pc.pageIndicatorTintColor = Palette.mgCardStroke
+        pc.backgroundColor = .clear
         return pc
     }()
 
     private let skipButton = UIButton.makeTextButton(
         title: "Skip",
-        titleColor: .baseBackgroundColor,
+        titleColor: Palette.mgAccent,
         font: .systemFont(ofSize: 16, weight: .medium),
         alignment: .leading
     )
@@ -48,8 +50,8 @@ final class OnboardingController: BaseController<OnBoardingViewModel>, UIScrollV
         btn.applyFilledStyle(
             title: "Next",
             systemImageName: "arrow.forward",
-            baseBackgroundColor: .baseBackgroundColor,
-            baseForegroundColor: .white,
+            baseBackgroundColor: Palette.mgAccent,
+            baseForegroundColor: Palette.mgTextPrimary,
             contentInsets: .init(top: 14, leading: 32, bottom: 14, trailing: 32),
             cornerStyle: .large,
             addShadow: true
@@ -64,16 +66,14 @@ final class OnboardingController: BaseController<OnBoardingViewModel>, UIScrollV
         return btn
     }()
 
-    // Get Started
-
     private let getStartedButton: UIButton = {
         let btn = UIButton(type: .system)
 
         btn.applyFilledStyle(
             title: "Get Started",
             systemImageName: nil,
-            baseBackgroundColor: .baseBackgroundColor,
-            baseForegroundColor: .white,
+            baseBackgroundColor: Palette.mgAccent,
+            baseForegroundColor: Palette.mgTextPrimary,
             contentInsets: .init(top: 14, leading: 40, bottom: 14, trailing: 40),
             cornerStyle: .large,
             addShadow: true
@@ -86,7 +86,7 @@ final class OnboardingController: BaseController<OnBoardingViewModel>, UIScrollV
     private let alreadyLabel: UILabel = {
         let l = UILabel()
         l.text = "Already have an account? Log In"
-        l.textColor = UIColor.white.withAlphaComponent(0.8)
+        l.textColor = Palette.mgTextSecondary
         l.font = .systemFont(ofSize: 14, weight: .regular)
         l.textAlignment = .center
         l.isHidden = true
@@ -99,7 +99,7 @@ final class OnboardingController: BaseController<OnBoardingViewModel>, UIScrollV
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 16/255, green: 10/255, blue: 25/255, alpha: 1)
+        view.backgroundColor = Palette.mgBackground
         setupUI()
     }
 

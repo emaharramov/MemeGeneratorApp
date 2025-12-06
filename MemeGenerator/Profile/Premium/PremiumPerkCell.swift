@@ -13,6 +13,7 @@ final class PremiumPerkCell: UITableViewCell {
     static let reuseID = "PremiumPerkCell"
 
     private let cardView = UIView()
+    private let iconContainer = UIView()
     private let iconView = UIImageView()
     private let textLabelView = UILabel()
 
@@ -27,30 +28,43 @@ final class PremiumPerkCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        cardView.backgroundColor = .mgCard
+        cardView.backgroundColor = Palette.mgCard
         cardView.layer.cornerRadius = 22
         cardView.layer.masksToBounds = false
         cardView.layer.borderWidth  = 1
-        cardView.layer.borderColor  = UIColor.mgCardStroke.cgColor
+        cardView.layer.borderColor  = Palette.mgCardStroke.cgColor
+
+        iconContainer.backgroundColor = Palette.mgAccentSoft
+        iconContainer.layer.cornerRadius = 18
+        iconContainer.layer.masksToBounds = true
 
         iconView.contentMode = .scaleAspectFit
-        iconView.tintColor = .mgAccent
-        iconView.snp.makeConstraints { $0.width.height.equalTo(22) }
+        iconView.tintColor = Palette.mgAccent
 
         textLabelView.font = .systemFont(ofSize: 15, weight: .medium)
-        textLabelView.textColor = .mgTextPrimary
+        textLabelView.textColor = Palette.mgTextPrimary
         textLabelView.numberOfLines = 0
 
-        let stack = UIStackView(arrangedSubviews: [iconView, textLabelView])
+        iconContainer.addSubview(iconView)
+        iconView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.height.equalTo(20)
+        }
+
+        let stack = UIStackView(arrangedSubviews: [iconContainer, textLabelView])
         stack.axis = .horizontal
         stack.alignment = .center
-        stack.spacing = 10
+        stack.spacing = 12
 
         contentView.addSubview(cardView)
         cardView.addSubview(stack)
 
         cardView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 20, bottom: 4, right: 20))
+        }
+
+        iconContainer.snp.makeConstraints { make in
+            make.width.height.equalTo(36)
         }
 
         stack.snp.makeConstraints { make in

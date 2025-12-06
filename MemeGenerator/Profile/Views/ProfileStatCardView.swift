@@ -21,17 +21,17 @@ final class ProfileStatCardView: UIView {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        backgroundColor = .mgCard
+        backgroundColor = Palette.mgCardElevated
         layer.cornerRadius = 18
         layer.masksToBounds = false
         layer.borderWidth = 1
-        layer.borderColor = UIColor.mgCardStroke.cgColor
+        layer.borderColor = Palette.mgCardStroke.cgColor
 
         valueLabel.font = .systemFont(ofSize: 22, weight: .semibold)
-        valueLabel.textColor = .mgTextPrimary
+        valueLabel.textColor = Palette.mgTextPrimary
 
         titleLabel.font = .systemFont(ofSize: 13, weight: .regular)
-        titleLabel.textColor = .mgTextSecondary
+        titleLabel.textColor = Palette.mgTextSecondary
 
         let stack = UIStackView(arrangedSubviews: [valueLabel, titleLabel])
         stack.axis = .vertical

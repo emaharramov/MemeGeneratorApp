@@ -14,13 +14,15 @@ final class ManageSubscriptionVC: BaseController<ManageSubscriptionVM> {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         navigationItem.title = "Manage Subscription"
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
 
         label.text = "Manage Subscription screen\n(coming soon)"
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = Palette.mgTextSecondary
+        label.font = .systemFont(ofSize: 16, weight: .medium)
 
         view.addSubview(label)
         label.snp.makeConstraints { make in

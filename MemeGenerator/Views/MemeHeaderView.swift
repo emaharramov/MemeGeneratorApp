@@ -10,30 +10,34 @@ import SnapKit
 
 final class MemeHeaderView: UIView {
 
-    private let titleLabel = UILabel()
-    private let subtitleLabel = UILabel()
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 20, weight: .bold)
+        label.textColor = Palette.mgTextPrimary
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = Palette.mgTextSecondary
+        label.numberOfLines = 0
+        return label
+    }()
 
     init(title: String, subtitle: String) {
         super.init(frame: .zero)
-        setupUI(title: title, subtitle: subtitle)
+        setupUI()
+        configure(title: title, subtitle: subtitle)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setupUI(title: String, subtitle: String) {
+    private func setupUI() {
         backgroundColor = .clear
-
-        titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
-        titleLabel.textColor = .mgTextPrimary
-        titleLabel.numberOfLines = 0
-
-        subtitleLabel.text = subtitle
-        subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .mgTextSecondary
-        subtitleLabel.numberOfLines = 0
 
         let stack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
         stack.axis = .vertical
@@ -43,5 +47,10 @@ final class MemeHeaderView: UIView {
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+    }
+
+    private func configure(title: String, subtitle: String) {
+        titleLabel.text = title
+        subtitleLabel.text = subtitle
     }
 }

@@ -10,34 +10,127 @@ import SnapKit
 
 final class MemeTextEditView: UIView {
 
-    // MARK: - UI
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Edit text"
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.textColor = Palette.mgTextPrimary
+        return label
+    }()
 
-    private let titleLabel = UILabel()
-    private let subtitleLabel = UILabel()
-    private let textField = UITextField()
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Change the text, size and color"
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = Palette.mgTextSecondary
+        label.numberOfLines = 0
+        return label
+    }()
 
-    private let sizesStack = UIStackView()
-    private let smallButton = UIButton(type: .system)
-    private let mediumButton = UIButton(type: .system)
-    private let largeButton = UIButton(type: .system)
+    private let textField: UITextField = {
+        let tf = UITextField()
+        tf.borderStyle = .none
+        tf.backgroundColor = Palette.mgLightBackground
+        tf.layer.cornerRadius = 14
+        tf.textColor = Palette.textFieldTextColor
+        tf.tintColor = Palette.textFieldTextColor
+        tf.font = .systemFont(ofSize: 16)
+        tf.returnKeyType = .done
+        return tf
+    }()
 
-    private let colorTitleLabel = UILabel()
-    private let colorRowStack = UIStackView()
-    private let colorPreviewView = UIView()
-    private let colorChangeButton = UIButton(type: .system)
+    private let sizesStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .fill
+        stack.distribution = .fillEqually
+        stack.spacing = 8
+        return stack
+    }()
 
-    private let actionsStack = UIStackView()
-    private let cancelButton = UIButton(type: .system)
-    private let saveButton = UIButton(type: .system)
+    private let smallButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Small", for: .normal)
+        return button
+    }()
 
-    // MARK: - Callbacks
+    private let mediumButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Medium", for: .normal)
+        return button
+    }()
 
-    /// text, chosenFontSize (nil -> font saxlanır), chosenColor (nil -> rəng saxlanır)
+    private let largeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Large", for: .normal)
+        return button
+    }()
+
+    private let colorTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Text color"
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.textColor = Palette.mgTextSecondary
+        return label
+    }()
+
+    private let colorRowStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 8
+        return stack
+    }()
+
+    private let colorPreviewView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 14
+        view.layer.masksToBounds = true
+        view.layer.borderWidth = 1
+        view.layer.borderColor = Palette.mgCardStroke.cgColor
+        return view
+    }()
+
+    private let colorChangeButton: UIButton = {
+        let button = UIButton(type: .system)
+        var config = UIButton.Configuration.plain()
+        var titleAttr = AttributedString("Change")
+        titleAttr.font = .systemFont(ofSize: 14, weight: .medium)
+        config.attributedTitle = titleAttr
+        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12)
+        config.baseForegroundColor = Palette.textFieldTextColor
+        button.configuration = config
+        button.backgroundColor = Palette.mgLightBackground
+        button.layer.cornerRadius = 12
+        button.layer.masksToBounds = true
+        return button
+    }()
+
+    private let actionsStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .fill
+        stack.distribution = .fillEqually
+        stack.spacing = 8
+        return stack
+    }()
+
+    private let cancelButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Cancel", for: .normal)
+        return button
+    }()
+
+    private let saveButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Save", for: .normal)
+        return button
+    }()
+
     var onSave: ((String, CGFloat?, UIColor?) -> Void)?
     var onCancel: (() -> Void)?
-    var onColorTap: (() -> Void)?   // UIColorPicker VC-ni controller açacaq
-
-    // MARK: - State
+    var onColorTap: (() -> Void)?
 
     private enum SizeOption {
         case small, medium, large, none
@@ -47,12 +140,9 @@ final class MemeTextEditView: UIView {
         didSet { updateSizeSelectionUI() }
     }
 
-    /// Burada hazırda seçilmiş rəng saxlanılır (configure + color picker vasitəsilə)
     private var selectedColor: UIColor? {
         didSet { updateColorPreviewUI() }
     }
-
-    // MARK: - Init
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -64,12 +154,9 @@ final class MemeTextEditView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Public
-
     func configure(text: String, currentFontSize: CGFloat?, currentColor: UIColor?) {
         textField.text = text
 
-        // Font size seçimi
         if let size = currentFontSize {
             let diffSmall = abs(size - 18)
             let diffMedium = abs(size - 24)
@@ -86,111 +173,40 @@ final class MemeTextEditView: UIView {
             selectedSize = .none
         }
 
-        // Mövcud rəng preview üçün
         selectedColor = currentColor
     }
 
-    /// Controller color picker-dən rəng seçəndə çağıracaq
     func updateSelectedColor(_ color: UIColor) {
         selectedColor = color
     }
 
-    // MARK: - Setup
-
     private func setupUI() {
-        backgroundColor = .mgCard
+        backgroundColor = Palette.mgCard
         layer.cornerRadius = 24
         layer.masksToBounds = true
 
-        titleLabel.text = "Edit text"
-        titleLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        titleLabel.textColor = .mgTextPrimary
-
-        subtitleLabel.text = "Change the text, size and color"
-        subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .mgTextSecondary
-        subtitleLabel.numberOfLines = 0
-
-        textField.borderStyle = .none
-        textField.backgroundColor = .mgLightBackground
-        textField.layer.cornerRadius = 14
-        textField.textColor = .textFieldTextColor
-        textField.tintColor = .textFieldTextColor
-        textField.font = .systemFont(ofSize: 16)
         textField.setLeftPaddingPoints(12)
         textField.setRightPaddingPoints(12)
-        textField.returnKeyType = .done
 
-        // Sizes
-        sizesStack.axis = .horizontal
-        sizesStack.alignment = .fill
-        sizesStack.distribution = .fillEqually
-        sizesStack.spacing = 8
-
-        [smallButton, mediumButton, largeButton].forEach { btn in
-            styleOptionButton(btn)
-            sizesStack.addArrangedSubview(btn)
+        [smallButton, mediumButton, largeButton].forEach { button in
+            styleOptionButton(button)
+            sizesStack.addArrangedSubview(button)
         }
-
-        smallButton.setTitle("Small", for: .normal)
-        mediumButton.setTitle("Medium", for: .normal)
-        largeButton.setTitle("Large", for: .normal)
-
-        // Color row
-        colorTitleLabel.text = "Text color"
-        colorTitleLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        colorTitleLabel.textColor = .mgTextSecondary
-
-        colorRowStack.axis = .horizontal
-        colorRowStack.alignment = .center
-        colorRowStack.spacing = 8
-
-        colorPreviewView.backgroundColor = .white
-        colorPreviewView.layer.cornerRadius = 14
-        colorPreviewView.layer.masksToBounds = true
-        colorPreviewView.layer.borderWidth = 1
-        colorPreviewView.layer.borderColor = UIColor.mgCardStroke.cgColor
-
-        colorPreviewView.snp.makeConstraints { make in
-            make.width.height.equalTo(28)
-        }
-
-        var colorBtnConfig = UIButton.Configuration.plain()
-        var titleAttr = AttributedString("Change")
-        titleAttr.font = .systemFont(ofSize: 14, weight: .medium)
-        colorBtnConfig.attributedTitle = titleAttr
-        colorBtnConfig.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12)
-        colorBtnConfig.baseForegroundColor = .textFieldTextColor
-
-        colorChangeButton.configuration = colorBtnConfig
-        colorChangeButton.backgroundColor = .mgLightBackground
-        colorChangeButton.layer.cornerRadius = 12
-        colorChangeButton.layer.masksToBounds = true
-
-        colorRowStack.addArrangedSubview(colorPreviewView)
-        colorRowStack.addArrangedSubview(colorChangeButton)
-        colorRowStack.setCustomSpacing(12, after: colorPreviewView)
 
         let colorContainer = UIStackView(arrangedSubviews: [colorTitleLabel, colorRowStack])
         colorContainer.axis = .vertical
         colorContainer.spacing = 6
 
-        // Actions
-        actionsStack.axis = .horizontal
-        actionsStack.alignment = .fill
-        actionsStack.distribution = .fillEqually
-        actionsStack.spacing = 8
-
-        styleOptionButton(cancelButton)
-        styleOptionButton(saveButton)
-
-        cancelButton.setTitle("Cancel", for: .normal)
-        saveButton.setTitle("Save", for: .normal)
+        colorRowStack.addArrangedSubview(colorPreviewView)
+        colorRowStack.addArrangedSubview(colorChangeButton)
+        colorRowStack.setCustomSpacing(12, after: colorPreviewView)
 
         actionsStack.addArrangedSubview(cancelButton)
         actionsStack.addArrangedSubview(saveButton)
 
-        // Main stack
+        styleOptionButton(cancelButton)
+        styleOptionButton(saveButton)
+
         let mainStack = UIStackView(arrangedSubviews: [
             titleLabel,
             subtitleLabel,
@@ -210,11 +226,15 @@ final class MemeTextEditView: UIView {
         textField.snp.makeConstraints { make in
             make.height.equalTo(44)
         }
+
+        colorPreviewView.snp.makeConstraints { make in
+            make.width.height.equalTo(28)
+        }
     }
 
     private func styleOptionButton(_ button: UIButton) {
-        button.backgroundColor = .mgLightBackground
-        button.setTitleColor(.textFieldTextColor, for: .normal)
+        button.backgroundColor = Palette.mgLightBackground
+        button.setTitleColor(Palette.textFieldTextColor, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
         button.layer.cornerRadius = 14
         button.layer.masksToBounds = true
@@ -230,13 +250,17 @@ final class MemeTextEditView: UIView {
         colorChangeButton.addTarget(self, action: #selector(handleColorChange), for: .touchUpInside)
     }
 
-    // MARK: - Actions (size)
+    @objc private func handleSmall() {
+        selectedSize = .small
+    }
 
-    @objc private func handleSmall()  { selectedSize = .small  }
-    @objc private func handleMedium() { selectedSize = .medium }
-    @objc private func handleLarge()  { selectedSize = .large  }
+    @objc private func handleMedium() {
+        selectedSize = .medium
+    }
 
-    // MARK: - Actions (color)
+    @objc private func handleLarge() {
+        selectedSize = .large
+    }
 
     @objc private func handleColorChange() {
         onColorTap?()
@@ -254,16 +278,18 @@ final class MemeTextEditView: UIView {
         let fontSize: CGFloat?
 
         switch selectedSize {
-        case .small:  fontSize = 18
-        case .medium: fontSize = 24
-        case .large:  fontSize = 32
-        case .none:   fontSize = nil
+        case .small:
+            fontSize = 18
+        case .medium:
+            fontSize = 24
+        case .large:
+            fontSize = 32
+        case .none:
+            fontSize = nil
         }
 
         onSave?(text, fontSize, selectedColor)
     }
-
-    // MARK: - UI state
 
     private func updateSizeSelectionUI() {
         let mapping: [(UIButton, SizeOption)] = [
@@ -276,7 +302,7 @@ final class MemeTextEditView: UIView {
             if option == selectedSize {
                 button.alpha = 1.0
                 button.layer.borderWidth = 1
-                button.layer.borderColor = UIColor.textFieldTextColor
+                button.layer.borderColor = Palette.textFieldTextColor
                     .withAlphaComponent(0.8).cgColor
             } else {
                 button.alpha = 0.7

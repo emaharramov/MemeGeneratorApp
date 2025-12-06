@@ -15,6 +15,7 @@ final class PremiumHeaderCell: UITableViewCell {
     private let headerImageView = UIImageView()
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
+    private let gradientLayer = CAGradientLayer()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -27,24 +28,21 @@ final class PremiumHeaderCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        // Image – gradient + icon placeholder
         headerImageView.layer.cornerRadius = 24
         headerImageView.clipsToBounds = true
-        headerImageView.backgroundColor = UIColor.white.withAlphaComponent(0.05)
+        headerImageView.backgroundColor = Palette.mgCardElevated
         headerImageView.contentMode = .scaleAspectFill
 
-        let gradient = CAGradientLayer()
-        gradient.colors = [
-            UIColor.systemTeal.cgColor,
-            UIColor.systemPurple.cgColor
+        gradientLayer.colors = [
+            Palette.mgAccent.withAlphaComponent(0.9).cgColor,
+            Palette.mgAccentSoft.withAlphaComponent(0.4).cgColor
         ]
-        gradient.startPoint = CGPoint(x: 0, y: 0)
-        gradient.endPoint   = CGPoint(x: 1, y: 1)
-        gradient.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 40, height: 240)
-        headerImageView.layer.insertSublayer(gradient, at: 0)
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint   = CGPoint(x: 1, y: 1)
+        headerImageView.layer.insertSublayer(gradientLayer, at: 0)
 
-        let robot = UIImageView(image: UIImage(systemName: "face.smiling"))
-        robot.tintColor = .white
+        let robot = UIImageView(image: UIImage(systemName: "sparkles"))
+        robot.tintColor = Palette.mgTextPrimary
         robot.contentMode = .scaleAspectFit
         headerImageView.addSubview(robot)
         robot.snp.makeConstraints { make in
@@ -53,12 +51,12 @@ final class PremiumHeaderCell: UITableViewCell {
         }
 
         titleLabel.font = .systemFont(ofSize: 26, weight: .bold)
-        titleLabel.textColor = .mgTextPrimary
+        titleLabel.textColor = Palette.mgTextPrimary
         titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 0
 
         subtitleLabel.font = .systemFont(ofSize: 15, weight: .regular)
-        subtitleLabel.textColor = .mgTextSecondary
+        subtitleLabel.textColor = Palette.mgTextSecondary
         subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
 
@@ -77,6 +75,11 @@ final class PremiumHeaderCell: UITableViewCell {
         headerImageView.snp.makeConstraints { make in
             make.height.equalTo(240)
         }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer.frame = headerImageView.bounds
     }
 
     func configure(title: String, subtitle: String) {

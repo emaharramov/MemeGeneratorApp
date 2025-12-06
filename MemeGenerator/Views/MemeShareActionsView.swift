@@ -15,12 +15,34 @@ final class MemeShareActionsView: UIView {
     var onTryAgain: (() -> Void)?
     var onRegenerate: (() -> Void)?
 
-    private let saveButton = UIButton(type: .system)
-    private let shareButton = UIButton(type: .system)
-    private let retryButton = UIButton(type: .system)
-    private let regenerateButton = UIButton(type: .system)
+    private let saveButton: UIButton = {
+        let button = UIButton(type: .system)
+        return button
+    }()
 
-    private let stack = UIStackView()
+    private let shareButton: UIButton = {
+        let button = UIButton(type: .system)
+        return button
+    }()
+
+    private let retryButton: UIButton = {
+        let button = UIButton(type: .system)
+        return button
+    }()
+
+    private let regenerateButton: UIButton = {
+        let button = UIButton(type: .system)
+        return button
+    }()
+
+    private let stack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.distribution = .fillEqually
+        stack.spacing = 10
+        return stack
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -33,29 +55,34 @@ final class MemeShareActionsView: UIView {
     private func setupUI() {
         backgroundColor = .clear
 
-        configure(button: saveButton,
-                  title: "Save",
-                  systemImage: "tray.and.arrow.down")
+        configure(
+            button: saveButton,
+            title: "Save",
+            systemImage: "tray.and.arrow.down"
+        )
 
-        configure(button: shareButton,
-                  title: "Share",
-                  systemImage: "square.and.arrow.up")
+        configure(
+            button: shareButton,
+            title: "Share",
+            systemImage: "square.and.arrow.up"
+        )
 
-        configure(button: retryButton,
-                  title: "Try Again",
-                  systemImage: "arrow.clockwise")
-        configure(button: regenerateButton,
-                  title: "Reset",
-                  systemImage: "arrow.counterclockwise")
+        configure(
+            button: retryButton,
+            title: "Try Again",
+            systemImage: "arrow.clockwise"
+        )
+
+        configure(
+            button: regenerateButton,
+            title: "Reset",
+            systemImage: "arrow.counterclockwise"
+        )
 
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(shareTapped), for: .touchUpInside)
         retryButton.addTarget(self, action: #selector(retryTapped), for: .touchUpInside)
         regenerateButton.addTarget(self, action: #selector(regenerateTapped), for: .touchUpInside)
-
-        stack.axis = .horizontal
-        stack.distribution = .fillEqually
-        stack.spacing = 10
 
         stack.addArrangedSubview(saveButton)
         stack.addArrangedSubview(shareButton)
@@ -85,7 +112,7 @@ final class MemeShareActionsView: UIView {
         var titleAttr = AttributedString(title)
         titleAttr.font = .systemFont(ofSize: 12.5, weight: .medium)
         config.attributedTitle = titleAttr
-        config.baseForegroundColor = .mgTextSecondary
+        config.baseForegroundColor = Palette.mgTextSecondary
 
         config.contentInsets = NSDirectionalEdgeInsets(
             top: 10,
@@ -95,12 +122,11 @@ final class MemeShareActionsView: UIView {
         )
 
         button.configuration = config
-
-        button.backgroundColor = .mgCard
+        button.backgroundColor = Palette.mgCard
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = false
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.mgCardStroke.cgColor
+        button.layer.borderColor = Palette.mgCardStroke.cgColor
     }
 
     @objc private func saveTapped() { onSave?() }

@@ -24,17 +24,17 @@ final class TemplatePickerCell: UICollectionViewCell {
     }
 
     private func setupUI() {
-        contentView.backgroundColor = .mgCard
+        contentView.backgroundColor = Palette.mgCard
         contentView.layer.cornerRadius = 16
         contentView.layer.masksToBounds = true
         contentView.layer.borderWidth = 1
-        contentView.layer.borderColor = UIColor.mgCardStroke.cgColor
+        contentView.layer.borderColor = Palette.mgCardStroke.cgColor
 
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
 
         titleLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        titleLabel.textColor = .mgTextPrimary
+        titleLabel.textColor = Palette.mgTextPrimary
         titleLabel.numberOfLines = 0
 
         contentView.addSubview(imageView)

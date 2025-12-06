@@ -11,10 +11,33 @@ import Combine
 
 final class AIVC: BaseController<AIVM> {
 
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
-    private let stackView = UIStackView()
-    private let refreshControl = UIRefreshControl()
+    private let scrollView: UIScrollView = {
+        let v = UIScrollView()
+        v.alwaysBounceVertical = true
+        v.showsVerticalScrollIndicator = false
+        v.backgroundColor = .clear
+        return v
+    }()
+
+    private let contentView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }()
+
+    private let stackView: UIStackView = {
+        let s = UIStackView()
+        s.axis = .vertical
+        s.spacing = 16
+        s.alignment = .fill
+        return s
+    }()
+
+    private let refreshControl: UIRefreshControl = {
+        let r = UIRefreshControl()
+        r.tintColor = Palette.mgAccent
+        return r
+    }()
 
     private lazy var promptView: MemePromptView = {
         let view = MemePromptView(
@@ -39,6 +62,7 @@ final class AIVC: BaseController<AIVM> {
 
     private let shareCard = UIView()
     private let shareActionsView = MemeShareActionsView()
+
     private var cancellables = Set<AnyCancellable>()
 
     override init(viewModel: AIVM) {
@@ -51,22 +75,15 @@ final class AIVC: BaseController<AIVM> {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
         configureNavigation(title: "AI Meme")
     }
 
     override func configureUI() {
         super.configureUI()
 
-        scrollView.alwaysBounceVertical = true
-        scrollView.showsVerticalScrollIndicator = false
-
-        refreshControl.tintColor = .mgAccent
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         scrollView.refreshControl = refreshControl
-
-        stackView.axis = .vertical
-        stackView.spacing = 16
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -75,8 +92,8 @@ final class AIVC: BaseController<AIVM> {
         generateButton.applyFilledStyle(
             title: "Generate Meme",
             systemImageName: "sparkles",
-            baseBackgroundColor: .mgAccent,
-            baseForegroundColor: .mgTextSecondary
+            baseBackgroundColor: Palette.mgAccent,
+            baseForegroundColor: Palette.mgTextPrimary
         )
         generateButton.layer.cornerRadius = 20
         generateButton.clipsToBounds = false
@@ -108,7 +125,6 @@ final class AIVC: BaseController<AIVM> {
         shareActionsView.onTryAgain = { [weak self] in
             self?.retryGenerate()
         }
-
         shareActionsView.onRegenerate = { [weak self] in
             self?.resetForNewMeme()
         }
@@ -174,7 +190,6 @@ final class AIVC: BaseController<AIVM> {
         switch state {
         case .idle:
             break
-
         case .memeLoaded(let image):
             resultView.image = image
             shareCard.isHidden = false
@@ -189,11 +204,11 @@ final class AIVC: BaseController<AIVM> {
     }
 
     private func styleCard(_ view: UIView) {
-        view.backgroundColor = .mgCard
+        view.backgroundColor = Palette.mgCard
         view.layer.cornerRadius = 20
         view.layer.masksToBounds = false
         view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.mgCardStroke.cgColor
+        view.layer.borderColor = Palette.mgCardStroke.cgColor
     }
 
     @objc private func handleRefresh() {

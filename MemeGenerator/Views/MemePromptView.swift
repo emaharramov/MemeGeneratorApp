@@ -9,20 +9,20 @@ import UIKit
 import SnapKit
 
 final class MemePromptView: UIView {
-    
+
     private let cardView: UIView = {
         let view = UIView()
-        view.backgroundColor = .mgCard
+        view.backgroundColor = Palette.mgCard
         view.layer.cornerRadius = 20
         view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.mgCardStroke.cgColor
+        view.layer.borderColor = Palette.mgCardStroke.cgColor
         return view
     }()
 
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 22, weight: .semibold)
-        label.textColor = .mgTextPrimary
+        label.textColor = Palette.mgTextPrimary
         label.numberOfLines = 0
         label.isHidden = true
         return label
@@ -31,7 +31,7 @@ final class MemePromptView: UIView {
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16)
-        label.textColor = .mgTextSecondary
+        label.textColor = Palette.mgTextSecondary
         label.numberOfLines = 0
         label.isHidden = true
         return label
@@ -40,7 +40,7 @@ final class MemePromptView: UIView {
     private let fieldTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .semibold)
-        label.textColor = .mgTextSecondary
+        label.textColor = Palette.mgTextSecondary
         label.numberOfLines = 1
         label.isHidden = true
         return label
@@ -48,7 +48,7 @@ final class MemePromptView: UIView {
 
     private let inputBackgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = .cardBg
+        view.backgroundColor = Palette.mgBackground
         view.layer.cornerRadius = 18
         view.layer.masksToBounds = true
         view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -59,8 +59,8 @@ final class MemePromptView: UIView {
         let tv = UITextView()
         tv.backgroundColor = .clear
         tv.font = .systemFont(ofSize: 16)
-        tv.textColor = .textFieldTextColor
-        tv.tintColor = .mgAccent
+        tv.textColor = Palette.textFieldTextColor
+        tv.tintColor = Palette.mgAccent
         tv.isScrollEnabled = false
         tv.keyboardAppearance = .dark
         tv.textContainerInset = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
@@ -71,12 +71,12 @@ final class MemePromptView: UIView {
     private let placeholderLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .textFieldTextColor
+        label.textColor = Palette.mgTextSecondary
         label.numberOfLines = 0
         label.isUserInteractionEnabled = false
         return label
     }()
-    
+
     var text: String {
         get { textView.text }
         set {
@@ -104,7 +104,7 @@ final class MemePromptView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func setPlaceholderWithIcon(text: String, systemImageName: String) {
         guard let baseImage = UIImage(systemName: systemImageName) else {
             placeholderLabel.text = text

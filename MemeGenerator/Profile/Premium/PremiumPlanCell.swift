@@ -33,23 +33,24 @@ final class PremiumPlanCell: UITableViewCell {
         cardView.layer.cornerRadius = 20
         cardView.layer.masksToBounds = false
         cardView.layer.borderWidth  = 1
-        cardView.layer.borderColor  = UIColor.mgCardStroke.cgColor
-        cardView.backgroundColor    = .mgCard
+        cardView.layer.borderColor  = Palette.mgCardStroke.cgColor
+        cardView.backgroundColor    = Palette.mgCard
 
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
-        titleLabel.textColor = .mgTextPrimary
+        titleLabel.textColor = Palette.mgTextPrimary
 
         priceLabel.font = .systemFont(ofSize: 20, weight: .bold)
-        priceLabel.textColor = .mgTextPrimary
+        priceLabel.textColor = Palette.mgTextPrimary
         priceLabel.textAlignment = .right
 
         subLabel.font = .systemFont(ofSize: 13, weight: .regular)
-        subLabel.textColor = .mgTextSecondary
+        subLabel.textColor = Palette.mgTextSecondary
+        subLabel.numberOfLines = 0
 
         badgeLabel.font = .systemFont(ofSize: 11, weight: .bold)
-        badgeLabel.textColor = .white
+        badgeLabel.textColor = Palette.mgTextPrimary
         badgeLabel.textAlignment = .center
-        badgeLabel.backgroundColor = UIColor.white.withAlphaComponent(0.14)
+        badgeLabel.backgroundColor = Palette.mgAccentSoft
         badgeLabel.layer.cornerRadius = 10
         badgeLabel.clipsToBounds = true
         badgeLabel.isHidden = true
@@ -101,17 +102,20 @@ final class PremiumPlanCell: UITableViewCell {
             badgeLabel.isHidden = true
         }
 
-        // Selected state
         if isSelected {
-            cardView.layer.borderColor = UIColor.mgAccent.cgColor
-            cardView.backgroundColor   = UIColor.mgAccent.withAlphaComponent(0.18)
+            cardView.layer.borderColor = Palette.mgAccent.cgColor
+            cardView.backgroundColor   = Palette.mgAccentSoft
+            priceLabel.textColor       = Palette.mgAccent
             if badgeText != nil {
-                badgeLabel.backgroundColor = .mgAccent
+                badgeLabel.backgroundColor = Palette.mgAccent
+                badgeLabel.textColor = Palette.mgTextPrimary
             }
         } else {
-            cardView.layer.borderColor = UIColor.mgCardStroke.cgColor
-            cardView.backgroundColor   = .mgCard
-            badgeLabel.backgroundColor = UIColor.white.withAlphaComponent(0.14)
+            cardView.layer.borderColor = Palette.mgCardStroke.cgColor
+            cardView.backgroundColor   = Palette.mgCard
+            priceLabel.textColor       = Palette.mgTextPrimary
+            badgeLabel.backgroundColor = Palette.mgAccentSoft
+            badgeLabel.textColor       = Palette.mgTextPrimary
         }
     }
 }

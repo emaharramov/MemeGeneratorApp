@@ -31,23 +31,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func setupNavigationBarAppearance() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .mgBackground
+        appearance.backgroundColor = Palette.mgBackground
         appearance.titleTextAttributes = [
-            .foregroundColor: UIColor.mgTextPrimary,
+            .foregroundColor: Palette.mgTextPrimary,
             .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
         ]
+
         appearance.shadowColor = .clear
 
         let navBar = UINavigationBar.appearance()
         navBar.standardAppearance = appearance
         navBar.scrollEdgeAppearance = appearance
         navBar.compactAppearance = appearance
-        navBar.tintColor = .mgTextPrimary
+        navBar.tintColor = Palette.mgAccent
         navBar.isTranslucent = false
-
-        // ƏSAS YER: status bar ikonları ağ olsun
-        navBar.barStyle = .black   // -> lightContent
+        navBar.barStyle = .black
     }
+
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

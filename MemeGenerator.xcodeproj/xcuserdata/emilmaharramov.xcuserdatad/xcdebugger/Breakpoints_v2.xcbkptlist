@@ -599,22 +599,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "3F91DED5-6302-4209-8A94-1E110A3973A2"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MemeGenerator/Auth/Data/AuthRepositoryImpl.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "35"
-            endingLineNumber = "35"
-            landmarkName = "login(email:password:completion:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "331CABA4-EA89-48F6-8043-1EB45A65953F"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -706,6 +690,36 @@
             endingLineNumber = "25"
             landmarkName = "generateMeme(userId:prompt:completion:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "9AF18FA2-1CDC-47BA-BDBB-429EDC123AB1 - c43c60973a5ed5f6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MemeGenerator.AIMemeRepositoryImpl.generateMeme(userId: Swift.String, prompt: Swift.String, completion: (Swift.Result&lt;Swift.String, MemeGenerator.AIMemeError&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/CreateMeme/WithAI/Data/AIMemeRepositoryImpl.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26">
+               </Location>
+               <Location
+                  uuid = "9AF18FA2-1CDC-47BA-BDBB-429EDC123AB1 - 4695c617e370e6cd"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;MemeGenerator.MemeWithAI&gt;, Swift.Optional&lt;Swift.String&gt;) -&gt; () in MemeGenerator.AIMemeRepositoryImpl.generateMeme(userId: Swift.String, prompt: Swift.String, completion: (Swift.Result&lt;Swift.String, MemeGenerator.AIMemeError&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "MemeGenerator.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/emilmaharramov/Documents/Documents%20-%20Emil%20MacBook%20Air/projects/swift/MemeGenerator/MemeGenerator/CreateMeme/WithAI/Data/AIMemeRepositoryImpl.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "28"
+                  endingLineNumber = "28">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -823,22 +837,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "0A94CAB6-0353-4008-AD92-4CB46D6EE1AA"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MemeGenerator/Profile/Edit Profile/EditProfileVC.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
-            landmarkName = "saveTapped()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "ED985EF0-E7BA-480D-91D8-AE3EF07DCD8A"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -903,16 +901,80 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "3DAAF129-7CE8-4F90-BF69-5B228ABE4463"
+            uuid = "F364C105-DD13-45B0-B568-2C80C909C9AB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Auth/Presentation/AuthViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
+            landmarkName = "register(email:username:password:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BCFFF7A2-7479-4D67-AA62-12076A1FE387"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Auth/Presentation/AuthViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "60"
+            endingLineNumber = "60"
+            landmarkName = "login(email:password:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E4BA132E-1236-458B-A2D5-5D7F3F2D1CAB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Profile/My Memes/MyMemesVM.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "getAiTemplateMemes(shouldRefreshProfile:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "86319C48-9A0E-49E8-8547-3E8DDED3A32F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MemeGenerator/Profile/My Memes/MyMemesVM.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "34"
+            endingLineNumber = "34"
+            landmarkName = "getAiMemes(shouldRefreshProfile:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DA342965-BE8F-4F60-B72A-45C2E1E38E8C"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MemeGenerator/Profile/Main Profile/Presentation/ProfileVM.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
-            landmarkName = "getAiTemplateMemes(shouldRefreshProfile:)"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
+            landmarkName = "getUserProfile(resetMessages:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

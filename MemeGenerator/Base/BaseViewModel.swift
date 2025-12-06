@@ -69,7 +69,7 @@ class BaseViewModel: NSObject {
     func performWithLoading<T, E: Error>(
         resetMessages shouldReset: Bool = true,
         operation: (@escaping (Result<T, E>) -> Void) -> Void,
-        errorMapper: @escaping (E) -> String,
+        errorMapper: ((E) -> String)? = nil,
         onSuccess: @escaping (T) -> Void
     ) {
         if shouldReset {
@@ -84,10 +84,35 @@ class BaseViewModel: NSObject {
             switch result {
             case .success(let value):
                 onSuccess(value)
+
             case .failure(let error):
-                let message = errorMapper(error)
-                self.showError(message)
+                if let errorMapper {
+                    let message = errorMapper(error)
+                    self.showError(message)
+                }
             }
         }
+    }
+}
+
+extension BaseViewModel {
+    func decodeServerMessage(_ raw: String) -> String {
+        struct ServerErrorResponse: Decodable {
+            let success: Bool?
+            let message: String?
+        }
+
+        guard !raw.isEmpty else {
+            return "Something went wrong. Please try again."
+        }
+
+        if let data = raw.data(using: .utf8),
+           let parsed = try? JSONDecoder().decode(ServerErrorResponse.self, from: data),
+           let msg = parsed.message,
+           !msg.isEmpty {
+            return msg
+        }
+
+        return raw
     }
 }

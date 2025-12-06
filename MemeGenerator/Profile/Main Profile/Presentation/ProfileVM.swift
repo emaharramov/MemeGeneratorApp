@@ -23,8 +23,8 @@ final class ProfileVM: BaseViewModel {
 
     func reloadProfile() {
         getUserProfile()
-        getAiMemes(shouldRefreshProfile: false)
-        getAiTemplateMemes(shouldRefreshProfile: false)
+//        getAiMemes(shouldRefreshProfile: false)
+//        getAiTemplateMemes(shouldRefreshProfile: false)
     }
 
     func getUserProfile(resetMessages: Bool = true) {
@@ -36,10 +36,11 @@ final class ProfileVM: BaseViewModel {
                     completion(result)
                 }
             },
-            errorMapper: { (error: ProfileError) in
+            errorMapper: { [weak self] (error: ProfileError) in
+                guard let self else { return "Something went wrong. Please try again." }
                 switch error {
-                case .network(let message):
-                    return message
+                case .network(let rawMessage):
+                    return self.decodeServerMessage(rawMessage)
                 }
             },
             onSuccess: { [weak self] profile in
@@ -48,57 +49,45 @@ final class ProfileVM: BaseViewModel {
         )
     }
 
-    func getAiMemes(shouldRefreshProfile: Bool = true) {
-        performWithLoading(
-            resetMessages: false,
-            operation: { [weak self] completion in
-                guard let self else { return }
-                self.userUseCase.getAiMemes { result in
-                    completion(result)
-                }
-            },
-            errorMapper: { (error: ProfileError) in
-                switch error {
-                case .network(let message):
-                    return message
-                }
-            },
-            onSuccess: { [weak self] memes in
-                guard let self else { return }
-                self.aiMemes = memes
+//    func getAiMemes(shouldRefreshProfile: Bool = true) {
+//        performWithLoading(
+//            resetMessages: false,
+//            operation: { [weak self] completion in
+//                guard let self else { return }
+//                self.userUseCase.getAiMemes { result in
+//                    completion(result)
+//                }
+//            },
+//            onSuccess: { [weak self] memes in
+//                guard let self else { return }
+//                self.aiMemes = memes
+//
+//                if shouldRefreshProfile {
+//                    self.getUserProfile(resetMessages: false)
+//                }
+//            }
+//        )
+//    }
 
-                if shouldRefreshProfile {
-                    self.getUserProfile(resetMessages: false)
-                }
-            }
-        )
-    }
-
-    func getAiTemplateMemes(shouldRefreshProfile: Bool = true) {
-        performWithLoading(
-            resetMessages: false,
-            operation: { [weak self] completion in
-                guard let self else { return }
-                self.userUseCase.getAiTempMemes { result in
-                    completion(result)
-                }
-            },
-            errorMapper: { (error: ProfileError) in
-                switch error {
-                case .network(let message):
-                    return message
-                }
-            },
-            onSuccess: { [weak self] aiTempMemes in
-                guard let self else { return }
-                self.aiTempMemes = aiTempMemes
-
-                if shouldRefreshProfile {
-                    self.getUserProfile(resetMessages: false)
-                }
-            }
-        )
-    }
+//    func getAiTemplateMemes(shouldRefreshProfile: Bool = true) {
+//        performWithLoading(
+//            resetMessages: false,
+//            operation: { [weak self] completion in
+//                guard let self else { return }
+//                self.userUseCase.getAiTempMemes { result in
+//                    completion(result)
+//                }
+//            },
+//            onSuccess: { [weak self] aiTempMemes in
+//                guard let self else { return }
+//                self.aiTempMemes = aiTempMemes
+//
+//                if shouldRefreshProfile {
+//                    self.getUserProfile(resetMessages: false)
+//                }
+//            }
+//        )
+//    }
 
     func updateProfile(
         avatarUrl: String,
@@ -121,10 +110,12 @@ final class ProfileVM: BaseViewModel {
                     completion(result)
                 }
             },
-            errorMapper: { (error: ProfileError) in
+            errorMapper: { [weak self] (error: ProfileError) in
+                guard let self else { return "Something went wrong. Please try again." }
+
                 switch error {
-                case .network(let message):
-                    return message
+                case .network(let rawMessage):
+                    return self.decodeServerMessage(rawMessage)
                 }
             },
             onSuccess: { [weak self] updatedProfile in

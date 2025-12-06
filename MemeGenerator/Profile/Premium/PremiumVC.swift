@@ -10,8 +10,6 @@ import SnapKit
 
 final class PremiumViewController: BaseController<PremiumVM> {
 
-    // MARK: - Sections / Rows
-
     private enum Section: Int, CaseIterable {
         case header
         case perks
@@ -23,35 +21,27 @@ final class PremiumViewController: BaseController<PremiumVM> {
         case monthly
     }
 
-    // MARK: - UI
-
     private let tableView = UITableView(frame: .zero, style: .plain)
 
-    // Perk məlumatları (ikon + text)
     private let perks: [(String, String)] = [
         ("infinity",    "Unlimited AI Generations"),
         ("drop.fill",   "No More Watermarks"),
         ("rocket.fill", "Early Access to New Styles")
     ]
 
-    // State
     private var selectedPlan: Plan = .yearly {
         didSet { reloadPlansSection() }
     }
-
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         title = "Go Premium"
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
 
         setupTableView()
         setupFooter()
     }
-
-    // MARK: - Setup
 
     private func setupTableView() {
         view.addSubview(tableView)
@@ -84,8 +74,8 @@ final class PremiumViewController: BaseController<PremiumVM> {
         let upgradeButton = UIButton(type: .system)
         upgradeButton.applyFilledStyle(
             title: "Upgrade Now",
-            baseBackgroundColor: .mgAccent,
-            baseForegroundColor: .black,
+            baseBackgroundColor: Palette.mgAccent,
+            baseForegroundColor: Palette.mgTextPrimary,
             contentInsets: .init(top: 14, leading: 16, bottom: 14, trailing: 16),
             addShadow: true
         )
@@ -95,7 +85,7 @@ final class PremiumViewController: BaseController<PremiumVM> {
 
         let restoreButton = UIButton(type: .system)
         restoreButton.setTitle("Restore Purchases", for: .normal)
-        restoreButton.setTitleColor(.mgTextSecondary, for: .normal)
+        restoreButton.setTitleColor(Palette.mgTextSecondary, for: .normal)
         restoreButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
         restoreButton.addTarget(self, action: #selector(restoreTapped), for: .touchUpInside)
 
@@ -118,15 +108,11 @@ final class PremiumViewController: BaseController<PremiumVM> {
         tableView.tableFooterView = footer
     }
 
-    // MARK: - Helpers
-
     private func reloadPlansSection() {
         guard let index = Section.allCases.firstIndex(of: .plans) else { return }
         let indexSet = IndexSet(integer: index)
         tableView.reloadSections(indexSet, with: .none)
     }
-
-    // MARK: - Actions
 
     @objc private func upgradeTapped() {
         print("Upgrade with plan:", selectedPlan)

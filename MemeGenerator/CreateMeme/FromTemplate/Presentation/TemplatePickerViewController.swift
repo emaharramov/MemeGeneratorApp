@@ -34,7 +34,7 @@ final class TemplatePickerViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .mgCard
+        view.backgroundColor = Palette.mgCard
         title = "Choose a Template"
 
         collectionView.backgroundColor = .clear

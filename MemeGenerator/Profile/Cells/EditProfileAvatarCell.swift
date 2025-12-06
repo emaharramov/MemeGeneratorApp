@@ -14,14 +14,60 @@ final class EditProfileAvatarCell: UITableViewCell {
 
     var onChangePhoto: (() -> Void)?
 
-    private let avatarContainer = UIView()
-    private let avatarCircle    = UIView()
-    private let avatarImageView = UIImageView()
-    private let initialsLabel   = UILabel()
-    private let editBadge       = UIButton(type: .system)
-    private let tapLabel        = UILabel()
+    private let avatarContainer: UIView = {
+        let v = UIView()
+        return v
+    }()
 
-    // MARK: - Init
+    private let avatarCircle: UIView = {
+        let v = UIView()
+        v.backgroundColor = Palette.mgCardElevated
+        v.layer.masksToBounds = false
+        v.layer.borderWidth = 1
+        v.layer.borderColor = Palette.mgCardStroke.cgColor
+        v.layer.shadowColor = UIColor.black.cgColor
+        v.layer.shadowOpacity = 0.5
+        v.layer.shadowRadius = 18
+        v.layer.shadowOffset = CGSize(width: 0, height: 10)
+        return v
+    }()
+
+    private let avatarImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        return iv
+    }()
+
+    private let initialsLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 34, weight: .semibold)
+        lbl.textAlignment = .center
+        lbl.textColor = Palette.mgTextPrimary
+        return lbl
+    }()
+
+    private let editBadge: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.backgroundColor = Palette.mgAccent
+        btn.tintColor = .black
+        btn.setImage(UIImage(systemName: "pencil"), for: .normal)
+        btn.layer.cornerRadius = 18
+        btn.layer.shadowColor = Palette.mgAccent.cgColor
+        btn.layer.shadowOpacity = 0.8
+        btn.layer.shadowRadius = 10
+        btn.layer.shadowOffset = .zero
+        return btn
+    }()
+
+    private let tapLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.text = "Tap to change"
+        lbl.font = .systemFont(ofSize: 13, weight: .medium)
+        lbl.textColor = Palette.mgAccent
+        lbl.textAlignment = .center
+        return lbl
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -41,8 +87,6 @@ final class EditProfileAvatarCell: UITableViewCell {
         avatarImageView.layer.cornerRadius = avatarImageView.bounds.width / 2
     }
 
-    // MARK: - Setup
-
     private func setupUI() {
         contentView.addSubview(avatarContainer)
         avatarContainer.snp.makeConstraints { make in
@@ -51,51 +95,21 @@ final class EditProfileAvatarCell: UITableViewCell {
             make.centerX.equalToSuperview()
         }
 
-        // Circle
-        avatarCircle.backgroundColor = UIColor.white.withAlphaComponent(0.06)
-        avatarCircle.layer.masksToBounds = false
-        avatarCircle.layer.borderWidth = 1
-        avatarCircle.layer.borderColor = UIColor.white.withAlphaComponent(0.15).cgColor
-        avatarCircle.layer.shadowColor = UIColor.black.cgColor
-        avatarCircle.layer.shadowOpacity = 0.5
-        avatarCircle.layer.shadowRadius = 18
-        avatarCircle.layer.shadowOffset = CGSize(width: 0, height: 10)
-
         avatarContainer.addSubview(avatarCircle)
         avatarCircle.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.width.height.equalTo(120)
         }
 
-        // Image view
-        avatarImageView.contentMode = .scaleAspectFill
-        avatarImageView.clipsToBounds = true
-
         avatarCircle.addSubview(avatarImageView)
         avatarImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
-        // Initials
-        initialsLabel.font = .systemFont(ofSize: 34, weight: .semibold)
-        initialsLabel.textAlignment = .center
-        initialsLabel.textColor = .mgTextPrimary
-
         avatarCircle.addSubview(initialsLabel)
         initialsLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(12)
         }
-
-        // Edit badge
-        editBadge.backgroundColor = .mgAccent
-        editBadge.tintColor = .black
-        editBadge.setImage(UIImage(systemName: "pencil"), for: .normal)
-        editBadge.layer.cornerRadius = 18
-        editBadge.layer.shadowColor = UIColor.mgAccent.cgColor
-        editBadge.layer.shadowOpacity = 0.8
-        editBadge.layer.shadowRadius = 10
-        editBadge.layer.shadowOffset = .zero
-        editBadge.addTarget(self, action: #selector(changeTapped), for: .touchUpInside)
 
         avatarContainer.addSubview(editBadge)
         editBadge.snp.makeConstraints { make in
@@ -103,12 +117,7 @@ final class EditProfileAvatarCell: UITableViewCell {
             make.bottom.equalTo(avatarCircle.snp.bottom).offset(4)
             make.trailing.equalTo(avatarCircle.snp.trailing).offset(4)
         }
-
-        // Tap label
-        tapLabel.text = "Tap to change"
-        tapLabel.font = .systemFont(ofSize: 13, weight: .medium)
-        tapLabel.textColor = .mgAccent
-        tapLabel.textAlignment = .center
+        editBadge.addTarget(self, action: #selector(changeTapped), for: .touchUpInside)
 
         avatarContainer.addSubview(tapLabel)
         tapLabel.snp.makeConstraints { make in
@@ -116,20 +125,15 @@ final class EditProfileAvatarCell: UITableViewCell {
             make.leading.trailing.bottom.equalToSuperview()
         }
 
-        // Gesture
         let tap = UITapGestureRecognizer(target: self, action: #selector(changeTapped))
         avatarContainer.addGestureRecognizer(tap)
     }
 
-    // MARK: - Configure
-
-    /// `pickedImage` varsa onu göstər, yoxdursa `avatarBase64`-dən şəkil yarad, o da yoxdursa initials.
     func configure(initialsFrom name: String,
                    avatarBase64: String?,
                    pickedImage: UIImage?) {
 
         if let pickedImage {
-            // Bu ekranda user-in indi seçdiyi şəkil
             avatarImageView.image = pickedImage
             avatarImageView.isHidden = false
             initialsLabel.isHidden = true
@@ -147,7 +151,6 @@ final class EditProfileAvatarCell: UITableViewCell {
             return
         }
 
-        // Heç bir şəkil yoxdursa → initials
         avatarImageView.image = nil
         avatarImageView.isHidden = true
         initialsLabel.isHidden = false
@@ -160,8 +163,6 @@ final class EditProfileAvatarCell: UITableViewCell {
             .joined()
         initialsLabel.text = initials.uppercased()
     }
-
-    // MARK: - Actions
 
     @objc private func changeTapped() {
         onChangePhoto?()

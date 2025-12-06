@@ -31,7 +31,7 @@ extension HelpFAQItem {
         HelpFAQItem(
             id: .premiumBenefits,
             iconSystemName: "flame.fill",
-            iconBackgroundColor: .systemOrange,
+            iconBackgroundColor: Palette.mgAccentSoft,
             title: "What do I get with Premium?",
             body: """
 Premium unlocks:
@@ -48,7 +48,7 @@ Perfect if you create memes regularly and want everything to feel fast and pro.
         HelpFAQItem(
             id: .managePremium,
             iconSystemName: "arrow.triangle.2.circlepath.circle.fill",
-            iconBackgroundColor: .systemGreen,
+            iconBackgroundColor: Palette.mgAccentSoft,
             title: "How do I restore or manage my Premium?",
             body: """
 Changed phone or reinstalled the app?
@@ -65,7 +65,7 @@ Settings → Apple ID → Subscriptions → MemeGenerator Premium.
         HelpFAQItem(
             id: .aiGeneration,
             iconSystemName: "sparkles",
-            iconBackgroundColor: .baseBackgroundColor,
+            iconBackgroundColor: Palette.mgAccentSoft,
             title: "How does AI meme generation work and why can it fail?",
             body: """
 AI uses your text prompt to create an image on our secure servers.
@@ -82,7 +82,7 @@ If this happens, wait a few seconds and try again with a clearer prompt.
         HelpFAQItem(
             id: .memesStorage,
             iconSystemName: "icloud.and.arrow.down.fill",
-            iconBackgroundColor: .systemBlue,
+            iconBackgroundColor: Palette.mgAccentSoft,
             title: "Where are my memes saved and can I lose them?",
             body: """
 Your memes are linked to your MemeGenerator account and stored safely in the cloud.

@@ -35,7 +35,7 @@ final class OnboardingPageView: UIView {
         backgroundColor = .clear
 
         imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = .baseBackgroundColor
+        imageView.tintColor = Palette.baseBackgroundColor
 
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
         titleLabel.textColor = .white

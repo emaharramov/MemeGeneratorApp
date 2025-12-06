@@ -12,11 +12,43 @@ final class ProfileMenuCell: UITableViewCell {
 
     static let reuseID = "ProfileMenuCell"
 
-    private let cardView = UIView()
-    private let iconBackground = UIView()
-    private let iconView = UIImageView()
-    private let titleLabel = UILabel()
-    private let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
+    private let cardView: UIView = {
+        let v = UIView()
+        v.backgroundColor = Palette.mgCard
+        v.layer.cornerRadius = 18
+        v.layer.masksToBounds = false
+        v.layer.borderWidth = 1
+        v.layer.borderColor = Palette.mgCardStroke.cgColor
+        return v
+    }()
+
+    private let iconBackground: UIView = {
+        let v = UIView()
+        v.backgroundColor = Palette.mgAccentSoft
+        v.layer.cornerRadius = 12
+        return v
+    }()
+
+    private let iconView: UIImageView = {
+        let iv = UIImageView()
+        iv.tintColor = Palette.mgAccent
+        iv.contentMode = .scaleAspectFit
+        return iv
+    }()
+
+    private let titleLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 16, weight: .regular)
+        lbl.textColor = Palette.mgTextPrimary
+        return lbl
+    }()
+
+    private let chevron: UIImageView = {
+        let iv = UIImageView(image: UIImage(systemName: "chevron.right"))
+        iv.tintColor = Palette.mgTextSecondary
+        iv.contentMode = .scaleAspectFit
+        return iv
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -30,32 +62,20 @@ final class ProfileMenuCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        cardView.backgroundColor = .mgCard
-        cardView.layer.cornerRadius = 18
-        cardView.layer.masksToBounds = false
-        cardView.layer.borderWidth = 1
-        cardView.layer.borderColor = UIColor.mgCardStroke.cgColor
-
         contentView.addSubview(cardView)
         cardView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 3, left: 16, bottom: 3, right: 16))
             make.height.equalTo(56)
         }
 
-        iconBackground.backgroundColor = UIColor.white.withAlphaComponent(0.06)
-        iconBackground.layer.cornerRadius = 12
-        iconBackground.snp.makeConstraints { $0.width.height.equalTo(36) }
-
-        iconView.tintColor = .mgAccent
-        iconView.contentMode = .scaleAspectFit
+        iconBackground.snp.makeConstraints { make in
+            make.width.height.equalTo(36)
+        }
 
         iconBackground.addSubview(iconView)
-        iconView.snp.makeConstraints { $0.center.equalToSuperview() }
-
-        titleLabel.font = .systemFont(ofSize: 16, weight: .regular)
-        titleLabel.textColor = .mgTextPrimary
-
-        chevron.tintColor = .mgTextSecondary
+        iconView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
 
         let stack = UIStackView(arrangedSubviews: [iconBackground, titleLabel, UIView(), chevron])
         stack.axis = .horizontal
@@ -68,18 +88,23 @@ final class ProfileMenuCell: UITableViewCell {
         }
     }
 
-    func configure(iconName: String,
-                   title: String,
-                   isDestructive: Bool = false) {
+    func configure(
+        iconName: String,
+        title: String,
+        isDestructive: Bool = false
+    ) {
         iconView.image = UIImage(systemName: iconName)
         titleLabel.text = title
 
         if isDestructive {
-            titleLabel.textColor = UIColor.systemRed.withAlphaComponent(0.9)
-            iconView.tintColor = UIColor.systemRed.withAlphaComponent(0.9)
+            let red = UIColor.systemRed.withAlphaComponent(0.9)
+            titleLabel.textColor = red
+            iconView.tintColor = red
+            chevron.tintColor = red.withAlphaComponent(0.9)
         } else {
-            titleLabel.textColor = .mgTextPrimary
-            iconView.tintColor = .mgAccent
+            titleLabel.textColor = Palette.mgTextPrimary
+            iconView.tintColor = Palette.mgAccent
+            chevron.tintColor = Palette.mgTextSecondary
         }
     }
 }

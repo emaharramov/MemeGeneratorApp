@@ -16,12 +16,9 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
     private let middleButton = UIButton(type: .system)
     private let middleTitleLabel = UILabel()
 
-    // Status bar rəngi üçün (selected VC-dən götür)
     override var childForStatusBarStyle: UIViewController? {
         selectedViewController
     }
-
-    // MARK: - Init
 
     init(homeNav: UINavigationController,
          createNav: UINavigationController,
@@ -37,8 +34,6 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
@@ -49,24 +44,23 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         setupMiddleTitle()
     }
 
-    // MARK: - Tab Bar UI
-
     private func configureAppearance() {
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
 
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .mgBackground
+        appearance.backgroundColor = Palette.mgCard
         appearance.shadowColor = .clear
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.6)
+
+        appearance.stackedLayoutAppearance.normal.iconColor = Palette.mgTextSecondary
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor.white.withAlphaComponent(0.6),
+            .foregroundColor: Palette.mgTextSecondary,
             .font: UIFont.systemFont(ofSize: 11, weight: .regular)
         ]
 
-        appearance.stackedLayoutAppearance.selected.iconColor = .mgAccent
+        appearance.stackedLayoutAppearance.selected.iconColor = Palette.mgAccent
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: UIColor.mgAccent,
+            .foregroundColor: Palette.mgAccent,
             .font: UIFont.systemFont(ofSize: 11, weight: .semibold)
         ]
 
@@ -76,8 +70,8 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         }
 
         tabBar.isTranslucent = false
-        tabBar.tintColor = .mgAccent
-        tabBar.unselectedItemTintColor = UIColor.white.withAlphaComponent(0.6)
+        tabBar.tintColor = Palette.mgAccent
+        tabBar.unselectedItemTintColor = Palette.mgTextSecondary
 
         tabBar.layer.cornerRadius = 26
         tabBar.layer.masksToBounds = false
@@ -89,15 +83,13 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         tabBar.layer.shadowRadius = 16
     }
 
-    // MARK: - Tabs
-
     private func configureTabs() {
         homeNav.tabBarItem = UITabBarItem(
             title: "Home",
             image: UIImage(systemName: "house"),
             selectedImage: UIImage(systemName: "house.fill")
         )
-        
+
         createNav.tabBarItem = UITabBarItem(title: nil, image: nil, selectedImage: nil)
         createNav.tabBarItem.isEnabled = false
 
@@ -110,16 +102,13 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         viewControllers = [homeNav, createNav, profileNav]
     }
 
-    // MARK: - Middle Button
-
     private func setupMiddleButton() {
-        middleButton.backgroundColor = .mgAccent
-        middleButton.tintColor = .black
+        middleButton.backgroundColor = Palette.mgAccent
+        middleButton.tintColor = Palette.mgTextPrimary
         middleButton.setImage(UIImage(systemName: "plus"), for: .normal)
         middleButton.layer.cornerRadius = 32
 
-        // Glow effekti
-        middleButton.layer.shadowColor = UIColor.mgAccent.cgColor
+        middleButton.layer.shadowColor = Palette.mgAccent.cgColor
         middleButton.layer.shadowOpacity = 0.8
         middleButton.layer.shadowOffset = .zero
         middleButton.layer.shadowRadius = 18
@@ -139,7 +128,7 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
 
     private func setupMiddleTitle() {
         middleTitleLabel.text = "Create"
-        middleTitleLabel.textColor = .mgAccent
+        middleTitleLabel.textColor = Palette.mgAccent
         middleTitleLabel.font = .systemFont(ofSize: 11, weight: .semibold)
         middleTitleLabel.textAlignment = .center
 
@@ -153,7 +142,6 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
     }
 
     @objc private func openCreate() {
-        // Kiçik tap effekt
         UIView.animate(withDuration: 0.12, animations: {
             self.middleButton.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
         }, completion: { _ in
@@ -164,8 +152,6 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
 
         selectedIndex = 1
     }
-
-    // MARK: - Tab Animation
 
     func tabBarController(_ tabBarController: UITabBarController,
                           didSelect viewController: UIViewController) {

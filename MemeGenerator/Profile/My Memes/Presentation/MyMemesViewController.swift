@@ -1,16 +1,16 @@
 //
-//  CreateViewController.swift
+//  MyMemesViewController.swift
 //  MemeGenerator
 //
-//  Created by Emil Maharramov on 19.11.25.
+//  Created by Emil Maharramov on 28.11.25.
 //
 
 import UIKit
 import SnapKit
+import Combine
 
-final class CreateViewController: BaseController<BaseViewModel> {
-
-    private weak var router: CreateRouting?
+final class MyMemesViewController: BaseController<MyMemesVM> {
+    private weak var router: MyMemesRouting?
 
     private let segmentedBackgroundView: UIView = {
         let view = UIView()
@@ -23,7 +23,7 @@ final class CreateViewController: BaseController<BaseViewModel> {
     }()
 
     private let segmentedControl: UISegmentedControl = {
-        let items = ["AI Meme", "AI + Template", "Custom"]
+        let items = ["All", "AI Meme", "AI + Template"]
         let sc = UISegmentedControl(items: items)
         sc.selectedSegmentIndex = 0
 
@@ -57,10 +57,10 @@ final class CreateViewController: BaseController<BaseViewModel> {
     private var currentVC: UIViewController?
     private var childCache: [Int: UIViewController] = [:]
 
-    init(router: CreateRouting) {
-        self.router = router
-        super.init(viewModel: BaseViewModel())
-    }
+    init(router: MyMemesRouting, viewModel: MyMemesVM) {
+            self.router = router
+            super.init(viewModel: viewModel)
+        }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -70,7 +70,7 @@ final class CreateViewController: BaseController<BaseViewModel> {
         super.viewDidLoad()
 
         view.backgroundColor = Palette.mgBackground
-        navigationItem.title = "Create"
+        navigationItem.title = "My Memes"
 
         setupLayout()
 
@@ -113,6 +113,7 @@ final class CreateViewController: BaseController<BaseViewModel> {
         guard let vc = viewControllerForSegment(index: index) else { return }
         switchTo(vc: vc)
     }
+    
 
     private func viewControllerForSegment(index: Int) -> UIViewController? {
         if let cached = childCache[index] {
@@ -124,11 +125,11 @@ final class CreateViewController: BaseController<BaseViewModel> {
         let vc: UIViewController
         switch index {
         case 0:
-            vc = router.makeAIMeme()
+            vc = router.makeAllMyMemes()
         case 1:
-            vc = router.makeAIWithTemplate()
+            vc = router.makeAIMemes()
         case 2:
-            vc = router.makeCustomMeme()
+            vc = router.makeAIMemesWithTemplate()
         default:
             return nil
         }

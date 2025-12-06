@@ -70,7 +70,7 @@ final class ProfileViewController: BaseController<ProfileVM> {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
         navigationItem.title = "Profile"
 
         setupTableView()

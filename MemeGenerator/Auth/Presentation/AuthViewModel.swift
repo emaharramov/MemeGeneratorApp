@@ -112,15 +112,31 @@ final class AuthViewModel: BaseViewModel {
     }
 
     private func mapError(_ error: AuthError) -> String {
+        struct ServerErrorResponse: Decodable {
+            let success: Bool?
+            let message: String?
+        }
+
         switch error {
         case .invalidCredentials:
-            return "Invalid email or password."
+            return "Email or password incorrect."
 
         case .network(let message):
             return message
 
-        case .server(let message):
-            return message
+        case .server(let rawMessage):
+            if let data = rawMessage.data(using: .utf8),
+               let parsed = try? JSONDecoder().decode(ServerErrorResponse.self, from: data),
+               let msg = parsed.message,
+               !msg.isEmpty {
+                return msg
+            }
+
+            if !rawMessage.isEmpty {
+                return rawMessage
+            } else {
+                return "Something went wrong. Please try again."
+            }
 
         case .decoding:
             return "Unexpected response from server."

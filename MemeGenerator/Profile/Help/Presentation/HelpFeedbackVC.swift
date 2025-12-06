@@ -21,11 +21,11 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
         self.router = router
         super.init(viewModel: viewModel)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigation()
@@ -35,7 +35,7 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
 
     private func setupNavigation() {
         navigationItem.title = "Help & FAQ"
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
     }
 
     private func setupTableView() {
@@ -50,8 +50,10 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
         tableView.dataSource = self
         tableView.delegate = self
 
-        tableView.register(HelpFAQCell.self,
-                           forCellReuseIdentifier: HelpFAQCell.reuseID)
+        tableView.register(
+            HelpFAQCell.self,
+            forCellReuseIdentifier: HelpFAQCell.reuseID
+        )
 
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
@@ -91,7 +93,8 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
 
         footerCard.addSubview(stack)
         stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12))
+            make.edges.equalToSuperview()
+                .inset(UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12))
         }
     }
 
@@ -122,7 +125,7 @@ extension HelpFeedbackVC: UITableViewDataSource {
         cell.onLinkTap = { [weak self] in
             guard let self else { return }
             if item.id == .premiumBenefits {
-                 router?.showPremium()
+                router?.showPremium()
             }
         }
 

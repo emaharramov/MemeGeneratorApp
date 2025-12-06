@@ -15,24 +15,23 @@ enum AuthMode {
 
 final class AuthController: BaseController<AuthViewModel> {
 
-    // MARK: - State
-
     var mode: AuthMode {
         didSet { updateForMode() }
     }
-
-    // MARK: - UI
 
     private let scrollView: UIScrollView = {
         let v = UIScrollView()
         v.alwaysBounceVertical = true
         v.showsVerticalScrollIndicator = false
+        v.backgroundColor = .clear
         return v
     }()
 
-    private let contentView = UIView()
-
-    // Header
+    private let contentView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }()
 
     private let logoView: UIImageView = {
         let iv = UIImageView()
@@ -40,13 +39,14 @@ final class AuthController: BaseController<AuthViewModel> {
         iv.image = UIImage(named: "person.circle.fill")
         iv.layer.cornerRadius = 16
         iv.clipsToBounds = true
+        iv.tintColor = Palette.mgAccent
         return iv
     }()
 
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 26, weight: .bold)
-        label.textColor = .mgTextPrimary
+        label.textColor = Palette.mgTextPrimary
         label.numberOfLines = 0
         label.textAlignment = .left
         return label
@@ -55,15 +55,17 @@ final class AuthController: BaseController<AuthViewModel> {
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.textColor = .mgTextSecondary
+        label.textColor = Palette.mgTextSecondary
         label.numberOfLines = 0
         label.textAlignment = .left
         return label
     }()
 
-    // Form
-
-    private let formCard = UIView()
+    private let formCard: UIView = {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }()
 
     private let fieldsStack: UIStackView = {
         let stack = UIStackView()
@@ -76,7 +78,7 @@ final class AuthController: BaseController<AuthViewModel> {
     private let emailContainer = UIView()
     private let emailIcon: UIImageView = {
         let iv = UIImageView(image: UIImage(systemName: "envelope"))
-        iv.tintColor = .mgTextSecondary
+        iv.tintColor = Palette.mgTextSecondary
         return iv
     }()
 
@@ -90,7 +92,7 @@ final class AuthController: BaseController<AuthViewModel> {
     private let usernameContainer = UIView()
     private let usernameIcon: UIImageView = {
         let iv = UIImageView(image: UIImage(systemName: "person"))
-        iv.tintColor = .mgTextSecondary
+        iv.tintColor = Palette.mgTextSecondary
         return iv
     }()
 
@@ -111,7 +113,7 @@ final class AuthController: BaseController<AuthViewModel> {
     private let passwordContainer = UIView()
     private let passwordIcon: UIImageView = {
         let iv = UIImageView(image: UIImage(systemName: "lock"))
-        iv.tintColor = .mgTextSecondary
+        iv.tintColor = Palette.mgTextSecondary
         return iv
     }()
 
@@ -119,7 +121,7 @@ final class AuthController: BaseController<AuthViewModel> {
         systemName: "eye",
         pointSize: 16,
         weight: .medium,
-        tintColor: .mgTextSecondary,
+        tintColor: Palette.mgTextSecondary,
         contentInsets: .init(top: 6, left: 6, bottom: 6, right: 6),
         backgroundColor: .clear,
         cornerRadius: 0
@@ -127,20 +129,18 @@ final class AuthController: BaseController<AuthViewModel> {
 
     private let forgotPasswordButton = UIButton.makeTextButton(
         title: "Forgot Password?",
-        titleColor: .baseBackgroundColor,
+        titleColor: Palette.baseBackgroundColor,
         font: .systemFont(ofSize: 13, weight: .semibold),
         alignment: .right
     )
-
-    // Primary button
 
     private let primaryButton: UIButton = {
         let button = UIButton(type: .system)
         button.applyFilledStyle(
             title: "",
             systemImageName: nil,
-            baseBackgroundColor: .mgAccent,
-            baseForegroundColor: .white,
+            baseBackgroundColor: Palette.mgAccent,
+            baseForegroundColor: Palette.mgTextPrimary,
             contentInsets: .init(top: 12, leading: 16, bottom: 12, trailing: 16),
             cornerStyle: .large,
             addShadow: true
@@ -148,17 +148,15 @@ final class AuthController: BaseController<AuthViewModel> {
         return button
     }()
 
-    // OR divider
-
     private let orLeftLine: UIView = {
         let v = UIView()
-        v.backgroundColor = UIColor.mgCardStroke.withAlphaComponent(0.7)
+        v.backgroundColor = Palette.mgCardStroke.withAlphaComponent(0.7)
         return v
     }()
 
     private let orRightLine: UIView = {
         let v = UIView()
-        v.backgroundColor = UIColor.mgCardStroke.withAlphaComponent(0.7)
+        v.backgroundColor = Palette.mgCardStroke.withAlphaComponent(0.7)
         return v
     }()
 
@@ -166,7 +164,7 @@ final class AuthController: BaseController<AuthViewModel> {
         let label = UILabel()
         label.text = "OR"
         label.font = .systemFont(ofSize: 13, weight: .semibold)
-        label.textColor = .mgTextSecondary
+        label.textColor = Palette.mgTextSecondary
         label.textAlignment = .center
         return label
     }()
@@ -182,18 +180,16 @@ final class AuthController: BaseController<AuthViewModel> {
     private let bottomTextLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .mgTextSecondary
+        label.textColor = Palette.mgTextSecondary
         return label
     }()
 
     private let bottomActionButton = UIButton.makeTextButton(
         title: "",
-        titleColor: .baseBackgroundColor,
+        titleColor: Palette.baseBackgroundColor,
         font: .systemFont(ofSize: 14, weight: .semibold),
         alignment: .center
     )
-
-    // MARK: - Init
 
     init(viewModel: AuthViewModel, mode: AuthMode) {
         self.mode = mode
@@ -204,20 +200,16 @@ final class AuthController: BaseController<AuthViewModel> {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
         configureNavigation(title: "Auth")
 
         setupLayout()
         setupActions()
         updateForMode()
     }
-
-    // MARK: - Layout
 
     private func setupLayout() {
         view.addSubview(scrollView)
@@ -246,8 +238,6 @@ final class AuthController: BaseController<AuthViewModel> {
 
         contentView.addSubview(bottomStack)
 
-        // Header constraints
-
         logoView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(32)
             make.centerX.equalToSuperview()
@@ -264,9 +254,6 @@ final class AuthController: BaseController<AuthViewModel> {
             make.leading.trailing.equalToSuperview().inset(24)
         }
 
-        // Form card
-
-        formCard.backgroundColor = .clear
         formCard.snp.makeConstraints { make in
             make.top.equalTo(subtitleLabel.snp.bottom).offset(24)
             make.leading.trailing.equalToSuperview().inset(24)
@@ -276,8 +263,6 @@ final class AuthController: BaseController<AuthViewModel> {
         fieldsStack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-
-        // Field containers
 
         styleFieldContainer(emailContainer)
         styleFieldContainer(usernameContainer)
@@ -297,8 +282,6 @@ final class AuthController: BaseController<AuthViewModel> {
             make.height.equalTo(52)
         }
 
-        // Email layout
-
         emailContainer.addSubview(emailIcon)
         emailContainer.addSubview(emailField)
 
@@ -314,8 +297,6 @@ final class AuthController: BaseController<AuthViewModel> {
             make.trailing.equalToSuperview().inset(16)
         }
 
-        // Username layout
-
         usernameContainer.addSubview(usernameIcon)
         usernameContainer.addSubview(usernameField)
 
@@ -330,8 +311,6 @@ final class AuthController: BaseController<AuthViewModel> {
             make.leading.equalTo(usernameIcon.snp.trailing).offset(10)
             make.trailing.equalToSuperview().inset(16)
         }
-
-        // Password layout
 
         passwordContainer.addSubview(passwordIcon)
         passwordContainer.addSubview(passwordField)
@@ -355,22 +334,16 @@ final class AuthController: BaseController<AuthViewModel> {
             make.trailing.equalTo(passwordVisibilityButton.snp.leading).offset(-8)
         }
 
-        // Forgot password
-
         forgotPasswordButton.snp.makeConstraints { make in
             make.top.equalTo(formCard.snp.bottom).offset(8)
             make.trailing.equalTo(formCard.snp.trailing)
         }
-
-        // Primary button (stil artıq closure-da verilib, burada yalnız constraints)
 
         primaryButton.snp.makeConstraints { make in
             make.top.equalTo(forgotPasswordButton.snp.bottom).offset(16)
             make.leading.trailing.equalTo(formCard)
             make.height.equalTo(48)
         }
-
-        // OR divider
 
         orStack.addArrangedSubview(orLeftLine)
         orStack.addArrangedSubview(orLabel)
@@ -396,17 +369,20 @@ final class AuthController: BaseController<AuthViewModel> {
         }
     }
 
-    // MARK: - Styling helpers
-
     private func styleFieldContainer(_ view: UIView) {
-        view.backgroundColor = .mgCard
+        view.backgroundColor = Palette.textFieldBackground
         view.layer.cornerRadius = 16
         view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.mgCardStroke.cgColor
+        view.layer.borderColor = Palette.mgCardStroke.cgColor
         view.layer.masksToBounds = true
     }
 
     private func updateForMode() {
+        let placeholderAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: Palette.mgTextSecondary.withAlphaComponent(0.7),
+            .font: UIFont.systemFont(ofSize: 15, weight: .medium)
+        ]
+
         switch mode {
         case .login:
             titleLabel.text = "Welcome Back!"
@@ -414,24 +390,18 @@ final class AuthController: BaseController<AuthViewModel> {
 
             emailField.attributedPlaceholder = NSAttributedString(
                 string: "Enter your email or username",
-                attributes: [
-                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
-                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
-                ])
+                attributes: placeholderAttributes
+            )
 
             usernameField.attributedPlaceholder = NSAttributedString(
                 string: "Choose a username",
-                attributes: [
-                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
-                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
-                ])
+                attributes: placeholderAttributes
+            )
 
             passwordField.attributedPlaceholder = NSAttributedString(
                 string: "Enter your password",
-                attributes: [
-                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
-                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
-                ])
+                attributes: placeholderAttributes
+            )
 
             usernameContainer.isHidden = true
             forgotPasswordButton.isHidden = false
@@ -446,24 +416,18 @@ final class AuthController: BaseController<AuthViewModel> {
 
             emailField.attributedPlaceholder = NSAttributedString(
                 string: "Enter your email",
-                attributes: [
-                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
-                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
-                ])
+                attributes: placeholderAttributes
+            )
 
             usernameField.attributedPlaceholder = NSAttributedString(
                 string: "Choose a username",
-                attributes: [
-                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
-                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
-                ])
+                attributes: placeholderAttributes
+            )
 
             passwordField.attributedPlaceholder = NSAttributedString(
                 string: "Create a password",
-                attributes: [
-                    .foregroundColor: UIColor.mgTextSecondary.withAlphaComponent(0.7),
-                    .font: UIFont.systemFont(ofSize: 15, weight: .medium)
-                ])
+                attributes: placeholderAttributes
+            )
 
             usernameContainer.isHidden = false
             forgotPasswordButton.isHidden = true
@@ -473,8 +437,6 @@ final class AuthController: BaseController<AuthViewModel> {
             bottomActionButton.setTitle("Log In", for: .normal)
         }
     }
-
-    // MARK: - Actions
 
     private func setupActions() {
         primaryButton.addTarget(self, action: #selector(handlePrimaryTapped), for: .touchUpInside)
@@ -506,10 +468,10 @@ final class AuthController: BaseController<AuthViewModel> {
 
     @objc private func handleToggleMode() {
         mode = (mode == .login) ? .register : .login
-        //        viewModel.didChangeMode(to: mode)
+        // viewModel.didChangeMode(to: mode)
     }
 
     @objc private func handleForgotPassword() {
-        //        viewModel.forgotPassword()
+        // viewModel.forgotPassword()
     }
 }

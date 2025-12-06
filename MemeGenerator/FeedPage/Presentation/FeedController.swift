@@ -11,18 +11,13 @@ import Combine
 
 final class FeedController: BaseController<FeedViewModel> {
 
-    // Status bar ikonları üçün
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
-    // MARK: - Section
-
     private enum Section: Int, CaseIterable {
         case feed
     }
-
-    // MARK: - UI
 
     private lazy var collectionView: UICollectionView = {
         let layout = createLayout()
@@ -39,15 +34,11 @@ final class FeedController: BaseController<FeedViewModel> {
 
     private let refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl()
-        rc.tintColor = .mgAccent
+        rc.tintColor = Palette.mgAccent
         return rc
     }()
 
-    // MARK: - Combine
-
     private var cancellables = Set<AnyCancellable>()
-
-    // MARK: - Init
 
     override init(viewModel: FeedViewModel) {
         super.init(viewModel: viewModel)
@@ -57,13 +48,11 @@ final class FeedController: BaseController<FeedViewModel> {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         title = "Feed"
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
 
         setupSubviews()
         setupConstraints()
@@ -72,13 +61,11 @@ final class FeedController: BaseController<FeedViewModel> {
 
         viewModel.getAllMemes()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-           super.viewWillAppear(animated)
-           viewModel.getAllMemes()
-       }
 
-    // MARK: - Setup
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.getAllMemes()
+    }
 
     private func setupSubviews() {
         view.addSubview(collectionView)
@@ -106,12 +93,9 @@ final class FeedController: BaseController<FeedViewModel> {
         viewModel.getAllMemes()
     }
 
-    // MARK: - Bindings
-
     override func bindViewModel() {
         super.bindViewModel()
 
-        // data
         viewModel.$allMemes
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
@@ -121,7 +105,6 @@ final class FeedController: BaseController<FeedViewModel> {
             }
             .store(in: &cancellables)
 
-        // error
         viewModel.$errorMessage
             .compactMap { $0 }
             .receive(on: RunLoop.main)
@@ -132,7 +115,6 @@ final class FeedController: BaseController<FeedViewModel> {
             }
             .store(in: &cancellables)
 
-        // loading
         viewModel.$isLoading
             .receive(on: RunLoop.main)
             .sink { [weak self] isLoading in
@@ -143,8 +125,6 @@ final class FeedController: BaseController<FeedViewModel> {
             }
             .store(in: &cancellables)
     }
-
-    // MARK: - Layout
 
     private func createLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout { sectionIndex, _ in
@@ -180,15 +160,11 @@ final class FeedController: BaseController<FeedViewModel> {
         }
     }
 
-    // MARK: - Helpers
-
     private func saveImageToPhotos(_ image: UIImage) {
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         showToast(message: "Saved to Photos", type: .success)
     }
 }
-
-// MARK: - DataSource
 
 extension FeedController: UICollectionViewDataSource {
 
@@ -233,12 +209,10 @@ extension FeedController: UICollectionViewDataSource {
     }
 }
 
-// MARK: - Delegate
-
 extension FeedController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView,
                         didSelectItemAt indexPath: IndexPath) {
-        // gələcəkdə detail açmaq üçün
+        // future: open detail
     }
 }

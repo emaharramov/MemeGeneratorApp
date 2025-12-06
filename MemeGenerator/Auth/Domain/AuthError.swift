@@ -5,8 +5,6 @@
 //  Created by Emil Maharramov on 29.11.25.
 //
 
-// Domain/AuthError.swift
-
 import Foundation
 
 enum AuthError: Error {

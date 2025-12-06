@@ -44,7 +44,7 @@ final class HelpFAQCell: UITableViewCell {
 
     private let iconImageView: UIImageView = {
         let iv = UIImageView()
-        iv.tintColor = .white
+        iv.tintColor = Palette.mgAccent
         iv.contentMode = .scaleAspectFit
         return iv
     }()
@@ -62,7 +62,7 @@ final class HelpFAQCell: UITableViewCell {
     private let chevronImageView: UIImageView = {
         let iv = UIImageView()
         iv.image = UIImage(systemName: "chevron.down")
-        iv.tintColor = .mgTextSecondary
+        iv.tintColor = Palette.mgTextSecondary
         iv.contentMode = .scaleAspectFit
         iv.setContentHuggingPriority(.required, for: .horizontal)
         iv.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -157,7 +157,7 @@ final class HelpFAQCell: UITableViewCell {
         bodyLabel.text = item.body
 
         iconImageView.image = UIImage(systemName: item.iconSystemName)
-        iconContainer.backgroundColor = item.iconBackgroundColor.withAlphaComponent(0.25)
+        iconContainer.backgroundColor = item.iconBackgroundColor
 
         if let linkTitle = item.linkTitle {
             linkButton.setTitle(linkTitle, for: .normal)

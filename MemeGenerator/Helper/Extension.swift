@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Foundation
+import SnapKit
 import Kingfisher
 
 // MARK: - UIImageView
@@ -119,8 +119,8 @@ extension UITextField {
         self.autocapitalizationType = capitalization
         backgroundColor = .clear
         borderStyle = .none
-        textColor = .mgTextPrimary
-        tintColor = .mgAccent
+        textColor = Palette.mgTextPrimary
+        tintColor = Palette.mgAccent
         font = .systemFont(ofSize: 15, weight: .medium)
     }
 
@@ -141,22 +141,9 @@ extension UITextField {
     }
 }
 
-// MARK: - UIColor (palette + utils)
+// MARK: - UIColor
 
 extension UIColor {
-    static let mgBackground      = UIColor(red: 16/255, green: 10/255, blue: 25/255, alpha: 1)
-    static let mgLightBackground = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 0.9)
-    static let mgCard            = UIColor(red: 32/255, green: 24/255, blue: 54/255, alpha: 1)
-    static let mgCardStroke      = UIColor(white: 1, alpha: 0.05)
-    static let mgTextPrimary     = UIColor.white
-    static let mgPromptColor     = UIColor.white.withAlphaComponent(0.90)
-    static let mgTextSecondary   = UIColor.white.withAlphaComponent(0.65)
-    static let mgAccent          = UIColor(red: 171/255, green: 120/255, blue: 52/255, alpha: 1)
-    static let textFieldTextColor = UIColor(red: 0.70, green: 0.52, blue: 0.26, alpha: 1.0)
-    static let cardBg            = UIColor.systemGray6.withAlphaComponent(0.9)
-    static let baseBackgroundColor = UIColor.systemPurple
-    static let mgCardElevated = UIColor(red: 42/255, green: 32/255, blue: 70/255, alpha: 1)
-    static let mgSeparator = UIColor(red: 58/255, green: 46/255, blue: 90/255, alpha: 1)
 
     func isEqualTo(_ other: UIColor) -> Bool {
         isEqual(other)
@@ -186,7 +173,7 @@ extension UIColor {
 
 extension UIView {
     func applyFAQCardStyle() {
-        backgroundColor = .mgCard
+        backgroundColor = Palette.mgCard
         layer.cornerRadius = 20
         layer.masksToBounds = false
         layer.shadowColor = UIColor.black.cgColor
@@ -204,17 +191,17 @@ extension UIView {
 
 extension UILabel {
     func applyFAQTitleStyle() {
-        textColor = .mgTextPrimary
+        textColor = Palette.mgTextPrimary
         font = .systemFont(ofSize: 16, weight: .semibold)
     }
 
     func applyFAQBodyStyle() {
-        textColor = .mgTextSecondary
+        textColor = Palette.mgTextSecondary
         font = .systemFont(ofSize: 14, weight: .regular)
     }
 
     func applyFAQFooterTitleStyle() {
-        textColor = .mgTextSecondary
+        textColor = Palette.mgTextSecondary
         font = .systemFont(ofSize: 13, weight: .regular)
     }
 
@@ -234,7 +221,7 @@ extension UILabel {
 
 extension UIButton {
     func applyFAQLinkStyle() {
-        setTitleColor(.mgAccent, for: .normal)
+        setTitleColor(Palette.mgAccent, for: .normal)
         titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
     }
 
@@ -439,98 +426,113 @@ extension UIViewController {
             .filter { $0.tag == 999_999 }
             .forEach { $0.removeFromSuperview() }
 
-        let toastView = UIView()
-        toastView.tag = 999_999
-        toastView.layer.cornerRadius = 18
-        toastView.clipsToBounds = true
+        let toastView: UIView = {
+            let v = UIView()
+            v.tag = 999_999
+            v.layer.cornerRadius = 18
+            v.clipsToBounds = true
+            v.layer.shadowColor = UIColor.black.cgColor
+            v.layer.shadowOpacity = 0.25
+            v.layer.shadowRadius = 10
+            v.layer.shadowOffset = CGSize(width: 0, height: 4)
+            return v
+        }()
 
-        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
-        let blurView = UIVisualEffectView(effect: blurEffect)
-        blurView.translatesAutoresizingMaskIntoConstraints = false
-        toastView.addSubview(blurView)
+        let blurView: UIVisualEffectView = {
+            let effect = UIBlurEffect(style: .systemThinMaterialDark)
+            let v = UIVisualEffectView(effect: effect)
+            return v
+        }()
 
-        let accentView = UIView()
-        accentView.translatesAutoresizingMaskIntoConstraints = false
-        accentView.layer.cornerRadius = 3
-        accentView.layer.masksToBounds = true
+        let accentView: UIView = {
+            let v = UIView()
+            v.layer.cornerRadius = 3
+            v.layer.masksToBounds = true
+            return v
+        }()
 
-        let iconView = UIImageView()
-        iconView.translatesAutoresizingMaskIntoConstraints = false
-        iconView.tintColor = .white
-        iconView.contentMode = .scaleAspectFit
+        let iconView: UIImageView = {
+            let iv = UIImageView()
+            iv.tintColor = .white
+            iv.contentMode = .scaleAspectFit
+            return iv
+        }()
 
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = message
-        label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        label.numberOfLines = 0
+        let label: UILabel = {
+            let lbl = UILabel()
+            lbl.textColor = .white
+            lbl.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+            lbl.numberOfLines = 0
+            return lbl
+        }()
 
+        let emojiPrefix: String
         switch type {
         case .success:
             accentView.backgroundColor = .systemGreen
-            iconView.image = UIImage(systemName: "checkmark.circle.fill")
+            iconView.image = UIImage(systemName: "checkmark.seal.fill")
+            emojiPrefix = "🎉 "
         case .error:
             accentView.backgroundColor = .systemRed
-            iconView.image = UIImage(systemName: "exclamationmark.triangle.fill")
+            iconView.image = UIImage(systemName: "xmark.octagon.fill")
+            emojiPrefix = "⚠️ "
         case .info:
-            accentView.backgroundColor = .mgAccent
-            iconView.image = UIImage(systemName: "info.circle.fill")
+            accentView.backgroundColor = Palette.mgAccent
+            iconView.image = UIImage(systemName: "sparkles")
+            emojiPrefix = "💡 "
         }
 
-        toastView.layer.shadowColor = UIColor.black.cgColor
-        toastView.layer.shadowOpacity = 0.25
-        toastView.layer.shadowRadius = 10
-        toastView.layer.shadowOffset = CGSize(width: 0, height: 4)
+        label.text = emojiPrefix + message
 
         container.addSubview(toastView)
+        toastView.addSubview(blurView)
         toastView.addSubview(accentView)
         toastView.addSubview(iconView)
         toastView.addSubview(label)
 
-        toastView.translatesAutoresizingMaskIntoConstraints = false
-
         let guide = container.safeAreaLayoutGuide
 
-        NSLayoutConstraint.activate([
-            toastView.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 16),
-            toastView.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -16),
-            toastView.topAnchor.constraint(equalTo: guide.topAnchor, constant: 8),
+        toastView.snp.makeConstraints { make in
+            make.leading.equalTo(guide.snp.leading).offset(16)
+            make.trailing.equalTo(guide.snp.trailing).inset(16)
+            make.top.equalTo(guide.snp.top).offset(8)
+        }
 
-            blurView.leadingAnchor.constraint(equalTo: toastView.leadingAnchor),
-            blurView.trailingAnchor.constraint(equalTo: toastView.trailingAnchor),
-            blurView.topAnchor.constraint(equalTo: toastView.topAnchor),
-            blurView.bottomAnchor.constraint(equalTo: toastView.bottomAnchor),
+        blurView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
 
-            accentView.leadingAnchor.constraint(equalTo: toastView.leadingAnchor, constant: 8),
-            accentView.centerYAnchor.constraint(equalTo: toastView.centerYAnchor),
-            accentView.widthAnchor.constraint(equalToConstant: 4),
-            accentView.heightAnchor.constraint(equalTo: toastView.heightAnchor, constant: -12),
+        accentView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(8)
+            make.top.bottom.equalToSuperview().inset(6)
+            make.width.equalTo(4)
+        }
 
-            iconView.leadingAnchor.constraint(equalTo: accentView.trailingAnchor, constant: 10),
-            iconView.centerYAnchor.constraint(equalTo: toastView.centerYAnchor),
-            iconView.widthAnchor.constraint(equalToConstant: 20),
-            iconView.heightAnchor.constraint(equalToConstant: 20),
+        iconView.snp.makeConstraints { make in
+            make.leading.equalTo(accentView.snp.trailing).offset(10)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(22)
+        }
 
-            label.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 8),
-            label.trailingAnchor.constraint(equalTo: toastView.trailingAnchor, constant: -12),
-            label.topAnchor.constraint(equalTo: toastView.topAnchor, constant: 10),
-            label.bottomAnchor.constraint(equalTo: toastView.bottomAnchor, constant: -10),
-        ])
+        label.snp.makeConstraints { make in
+            make.leading.equalTo(iconView.snp.trailing).offset(8)
+            make.trailing.equalToSuperview().inset(12)
+            make.top.bottom.equalToSuperview().inset(10)
+        }
 
         container.layoutIfNeeded()
 
         toastView.alpha = 0
-        toastView.transform = CGAffineTransform(translationX: 0, y: -40)
+        toastView.transform = CGAffineTransform(translationX: 0, y: -40).scaledBy(x: 0.9, y: 0.9)
 
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(type == .success ? .success : .error)
 
         UIView.animate(
-            withDuration: 0.35,
+            withDuration: 0.4,
             delay: 0,
-            usingSpringWithDamping: 0.8,
-            initialSpringVelocity: 0.5,
+            usingSpringWithDamping: 0.75,
+            initialSpringVelocity: 0.8,
             options: [.curveEaseOut]
         ) {
             toastView.alpha = 1
@@ -544,12 +546,13 @@ extension UIViewController {
                 options: [.curveEaseIn]
             ) {
                 toastView.alpha = 0
-                toastView.transform = CGAffineTransform(translationX: 0, y: -20)
+                toastView.transform = CGAffineTransform(translationX: 0, y: -20).scaledBy(x: 0.9, y: 0.9)
             } completion: { _ in
                 toastView.removeFromSuperview()
             }
         }
     }
+
 
     private func toastContainerView() -> UIView {
         if let navView = navigationController?.view {

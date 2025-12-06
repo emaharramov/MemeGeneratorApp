@@ -12,10 +12,31 @@ final class EditProfileTextFieldCell: UITableViewCell {
 
     static let reuseID = "EditProfileTextFieldCell"
 
-    let textField = UITextField()
+    let textField: UITextField = {
+        let tf = UITextField()
+        tf.borderStyle = .none
+        tf.textColor = Palette.mgTextPrimary
+        tf.tintColor = Palette.mgAccent
+        tf.keyboardAppearance = .dark
+        return tf
+    }()
 
-    private let titleLabel = UILabel()
-    private let containerView = UIView()
+    private let titleLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.font = .systemFont(ofSize: 13, weight: .medium)
+        lbl.textColor = Palette.mgTextSecondary
+        return lbl
+    }()
+
+    private let containerView: UIView = {
+        let v = UIView()
+        v.backgroundColor = Palette.mgCard
+        v.layer.cornerRadius = 20
+        v.layer.masksToBounds = false
+        v.layer.borderWidth = 1
+        v.layer.borderColor = Palette.mgCardStroke.cgColor
+        return v
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -28,20 +49,6 @@ final class EditProfileTextFieldCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        titleLabel.font = .systemFont(ofSize: 13, weight: .medium)
-        titleLabel.textColor = .mgTextSecondary
-
-        containerView.backgroundColor = .mgCard
-        containerView.layer.cornerRadius = 20
-        containerView.layer.masksToBounds = false
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = UIColor.mgCardStroke.cgColor
-
-        textField.borderStyle = .none
-        textField.textColor = .mgTextPrimary
-        textField.tintColor = .mgAccent
-        textField.keyboardAppearance = .dark
-
         contentView.addSubview(titleLabel)
         contentView.addSubview(containerView)
         containerView.addSubview(textField)
@@ -64,17 +71,26 @@ final class EditProfileTextFieldCell: UITableViewCell {
     }
 
     func configure(
-            title: String,
-            placeholder: String,
-            text: String,
-            keyboardType: UIKeyboardType,
-            isEditable: Bool = true
-        ) {
-            textField.placeholder = placeholder
-            textField.text = text
-            textField.keyboardType = keyboardType
+        title: String,
+        placeholder: String,
+        text: String,
+        keyboardType: UIKeyboardType,
+        isEditable: Bool = true
+    ) {
+        titleLabel.text = title
 
-            textField.isEnabled = isEditable
-            textField.textColor = isEditable ? .mgTextPrimary : .mgTextSecondary
-        }
+        textField.text = text
+        textField.keyboardType = keyboardType
+        textField.isEnabled = isEditable
+        textField.textColor = isEditable ? Palette.mgTextPrimary : Palette.mgTextSecondary
+
+        let placeholderColor = Palette.mgTextSecondary.withAlphaComponent(0.7)
+        textField.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [
+                .foregroundColor: placeholderColor,
+                .font: UIFont.systemFont(ofSize: 15, weight: .regular)
+            ]
+        )
+    }
 }

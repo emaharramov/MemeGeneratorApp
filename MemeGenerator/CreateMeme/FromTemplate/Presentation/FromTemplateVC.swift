@@ -60,7 +60,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
         configureNavigation(title: "AI + Template")
 
         viewModel.loadTemplates()
@@ -72,7 +72,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         scrollView.alwaysBounceVertical = true
         scrollView.showsVerticalScrollIndicator = false
 
-        refreshControl.tintColor = .mgAccent
+        refreshControl.tintColor = Palette.mgAccent
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         scrollView.refreshControl = refreshControl
 
@@ -93,8 +93,8 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         generateButton.applyFilledStyle(
             title: "Generate with Template",
             systemImageName: "sparkles",
-            baseBackgroundColor: .mgAccent,
-            baseForegroundColor: .mgTextSecondary
+            baseBackgroundColor: Palette.mgAccent,
+            baseForegroundColor: Palette.mgTextSecondary
         )
         generateButton.layer.cornerRadius = 20
         generateButton.clipsToBounds = false
@@ -234,11 +234,11 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     }
 
     private func styleCard(_ view: UIView) {
-        view.backgroundColor = .mgCard
+        view.backgroundColor = Palette.mgCard
         view.layer.cornerRadius = 20
         view.layer.masksToBounds = false
         view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.mgCardStroke.cgColor
+        view.layer.borderColor = Palette.mgCardStroke.cgColor
     }
 
     private func scrollToResult() {
@@ -250,6 +250,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
     @objc private func retryGenerate() {
         view.endEditing(true)
         guard let prompt = validatePrompt(promptView.text) else { return }
+        didRequestGeneration = true
         viewModel.generateMeme(prompt: prompt)
     }
 
@@ -292,6 +293,7 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         selectedTemplate = nil
         viewModel.clearSelectedTemplate()
         scrollView.scrollToTop()
+        didRequestGeneration = false
     }
 
     private func saveImageToPhotos() {

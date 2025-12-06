@@ -67,7 +67,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private let placeholderIcon: UIImageView = {
         let v = UIImageView()
         v.image = UIImage(systemName: "photo.on.rectangle")
-        v.tintColor = .systemGray3
+        v.tintColor = Palette.mgTextSecondary
         return v
     }()
 
@@ -75,7 +75,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         let lbl = UILabel()
         lbl.text = "Tap to upload or take a photo"
         lbl.font = .systemFont(ofSize: 14, weight: .medium)
-        lbl.textColor = .mgTextSecondary
+        lbl.textColor = Palette.mgTextSecondary
         lbl.textAlignment = .center
         lbl.numberOfLines = 0
         return lbl
@@ -84,7 +84,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private let watermarkPreviewLabel: UILabel = {
         let lbl = UILabel()
         lbl.font = .boldSystemFont(ofSize: 40)
-        lbl.textColor = UIColor.white.withAlphaComponent(0.18)
+        lbl.textColor = Palette.mgTextPrimary.withAlphaComponent(0.18)
         lbl.textAlignment = .center
         lbl.numberOfLines = 0
         lbl.transform = CGAffineTransform(rotationAngle: -.pi / 8)
@@ -93,7 +93,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
 
     private let dashedBorderLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
-        layer.strokeColor = UIColor.mgCardStroke.withAlphaComponent(0.5).cgColor
+        layer.strokeColor = Palette.mgCardStroke.withAlphaComponent(0.5).cgColor
         layer.fillColor = UIColor.clear.cgColor
         layer.lineDashPattern = [6, 4]
         layer.lineWidth = 1
@@ -104,7 +104,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         let lbl = UILabel()
         lbl.text = "Tap on the image to add text"
         lbl.font = .systemFont(ofSize: 14, weight: .medium)
-        lbl.textColor = .secondaryLabel
+        lbl.textColor = Palette.mgTextSecondary
         lbl.textAlignment = .center
         return lbl
     }()
@@ -113,7 +113,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         let lbl = UILabel()
         lbl.text = "Tools"
         lbl.font = .systemFont(ofSize: 16, weight: .semibold)
-        lbl.textColor = .mgTextPrimary
+        lbl.textColor = Palette.mgTextPrimary
         return lbl
     }()
 
@@ -142,7 +142,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .mgBackground
+        view.backgroundColor = Palette.mgBackground
         configureNavigation(title: "Create")
 
         setupScrollLayout()
@@ -172,7 +172,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
 
-        refreshControl.tintColor = .mgAccent
+        refreshControl.tintColor = Palette.mgAccent
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         scrollView.refreshControl = refreshControl
 
@@ -184,11 +184,11 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     }
 
     private func styleCard(_ view: UIView) {
-        view.backgroundColor = .mgCard
+        view.backgroundColor = Palette.mgCard
         view.layer.cornerRadius = 20
         view.layer.masksToBounds = false
         view.layer.borderWidth = 1
-        view.layer.borderColor = UIColor.mgCardStroke.cgColor
+        view.layer.borderColor = Palette.mgCardStroke.cgColor
     }
 
     private func setupHeader() {

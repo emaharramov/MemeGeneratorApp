@@ -14,6 +14,8 @@ protocol CreateFactory {
     func makeCustomMeme() -> UIViewController
     func makePremium() -> UIViewController
     func makeAuth() -> UIViewController
+
+    
 }
 
 final class DefaultCreateFactory: CreateFactory {

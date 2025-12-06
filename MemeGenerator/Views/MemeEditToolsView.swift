@@ -14,9 +14,20 @@ final class MemeEditToolsView: UIView {
     var onCamera: (() -> Void)?
     var onTemplate: (() -> Void)?
 
-    private let galleryButton = UIButton(type: .system)
-    private let cameraButton = UIButton(type: .system)
-    private let templateButton = UIButton(type: .system)
+    private let galleryButton: UIButton = {
+        let button = UIButton(type: .system)
+        return button
+    }()
+
+    private let cameraButton: UIButton = {
+        let button = UIButton(type: .system)
+        return button
+    }()
+
+    private let templateButton: UIButton = {
+        let button = UIButton(type: .system)
+        return button
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,15 +41,21 @@ final class MemeEditToolsView: UIView {
     private func setupUI() {
         backgroundColor = .clear
 
-        configure(button: galleryButton,
-                  title: "Gallery",
-                  systemImage: "photo.on.rectangle")
-        configure(button: cameraButton,
-                  title: "Camera",
-                  systemImage: "camera")
-        configure(button: templateButton,
-                  title: "Template",
-                  systemImage: "square.grid.2x2")
+        configure(
+            button: galleryButton,
+            title: "Gallery",
+            systemImage: "photo.on.rectangle"
+        )
+        configure(
+            button: cameraButton,
+            title: "Camera",
+            systemImage: "camera"
+        )
+        configure(
+            button: templateButton,
+            title: "Template",
+            systemImage: "square.grid.2x2"
+        )
 
         galleryButton.addTarget(self, action: #selector(galleryTapped), for: .touchUpInside)
         cameraButton.addTarget(self, action: #selector(cameraTapped), for: .touchUpInside)
@@ -69,7 +86,7 @@ final class MemeEditToolsView: UIView {
         var titleAttr = AttributedString(title)
         titleAttr.font = .systemFont(ofSize: 13, weight: .medium)
         config.attributedTitle = titleAttr
-        config.baseForegroundColor = .mgTextSecondary
+        config.baseForegroundColor = Palette.mgTextSecondary
 
         config.contentInsets = NSDirectionalEdgeInsets(
             top: 10,
@@ -79,12 +96,26 @@ final class MemeEditToolsView: UIView {
         )
 
         button.configuration = config
-        button.backgroundColor = .mgCard
+        button.backgroundColor = Palette.mgCard
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = false
+        button.layer.borderWidth = 1
+        button.layer.borderColor = Palette.mgCardStroke.cgColor
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.25
+        button.layer.shadowRadius = 10
+        button.layer.shadowOffset = CGSize(width: 0, height: 6)
     }
 
-    @objc private func galleryTapped()   { onGallery?() }
-    @objc private func cameraTapped()    { onCamera?() }
-    @objc private func templateTapped()  { onTemplate?() }
+    @objc private func galleryTapped() {
+        onGallery?()
+    }
+
+    @objc private func cameraTapped() {
+        onCamera?()
+    }
+
+    @objc private func templateTapped() {
+        onTemplate?()
+    }
 }
