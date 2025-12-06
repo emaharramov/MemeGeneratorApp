@@ -198,7 +198,7 @@ final class AIVC: BaseController<AIVM> {
                 type: .success
             )
         case .error(let message):
-            showToast(message: message, type: .error)
+            showToast(message: message, type: .error, duration: 3.0)
             shareCard.isHidden = true
         }
     }

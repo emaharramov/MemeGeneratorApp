@@ -14,8 +14,6 @@ protocol CreateFactory {
     func makeCustomMeme() -> UIViewController
     func makePremium() -> UIViewController
     func makeAuth() -> UIViewController
-
-    
 }
 
 final class DefaultCreateFactory: CreateFactory {
@@ -39,21 +37,53 @@ final class DefaultCreateFactory: CreateFactory {
     }
 
     func makeAIMeme() -> UIViewController {
-        let vm = AIVM()
-        let vc = AIVC(viewModel: vm)
+        let repository = AIMemeRepositoryImpl()
+        let generateUseCase = GenerateAIMemeUseCase(repository: repository)
+        let loadImageUseCase = LoadAIMemeImageUseCase(repository: repository)
+
+        let viewModel = AIVM(
+            userId: AppStorage.shared.userId,
+            generateUseCase: generateUseCase,
+            loadImageUseCase: loadImageUseCase
+        )
+
+        let vc = AIVC(viewModel: viewModel)
         return vc
     }
 
     func makeAIWithTemplate() -> UIViewController {
-        let vm = FromTemplateVM(userId: AppStorage.shared.userId)
-        let vc = FromTemplateVC(viewModel: vm)
-        return vc
-    }
+          let repository = FromTemplateRepositoryImpl()
+
+          let loadTemplatesUseCase = LoadTemplatesUseCase(repository: repository)
+          let generateMemeUseCase = GenerateMemeFromTemplateUseCase(repository: repository)
+
+          let viewModel = FromTemplateVM(
+              userId: AppStorage.shared.userId,
+              loadTemplatesUseCase: loadTemplatesUseCase,
+              generateMemeUseCase: generateMemeUseCase
+          )
+          let vc = FromTemplateVC(viewModel: viewModel)
+          return vc
+      }
 
     func makeCustomMeme() -> UIViewController {
-        let vm = UploadMemeViewModel(isPremiumUser: true)
-        let vc = UploadMemeViewController(viewModel: vm)
-        return vc
+        let templateRepository = FromTemplateRepositoryImpl()
+        let uploadRepository = UploadMemeRepositoryImpl()
+
+        let saveMemeUseCase = SaveMemeUseCase(repository: uploadRepository)
+        let loadTemplatesUseCase = LoadTemplatesUseCase(repository: templateRepository)
+        let loadTemplateImageUseCase = LoadTemplateImageUseCase(repository: templateRepository)
+
+        let viewModel = UploadMemeViewModel(
+            isPremiumUser: false,
+            appWatermarkText: "MemeGenerator",
+            saveMemeUseCase: saveMemeUseCase,
+            loadTemplatesUseCase: loadTemplatesUseCase,
+            loadTemplateImageUseCase: loadTemplateImageUseCase
+        )
+
+        let viewController = UploadMemeViewController(viewModel: viewModel)
+        return viewController
     }
 
     func makePremium() -> UIViewController {

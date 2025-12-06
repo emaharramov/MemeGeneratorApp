@@ -68,12 +68,6 @@ extension ProfileCoordinator: ProfileRouting {
             }
         )
     }
-
-    func forceLogout() {
-        AppStorage.shared.isLoggedIn = false
-        AppStorage.shared.accessToken = nil
-        self.onLogout?()
-    }
 }
 
 // MARK: - MyMemesRouting
