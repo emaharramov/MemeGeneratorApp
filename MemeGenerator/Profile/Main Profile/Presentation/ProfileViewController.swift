@@ -32,7 +32,7 @@ final class ProfileViewController: BaseController<ProfileVM> {
     private var displayName: String {
         let user = viewModel.userProfile?.data
 
-        if let fullName = user?.fullName, !fullName.isEmpty {
+        if let fullName = user?.user?.fullName, !fullName.isEmpty {
             return fullName
         }
 
@@ -40,19 +40,19 @@ final class ProfileViewController: BaseController<ProfileVM> {
     }
 
     private var avatarUrl: String {
-        viewModel.userProfile?.data.avatarUrl ?? ""
+        viewModel.userProfile?.data?.user?.avatarUrl ?? ""
     }
 
     private var email: String {
-        viewModel.userProfile?.data.email.lowercased() ?? "user@example.com"
+        viewModel.userProfile?.data?.user?.email?.lowercased() ?? "user@example.com"
     }
 
     private var memesCount: String {
-        String(viewModel.aiMemes?.memes?.count ?? 0)
+        String(viewModel.userProfile?.data?.stats?.aiMemeCount ?? 0)
     }
 
     private var aiTempCount: String {
-        String(viewModel.aiTempMemes?.memes?.count ?? 0)
+        String(viewModel.userProfile?.data?.stats?.aiTemplateMemeCount ?? 0)
     }
 
     // MARK: - Init
@@ -80,29 +80,11 @@ final class ProfileViewController: BaseController<ProfileVM> {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.reloadProfile()
+        viewModel.getUserProfile()
     }
 
     override func bindViewModel() {
         viewModel.$userProfile
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self else { return }
-                self.refreshControl.endRefreshing()
-                self.tableView.reloadData()
-            }
-            .store(in: &cancellables)
-
-        viewModel.$aiMemes
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self else { return }
-                self.refreshControl.endRefreshing()
-                self.tableView.reloadData()
-            }
-            .store(in: &cancellables)
-
-        viewModel.$aiTempMemes
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
@@ -144,7 +126,7 @@ final class ProfileViewController: BaseController<ProfileVM> {
     }
 
     @objc private func handleRefresh() {
-        viewModel.reloadProfile()
+        viewModel.getUserProfile()
     }
 
     private func openEditProfile() {
@@ -200,7 +182,7 @@ extension ProfileViewController: UITableViewDataSource {
                 for: indexPath
             )
 
-            let isPremium = viewModel.userProfile?.data.isPremium ?? false
+            let isPremium = viewModel.userProfile?.data?.user?.isPremium ?? false
 
             cell.configure(
                 name: displayName,

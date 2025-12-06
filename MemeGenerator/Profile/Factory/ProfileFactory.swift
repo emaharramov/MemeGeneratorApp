@@ -70,19 +70,19 @@ final class DefaultProfileFactory: ProfileFactory {
 
     func makeAllMyMemes() -> UIViewController {
         let vm = makeMyMemesVM()
-        let vc = MyAllMemes(viewModel: vm)
+        let vc = MyMemesGridViewController(mode: .all, viewModel: vm)
         return vc
     }
 
     func makeAIMemes() -> UIViewController {
         let vm = makeMyMemesVM()
-        let vc = MyAiMemesVC(viewModel: vm)
+        let vc = MyMemesGridViewController(mode: .ai, viewModel: vm)
         return vc
     }
 
     func makeAIMemesWithTemplate() -> UIViewController {
         let vm = makeMyMemesVM()
-        let vc = MyAiTempVC(viewModel: vm)
+        let vc = MyMemesGridViewController(mode: .aiTemplate, viewModel: vm)
         return vc
     }
 }

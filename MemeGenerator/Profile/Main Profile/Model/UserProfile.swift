@@ -8,24 +8,39 @@
 import Foundation
 
 struct UserProfile: Codable {
-    let success: Bool
-    let data: UserProfileData
+    let success: Bool?
+    let data: DataClass?
 }
 
-struct UserProfileData: Codable {
-    let id: String
-    let email: String
-    let username: String
-    let fullName: String
-    let avatarUrl: String
-    let isPremium: Bool
-    let premiumExpiresAt: String?
-    let settings: Settings
-    let createdAt: String
-    let updatedAt: String
+struct DataClass: Codable {
+    let user: User?
+    let stats: Stats?
+    let usage: Usage?
+    let settings: Settings?
+    let createdAt, updatedAt: String?
 }
 
 struct Settings: Codable {
-    let language: String
-    let theme: String
+    let language, theme: String?
+}
+
+struct Stats: Codable {
+    let aiMemeCount, aiTemplateMemeCount: Int?
+}
+
+struct Usage: Codable {
+    let ai: AI?
+}
+
+struct AI: Codable {
+    let limit, used: Int?
+    let periodStart: String?
+}
+
+struct User: Codable {
+    let id, email, username, fullName: String?
+    let avatarUrl: String?
+    let isPremium: Bool?
+    let premiumPlan: String?
+    let premiumExpiresAt: String?
 }
