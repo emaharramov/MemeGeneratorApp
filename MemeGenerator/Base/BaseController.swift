@@ -41,6 +41,10 @@ class BaseController<ViewModel: BaseViewModel>: UIViewController {
         bindViewModelBase()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+    }
+
     func configureUI() {}
     func configureConstraints() {}
     func bindViewModel() {}

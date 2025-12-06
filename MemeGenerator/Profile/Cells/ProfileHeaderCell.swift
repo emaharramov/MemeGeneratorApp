@@ -141,8 +141,8 @@ final class ProfileHeaderCell: UITableViewCell {
         configureButton(
             premiumButton,
             title: "Go Premium",
-            background: .mgAccent,
-            foreground: .black,
+            background: .mgBackground,
+            foreground: .mgTextPrimary,
             hasShadow: true
         )
 
@@ -195,8 +195,8 @@ final class ProfileHeaderCell: UITableViewCell {
         configureButton(
             premiumButton,
             title: isPremium ? "Subscription" : "Go Premium",
-            background: .mgAccent,
-            foreground: .black,
+            background: .mgBackground,
+            foreground: .mgTextPrimary,
             hasShadow: true
         )
     }

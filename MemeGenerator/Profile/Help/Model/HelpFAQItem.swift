@@ -65,7 +65,7 @@ Settings → Apple ID → Subscriptions → MemeGenerator Premium.
         HelpFAQItem(
             id: .aiGeneration,
             iconSystemName: "sparkles",
-            iconBackgroundColor: .systemPurple,
+            iconBackgroundColor: .baseBackgroundColor,
             title: "How does AI meme generation work and why can it fail?",
             body: """
 AI uses your text prompt to create an image on our secure servers.

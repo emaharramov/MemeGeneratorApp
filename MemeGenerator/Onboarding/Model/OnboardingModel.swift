@@ -8,7 +8,8 @@
 import Foundation
 
 struct OnboardingModel {
-    var imageName: String
-    var title: String
-    var description: String
+    let imageName: String 
+    let title: String
+    let subtitle: String
+    let description: String
 }

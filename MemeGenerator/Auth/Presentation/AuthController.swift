@@ -37,7 +37,7 @@ final class AuthController: BaseController<AuthViewModel> {
     private let logoView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
-        iv.image = UIImage(named: "app_logo") // varsa
+        iv.image = UIImage(named: "person.circle.fill")
         iv.layer.cornerRadius = 16
         iv.clipsToBounds = true
         return iv
@@ -79,17 +79,13 @@ final class AuthController: BaseController<AuthViewModel> {
         iv.tintColor = .mgTextSecondary
         return iv
     }()
-    private let emailField: UITextField = {
-        let tf = UITextField()
-        tf.keyboardType = .emailAddress
-        tf.autocapitalizationType = .none
-        tf.backgroundColor = .clear
-        tf.borderStyle = .none
-        tf.textColor = .mgTextPrimary
-        tf.tintColor = .mgAccent
-        tf.font = .systemFont(ofSize: 15, weight: .medium)
-        return tf
-    }()
+
+    private let emailField = UITextField.makeAuthField(
+        placeholder: "Email",
+        keyboardType: .emailAddress,
+        isSecure: false,
+        capitalization: .none
+    )
 
     private let usernameContainer = UIView()
     private let usernameIcon: UIImageView = {
@@ -97,32 +93,26 @@ final class AuthController: BaseController<AuthViewModel> {
         iv.tintColor = .mgTextSecondary
         return iv
     }()
-    private let usernameField: UITextField = {
-        let tf = UITextField()
-        tf.autocapitalizationType = .none
-        tf.backgroundColor = .clear
-        tf.borderStyle = .none
-        tf.textColor = .mgTextPrimary
-        tf.tintColor = .mgAccent
-        tf.font = .systemFont(ofSize: 15, weight: .medium)
-        return tf
-    }()
+
+    private let usernameField = UITextField.makeAuthField(
+        placeholder: "Username",
+        keyboardType: .default,
+        isSecure: false,
+        capitalization: .none
+    )
+
+    private let passwordField = UITextField.makeAuthField(
+        placeholder: "Password",
+        keyboardType: .default,
+        isSecure: true,
+        capitalization: .none
+    )
 
     private let passwordContainer = UIView()
     private let passwordIcon: UIImageView = {
         let iv = UIImageView(image: UIImage(systemName: "lock"))
         iv.tintColor = .mgTextSecondary
         return iv
-    }()
-    private let passwordField: UITextField = {
-        let tf = UITextField()
-        tf.isSecureTextEntry = true
-        tf.backgroundColor = .clear
-        tf.borderStyle = .none
-        tf.textColor = .mgTextPrimary
-        tf.tintColor = .mgAccent
-        tf.font = .systemFont(ofSize: 15, weight: .medium)
-        return tf
     }()
 
     private let passwordVisibilityButton = UIButton.makeIconButton(
@@ -137,7 +127,7 @@ final class AuthController: BaseController<AuthViewModel> {
 
     private let forgotPasswordButton = UIButton.makeTextButton(
         title: "Forgot Password?",
-        titleColor: .systemPurple,
+        titleColor: .baseBackgroundColor,
         font: .systemFont(ofSize: 13, weight: .semibold),
         alignment: .right
     )
@@ -198,7 +188,7 @@ final class AuthController: BaseController<AuthViewModel> {
 
     private let bottomActionButton = UIButton.makeTextButton(
         title: "",
-        titleColor: .systemPurple,
+        titleColor: .baseBackgroundColor,
         font: .systemFont(ofSize: 14, weight: .semibold),
         alignment: .center
     )
@@ -516,10 +506,10 @@ final class AuthController: BaseController<AuthViewModel> {
 
     @objc private func handleToggleMode() {
         mode = (mode == .login) ? .register : .login
-//        viewModel.didChangeMode(to: mode)
+        //        viewModel.didChangeMode(to: mode)
     }
 
     @objc private func handleForgotPassword() {
-//        viewModel.forgotPassword()
+        //        viewModel.forgotPassword()
     }
 }

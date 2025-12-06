@@ -108,12 +108,45 @@ extension UIImage {
     }
 }
 
+extension UITextField {
+    func applyAuthStyle(
+        keyboardType: UIKeyboardType = .default,
+        isSecure: Bool = false,
+        capitalization: UITextAutocapitalizationType = .none
+    ) {
+        self.keyboardType = keyboardType
+        self.isSecureTextEntry = isSecure
+        self.autocapitalizationType = capitalization
+        backgroundColor = .clear
+        borderStyle = .none
+        textColor = .mgTextPrimary
+        tintColor = .mgAccent
+        font = .systemFont(ofSize: 15, weight: .medium)
+    }
+
+    static func makeAuthField(
+        placeholder: String? = nil,
+        keyboardType: UIKeyboardType = .default,
+        isSecure: Bool = false,
+        capitalization: UITextAutocapitalizationType = .none
+    ) -> UITextField {
+        let tf = UITextField()
+        tf.placeholder = placeholder
+        tf.applyAuthStyle(
+            keyboardType: keyboardType,
+            isSecure: isSecure,
+            capitalization: capitalization
+        )
+        return tf
+    }
+}
+
 // MARK: - UIColor (palette + utils)
 
 extension UIColor {
-    static let mgBackground      = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 1)
+    static let mgBackground      = UIColor(red: 16/255, green: 10/255, blue: 25/255, alpha: 1)
     static let mgLightBackground = UIColor(red: 33/255, green: 26/255, blue: 17/255, alpha: 0.9)
-    static let mgCard            = UIColor(red: 45/255, green: 34/255, blue: 23/255, alpha: 1)
+    static let mgCard            = UIColor(red: 32/255, green: 24/255, blue: 54/255, alpha: 1)
     static let mgCardStroke      = UIColor(white: 1, alpha: 0.05)
     static let mgTextPrimary     = UIColor.white
     static let mgPromptColor     = UIColor.white.withAlphaComponent(0.90)
@@ -121,6 +154,9 @@ extension UIColor {
     static let mgAccent          = UIColor(red: 171/255, green: 120/255, blue: 52/255, alpha: 1)
     static let textFieldTextColor = UIColor(red: 0.70, green: 0.52, blue: 0.26, alpha: 1.0)
     static let cardBg            = UIColor.systemGray6.withAlphaComponent(0.9)
+    static let baseBackgroundColor = UIColor.systemPurple
+    static let mgCardElevated = UIColor(red: 42/255, green: 32/255, blue: 70/255, alpha: 1)
+    static let mgSeparator = UIColor(red: 58/255, green: 46/255, blue: 90/255, alpha: 1)
 
     func isEqualTo(_ other: UIColor) -> Bool {
         isEqual(other)
@@ -157,6 +193,10 @@ extension UIView {
         layer.shadowOpacity = 0.25
         layer.shadowRadius = 18
         layer.shadowOffset = CGSize(width: 0, height: 10)
+    }
+
+    func addSubviews(_ views: UIView...) {
+        views.forEach { addSubview($0) }
     }
 }
 

@@ -21,7 +21,8 @@ final class AppCoordinator: Coordinator {
     }
 
     private func decideInitialFlow() {
-        if !AppStorage.shared.hasSeenOnboarding {
+        showOnboarding()
+//        if !AppStorage.shared.hasSeenOnboarding {
             showOnboarding()
             return
         }
@@ -30,7 +31,7 @@ final class AppCoordinator: Coordinator {
             showMainTabbar()
         } else {
             showAuth()
-        }
+//        }
     }
 
     private func showOnboarding() {
