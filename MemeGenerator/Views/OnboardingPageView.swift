@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 final class OnboardingPageView: UIView {
 
@@ -61,13 +62,16 @@ final class OnboardingPageView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
 
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: topAnchor, constant: 40),
-            stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
-            stack.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
+        stack.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(40)
+            make.leading.equalToSuperview().offset(24)
+            make.trailing.equalToSuperview().inset(24)
+            make.bottom.lessThanOrEqualToSuperview()
+        }
 
-            imageView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.4)
-        ])
+        imageView.snp.makeConstraints { make in
+            make.height.equalToSuperview().multipliedBy(0.4)
+        }
+
     }
 }

@@ -6,13 +6,7 @@
 //
 
 import Foundation
-@preconcurrency import Alamofire
-
-struct RefreshResponse: @preconcurrency Decodable, Sendable {
-    let accessToken: String
-    let refreshToken: String
-    let userId: String
-}
+import Alamofire
 
 final class NetworkManager {
 
@@ -104,9 +98,10 @@ final class NetworkManager {
 
         let model = try await dataTask.value
         AppStorage.shared.saveLogin(
-            accessToken: model.accessToken,
-            userId: model.userId,
-            refreshToken: model.refreshToken
+            accessToken: model.data.accessToken,
+            userId: model.data.user.id,
+            refreshToken: model.data.refreshToken,
+            user: model.data.user
         )
     }
 }

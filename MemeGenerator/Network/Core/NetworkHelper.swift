@@ -38,7 +38,7 @@ final class NetworkHelper {
 extension NetworkHelper {
     enum Constants {
         static let baseURL = "https://memegenerator-backend.vercel.app/v1/api"
-        // MARK: will removed
+        // MARK: will remove
         static let baseURLFortest = "http://localhost:3000/v1/api"
     }
 }
