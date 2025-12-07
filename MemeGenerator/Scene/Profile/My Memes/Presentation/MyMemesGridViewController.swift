@@ -42,6 +42,12 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
         return cv
     }()
 
+    private let refreshControl: UIRefreshControl = {
+        let rc = UIRefreshControl()
+        rc.tintColor = Palette.mgAccent
+        return rc
+    }()
+
     private func createLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout { _, _ in
             let itemSize = NSCollectionLayoutSize(
@@ -89,6 +95,11 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
 
     private func setupLayout() {
         view.addSubview(collectionView)
+
+        collectionView.refreshControl = refreshControl
+
+        refreshControl.addTarget(self, action: #selector(onRefresh), for: .valueChanged)
+
         collectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -98,6 +109,11 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
             make.center.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(32)
         }
+    }
+
+    @objc private func onRefresh() {
+        viewModel.getAiMemes()
+        viewModel.getAiTemplateMemes()
     }
 
     private func updateEmptyState() {
@@ -154,6 +170,7 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                     self.items.append(contentsOf: mapped)
                 }
 
+                self.refreshControl.endRefreshing()
                 self.collectionView.reloadData()
                 self.updateEmptyState()
             }
@@ -196,6 +213,7 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                     self.items.append(contentsOf: mapped)
                 }
 
+                self.refreshControl.endRefreshing()
                 self.collectionView.reloadData()
                 self.updateEmptyState()
             }
