@@ -64,11 +64,13 @@ final class AuthViewModel: BaseViewModel {
                 guard let self else { return }
 
                 AppStorage.shared.saveLogin(
-                    accessToken: session.accessToken,
-                    userId: session.userId,
-                    refreshToken: session.refreshToken
+                    accessToken: session.data.accessToken,
+                    userId: session.data.user.id,
+                    refreshToken: session.data.refreshToken,
+                    user: session.data.user
                 )
-                Purchases.shared.logIn(session.userId) { customerInfo, created, error in
+
+                Purchases.shared.logIn(session.data.user.id) { customerInfo, created, error in
                     if let error {
                         print("RevenueCat logIn error:", error)
                     } else {
@@ -78,7 +80,7 @@ final class AuthViewModel: BaseViewModel {
                 self.showSuccess("Login successful!")
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    self.onLoginSuccess?(session.accessToken)
+                    self.onLoginSuccess?(session.data.accessToken)
                 }
             }
         )
@@ -104,11 +106,13 @@ final class AuthViewModel: BaseViewModel {
                 guard let self else { return }
 
                 AppStorage.shared.saveLogin(
-                    accessToken: session.accessToken,
-                    userId: session.userId,
-                    refreshToken: session.refreshToken
+                    accessToken: session.data.accessToken,
+                    userId: session.data.user.id,
+                    refreshToken: session.data.refreshToken,
+                    user: session.data.user
                 )
-                Purchases.shared.logIn(session.userId) { customerInfo, created, error in
+
+                Purchases.shared.logIn(session.data.user.id) { customerInfo, created, error in
                     if let error {
                         print("RevenueCat logIn error:", error)
                     } else {
@@ -119,7 +123,7 @@ final class AuthViewModel: BaseViewModel {
                 self.showSuccess("Registration successful!")
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    self.onRegisterSuccess?(session.accessToken)
+                    self.onRegisterSuccess?(session.data.accessToken)
                 }
             }
         )

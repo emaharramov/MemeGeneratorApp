@@ -32,7 +32,7 @@ final class ProfileViewController: BaseController<ProfileVM> {
     private var displayName: String {
         let user = viewModel.userProfile?.data
 
-        if let fullName = user?.user?.fullName, !fullName.isEmpty {
+        if let fullName = user?.user.fullName, !fullName.isEmpty {
             return fullName
         }
 
@@ -40,19 +40,19 @@ final class ProfileViewController: BaseController<ProfileVM> {
     }
 
     private var avatarUrl: String {
-        viewModel.userProfile?.data?.user?.avatarUrl ?? ""
+        viewModel.userProfile?.data.user.avatarUrl ?? ""
     }
 
     private var email: String {
-        viewModel.userProfile?.data?.user?.email?.lowercased() ?? "user@example.com"
+        viewModel.userProfile?.data.user.email.lowercased() ?? "user@example.com"
     }
 
     private var memesCount: String {
-        String(viewModel.userProfile?.data?.stats?.aiMemeCount ?? 0)
+        String(viewModel.userProfile?.data.stats?.aiMemeCount ?? 0)
     }
 
     private var aiTempCount: String {
-        String(viewModel.userProfile?.data?.stats?.aiTemplateMemeCount ?? 0)
+        String(viewModel.userProfile?.data.stats?.aiTemplateMemeCount ?? 0)
     }
 
     // MARK: - Init
@@ -182,7 +182,7 @@ extension ProfileViewController: UITableViewDataSource {
                 for: indexPath
             )
 
-            let isPremium = viewModel.userProfile?.data?.user?.isPremium ?? false
+            let isPremium = viewModel.userProfile?.data.user.isPremium ?? false
 
             cell.configure(
                 name: displayName,

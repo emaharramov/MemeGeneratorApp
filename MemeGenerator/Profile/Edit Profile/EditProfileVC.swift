@@ -121,19 +121,19 @@ final class EditProfileViewController: BaseController<ProfileVM> {
     }
 
     private var currentFullName: String {
-        viewModel.userProfile?.data?.user?.fullName ?? ""
+        viewModel.userProfile?.data.user.fullName ?? ""
     }
 
     private var currentUsername: String {
-        viewModel.userProfile?.data?.user?.username ?? ""
+        viewModel.userProfile?.data.user.username ?? ""
     }
 
     private var currentEmail: String {
-        viewModel.userProfile?.data?.user?.email ?? ""
+        viewModel.userProfile?.data.user.email ?? ""
     }
 
     private var currentAvatarUrl: String {
-        viewModel.userProfile?.data?.user?.avatarUrl ?? ""
+        viewModel.userProfile?.data.user.avatarUrl ?? ""
     }
 
     @objc private func saveTapped() {

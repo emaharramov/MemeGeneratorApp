@@ -13,6 +13,7 @@ final class AppStorage {
         case accessToken
         case refreshToken
         case userId
+        case user
         case hasSeenOnboarding
     }
 
@@ -36,6 +37,29 @@ final class AppStorage {
         set { defaults.setValue(newValue, forKey: Key.userId.rawValue) }
     }
 
+    var currentUser: User? {
+        get {
+            guard let data = defaults.data(forKey: Key.user.rawValue) else {
+                return nil
+            }
+            return try? JSONDecoder().decode(User.self, from: data)
+        }
+        set {
+            if let newValue {
+                let encoder = JSONEncoder()
+                if let data = try? encoder.encode(newValue) {
+                    defaults.set(data, forKey: Key.user.rawValue)
+                }
+            } else {
+                defaults.removeObject(forKey: Key.user.rawValue)
+            }
+        }
+    }
+
+    var isPremiumUser: Bool {
+        currentUser?.isPremium ?? false
+    }
+
     var isLoggedIn: Bool {
         get { !(accessToken ?? "").isEmpty }
         set {
@@ -43,6 +67,7 @@ final class AppStorage {
             accessToken = nil
             refreshToken = nil
             userId = ""
+            currentUser = nil
         }
     }
 
@@ -54,12 +79,18 @@ final class AppStorage {
     func saveLogin(
         accessToken: String,
         userId: String,
-        refreshToken: String? = nil
+        refreshToken: String? = nil,
+        user: User? = nil
     ) {
         self.accessToken = accessToken
         self.userId = userId
+
         if let refreshToken {
             self.refreshToken = refreshToken
+        }
+
+        if let user {
+            self.currentUser = user
         }
     }
 }

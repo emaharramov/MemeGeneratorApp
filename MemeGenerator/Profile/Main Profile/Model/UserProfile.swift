@@ -7,25 +7,30 @@
 
 import Foundation
 
+// MARK: - UserProfileResponse
 struct UserProfile: Codable {
-    let success: Bool?
-    let data: DataClass?
+    let success: Bool
+    let data: UserProfileData
 }
 
-struct DataClass: Codable {
-    let user: User?
+// MARK: - UserProfileData
+struct UserProfileData: Codable {
+    let user: User
     let stats: Stats?
     let usage: Usage?
     let settings: Settings?
-    let createdAt, updatedAt: String?
+    let createdAt: String?
+    let updatedAt: String?
 }
 
 struct Settings: Codable {
-    let language, theme: String?
+    let language: String?
+    let theme: String?
 }
 
 struct Stats: Codable {
-    let aiMemeCount, aiTemplateMemeCount: Int?
+    let aiMemeCount: Int?
+    let aiTemplateMemeCount: Int?
 }
 
 struct Usage: Codable {
@@ -33,14 +38,7 @@ struct Usage: Codable {
 }
 
 struct AI: Codable {
-    let limit, used: Int?
+    let limit: Int?
+    let used: Int?
     let periodStart: String?
-}
-
-struct User: Codable {
-    let id, email, username, fullName: String?
-    let avatarUrl: String?
-    let isPremium: Bool?
-    let premiumPlan: String?
-    let premiumExpiresAt: String?
 }
