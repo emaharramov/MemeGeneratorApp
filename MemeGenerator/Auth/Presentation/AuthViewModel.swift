@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RevenueCat
 
 final class AuthViewModel: BaseViewModel {
 
@@ -67,7 +68,13 @@ final class AuthViewModel: BaseViewModel {
                     userId: session.userId,
                     refreshToken: session.refreshToken
                 )
-
+                Purchases.shared.logIn(session.userId) { customerInfo, created, error in
+                    if let error {
+                        print("RevenueCat logIn error:", error)
+                    } else {
+                        print("RevenueCat logIn ok, created =", created)
+                    }
+                }
                 self.showSuccess("Login successful!")
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -101,6 +108,13 @@ final class AuthViewModel: BaseViewModel {
                     userId: session.userId,
                     refreshToken: session.refreshToken
                 )
+                Purchases.shared.logIn(session.userId) { customerInfo, created, error in
+                    if let error {
+                        print("RevenueCat logIn error:", error)
+                    } else {
+                        print("RevenueCat logIn ok, created =", created)
+                    }
+                }
 
                 self.showSuccess("Registration successful!")
 

@@ -63,7 +63,6 @@ final class MainTabbarCoordinator: Coordinator {
         add(homeCoordinator)
         homeCoordinator.start()
 
-        // Create flow
         let createCoordinator = CreateCoordinator(
             navigation: createNavigation,
             factory: createFactory
@@ -71,7 +70,6 @@ final class MainTabbarCoordinator: Coordinator {
         add(createCoordinator)
         createCoordinator.start()
 
-        // Profile flow
         let profileCoordinator = ProfileCoordinator(
             navigation: profileNavigation,
             factory: profileFactory

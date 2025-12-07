@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RevenueCat
 
 final class ProfileCoordinator: Coordinator {
 
@@ -64,6 +65,11 @@ extension ProfileCoordinator: ProfileRouting {
                 guard let self else { return }
                 AppStorage.shared.isLoggedIn = false
                 AppStorage.shared.accessToken = nil
+                Purchases.shared.logOut { error,err  in
+                   if let error {
+                       print("RevenueCat logOut error:", error)
+                   }
+                }
                 self.onLogout?()
             }
         )

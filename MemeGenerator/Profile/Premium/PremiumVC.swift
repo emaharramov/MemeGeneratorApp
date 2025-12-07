@@ -41,6 +41,18 @@ final class PremiumViewController: BaseController<PremiumVM> {
 
         setupTableView()
         setupFooter()
+
+        viewModel.onPremiumActivated = { [weak self] in
+            self?.dismiss(animated: true)
+        }
+
+        viewModel.onShowMessage = { [weak self] message in
+            self?.showToast(message: message)
+        }
+
+//        viewModel.onLoadingChange = { [weak self] isLoading in
+//            isLoading ? self?.showLoading() : self?.hideLoading()
+//        }
     }
 
     private func setupTableView() {
@@ -115,11 +127,12 @@ final class PremiumViewController: BaseController<PremiumVM> {
     }
 
     @objc private func upgradeTapped() {
-        print("Upgrade with plan:", selectedPlan)
+        let plan: PremiumVM.Plan = (selectedPlan == .yearly) ? .yearly : .monthly
+        viewModel.upgrade(with: plan)
     }
 
     @objc private func restoreTapped() {
-        print("Restore purchases tapped")
+        viewModel.restore()
     }
 }
 

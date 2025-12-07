@@ -10,6 +10,8 @@
 		DE2462422ECCDCD6006A5F23 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = DE2462412ECCDCD6006A5F23 /* Alamofire */; };
 		DE2462942ECD307F006A5F23 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = DE2462932ECD307F006A5F23 /* SnapKit */; };
 		DE2462A42ECD4374006A5F23 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = DE2462A32ECD4374006A5F23 /* Kingfisher */; };
+		DEBD75AB2EE4F4940061CF53 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = DEBD75AA2EE4F4940061CF53 /* RevenueCat */; };
+		DEBD75AD2EE4F4940061CF53 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = DEBD75AC2EE4F4940061CF53 /* RevenueCatUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,8 +44,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEBD75AB2EE4F4940061CF53 /* RevenueCat in Frameworks */,
 				DE2462A42ECD4374006A5F23 /* Kingfisher in Frameworks */,
 				DE2462422ECCDCD6006A5F23 /* Alamofire in Frameworks */,
+				DEBD75AD2EE4F4940061CF53 /* RevenueCatUI in Frameworks */,
 				DE2462942ECD307F006A5F23 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -90,6 +94,8 @@
 				DE2462412ECCDCD6006A5F23 /* Alamofire */,
 				DE2462932ECD307F006A5F23 /* SnapKit */,
 				DE2462A32ECD4374006A5F23 /* Kingfisher */,
+				DEBD75AA2EE4F4940061CF53 /* RevenueCat */,
+				DEBD75AC2EE4F4940061CF53 /* RevenueCatUI */,
 			);
 			productName = MemeGenerator;
 			productReference = DE7DAE7E2ECCB41B0087C37C /* MemeGenerator.app */;
@@ -123,6 +129,7 @@
 				DE2462402ECCDCD6006A5F23 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				DE2462922ECD307F006A5F23 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				DE2462A22ECD4374006A5F23 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				DEBD75A92EE4F4940061CF53 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DE7DAE7F2ECCB41B0087C37C /* Products */;
@@ -398,6 +405,14 @@
 				minimumVersion = 8.6.2;
 			};
 		};
+		DEBD75A92EE4F4940061CF53 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.49.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -415,6 +430,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DE2462A22ECD4374006A5F23 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		DEBD75AA2EE4F4940061CF53 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DEBD75A92EE4F4940061CF53 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
+		};
+		DEBD75AC2EE4F4940061CF53 /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DEBD75A92EE4F4940061CF53 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCatUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

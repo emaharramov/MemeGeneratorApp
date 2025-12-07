@@ -87,7 +87,11 @@ final class DefaultCreateFactory: CreateFactory {
     }
 
     func makePremium() -> UIViewController {
-        let vm = PremiumVM()
+        let repo = PremiumRepositoryImpl(network: networkManager)
+        let vm = PremiumVM(
+            userId: AppStorage.shared.userId,
+            repository: repo
+        )
         let vc = PremiumViewController(viewModel: vm)
         return vc
     }
