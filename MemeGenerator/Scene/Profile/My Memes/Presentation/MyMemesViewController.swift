@@ -23,7 +23,7 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
     }()
 
     private let segmentedControl: UISegmentedControl = {
-        let items = ["All", "AI Meme", "AI + Template"]
+        let items = ["AI Meme", "AI + Template"]
         let sc = UISegmentedControl(items: items)
         sc.selectedSegmentIndex = 0
 
@@ -125,10 +125,8 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
         let vc: UIViewController
         switch index {
         case 0:
-            vc = router.makeAllMyMemes()
-        case 1:
             vc = router.makeAIMemes()
-        case 2:
+        case 1:
             vc = router.makeAIMemesWithTemplate()
         default:
             return nil

@@ -13,7 +13,6 @@ protocol ProfileFactory {
     func makePremium() -> UIViewController
     func makeMyMemes(router: MyMemesRouting) -> UIViewController
     func makeHelp(router: ProfileRouting) -> UIViewController
-    func makeAllMyMemes() -> UIViewController
     func makeAIMemes() -> UIViewController
     func makeAIMemesWithTemplate() -> UIViewController
 }
@@ -70,12 +69,6 @@ final class DefaultProfileFactory: ProfileFactory {
         let repository = UserRepositoryImp(networkManager: networkManager)
         let useCase = UserUseCase(repository: repository)
         return MyMemesVM(userUseCase: useCase)
-    }
-
-    func makeAllMyMemes() -> UIViewController {
-        let vm = makeMyMemesVM()
-        let vc = MyMemesGridViewController(mode: .all, viewModel: vm)
-        return vc
     }
 
     func makeAIMemes() -> UIViewController {

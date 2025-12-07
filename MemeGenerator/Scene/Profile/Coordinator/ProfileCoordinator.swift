@@ -80,10 +80,6 @@ extension ProfileCoordinator: ProfileRouting {
 
 extension ProfileCoordinator: MyMemesRouting {
 
-    func makeAllMyMemes() -> UIViewController {
-        factory.makeAllMyMemes()
-    }
-
     func makeAIMemes() -> UIViewController {
         factory.makeAIMemes()
     }

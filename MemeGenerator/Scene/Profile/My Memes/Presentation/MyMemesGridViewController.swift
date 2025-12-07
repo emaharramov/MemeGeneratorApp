@@ -14,7 +14,6 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                                        UICollectionViewDelegate {
 
     enum Mode {
-        case all
         case ai
         case aiTemplate
     }
@@ -22,6 +21,11 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
     private let mode: Mode
     private var items: [MyMemeViewData] = []
     private var cancellables = Set<AnyCancellable>()
+
+    private let emptyStateView = EmptyStateView(
+        title: "No memes yet",
+        subtitle: "This place is awkwardly empty.\nCreate or generate a meme to see it here."
+    )
 
     private lazy var collectionView: UICollectionView = {
         let layout = createLayout()
@@ -88,17 +92,34 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
         collectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+
+        view.addSubview(emptyStateView)
+        emptyStateView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(32)
+        }
+    }
+
+    private func updateEmptyState() {
+        let isEmpty: Bool
+
+        switch mode {
+        case .ai:
+            isEmpty = viewModel.aiMemes?.memes?.isEmpty ?? true
+        case .aiTemplate:
+            isEmpty = viewModel.aiTempMemes?.memes?.isEmpty ?? true
+        }
+
+        emptyStateView.isHidden = !isEmpty
+        collectionView.isHidden = isEmpty
     }
 
     private func fetchData() {
-        if mode == .all {
-            items.removeAll()
-        }
+        items.removeAll()
+        collectionView.reloadData()
+        updateEmptyState()
 
         switch mode {
-        case .all:
-            viewModel.getAiMemes()
-            viewModel.getAiTemplateMemes()
         case .ai:
             viewModel.getAiMemes()
         case .aiTemplate:
@@ -111,8 +132,9 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
             .receive(on: RunLoop.main)
             .sink { [weak self] response in
                 guard let self else { return }
-                guard self.mode == .ai || self.mode == .all else { return }
-                guard let memes = response?.memes else { return }
+                guard self.mode == .ai else { return }
+
+                let memes = response?.memes ?? []
 
                 let mapped: [MyMemeViewData] = memes.compactMap { meme in
                     let title = meme.prompt ?? ""
@@ -133,6 +155,7 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                 }
 
                 self.collectionView.reloadData()
+                self.updateEmptyState()
             }
             .store(in: &cancellables)
 
@@ -140,8 +163,9 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
             .receive(on: RunLoop.main)
             .sink { [weak self] response in
                 guard let self else { return }
-                guard self.mode == .aiTemplate || self.mode == .all else { return }
-                guard let memes = response?.memes else { return }
+                guard self.mode == .aiTemplate else { return }
+
+                let memes = response?.memes ?? []
 
                 let mapped: [MyMemeViewData] = memes.compactMap { meme in
                     let top = meme.topText ?? ""
@@ -173,6 +197,7 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                 }
 
                 self.collectionView.reloadData()
+                self.updateEmptyState()
             }
             .store(in: &cancellables)
     }
