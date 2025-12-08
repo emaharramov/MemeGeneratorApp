@@ -29,7 +29,6 @@ final class ManageSubscriptionVM: BaseViewModel {
 
     func getUserProfile() {
         performWithLoading(
-            resetMessages: true,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.fetchProfile { result in
@@ -53,7 +52,6 @@ final class ManageSubscriptionVM: BaseViewModel {
 
     private func getHistory() {
         performWithLoading(
-            resetMessages: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.fetchSubscriptionHistory { result in

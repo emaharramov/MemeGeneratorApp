@@ -46,7 +46,6 @@ final class UploadMemeViewModel: BaseViewModel {
         }
 
         performWithLoading(
-            resetMessages: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.loadTemplatesUseCase.execute(completion: completion)
@@ -64,7 +63,6 @@ final class UploadMemeViewModel: BaseViewModel {
 
     func applyTemplate(_ template: TemplateDTO) {
         performWithLoading(
-            resetMessages: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.loadTemplateImageUseCase.execute(

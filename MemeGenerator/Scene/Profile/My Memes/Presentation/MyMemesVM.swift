@@ -22,7 +22,6 @@ final class MyMemesVM: BaseViewModel {
 
     func getAiMemes(shouldRefreshProfile: Bool = true) {
         performWithLoading(
-            resetMessages: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.getAiMemes { result in
@@ -38,7 +37,6 @@ final class MyMemesVM: BaseViewModel {
 
     func getAiTemplateMemes(shouldRefreshProfile: Bool = true) {
         performWithLoading(
-            resetMessages: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.getAiTempMemes { result in

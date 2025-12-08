@@ -20,7 +20,6 @@ final class FeedViewModel: BaseViewModel {
 
     func getAllMemes() {
         performWithLoading(
-            resetMessages: true,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.getAllMemesUseCase.execute { result in
