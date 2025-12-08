@@ -121,14 +121,6 @@ extension HelpFeedbackVC: UITableViewDataSource {
         let item = viewModel.item(at: indexPath.row)
         let expanded = viewModel.isItemExpanded(indexPath.row)
         cell.configure(with: item, expanded: expanded)
-
-        cell.onLinkTap = { [weak self] in
-            guard let self else { return }
-            if item.id == .premiumBenefits {
-                router?.showPremium()
-            }
-        }
-
         return cell
     }
 }

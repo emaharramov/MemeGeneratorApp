@@ -86,15 +86,6 @@ final class HelpFAQCell: UITableViewCell {
         return label
     }()
 
-    private let linkButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.contentHorizontalAlignment = .left
-        button.applyFAQLinkStyle()
-        return button
-    }()
-
-    var onLinkTap: (() -> Void)?
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -144,12 +135,9 @@ final class HelpFAQCell: UITableViewCell {
         }
 
         bodyStack.addArrangedSubview(bodyLabel)
-        bodyStack.addArrangedSubview(linkButton)
 
         verticalStack.addArrangedSubview(headerStack)
         verticalStack.addArrangedSubview(bodyStack)
-
-        linkButton.addTarget(self, action: #selector(handleLinkTap), for: .touchUpInside)
     }
 
     func configure(with item: HelpFAQItem, expanded: Bool) {
@@ -158,15 +146,6 @@ final class HelpFAQCell: UITableViewCell {
 
         iconImageView.image = UIImage(systemName: item.iconSystemName)
         iconContainer.backgroundColor = item.iconBackgroundColor
-
-        if let linkTitle = item.linkTitle {
-            linkButton.setTitle(linkTitle, for: .normal)
-            linkButton.isHidden = false
-        } else {
-            linkButton.setTitle(nil, for: .normal)
-            linkButton.isHidden = true
-        }
-
         setExpanded(expanded, animated: false)
     }
 
@@ -190,9 +169,5 @@ final class HelpFAQCell: UITableViewCell {
         } else {
             changes()
         }
-    }
-
-    @objc private func handleLinkTap() {
-        onLinkTap?()
     }
 }

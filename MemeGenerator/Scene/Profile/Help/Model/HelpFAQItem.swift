@@ -5,9 +5,6 @@
 //  Created by Emil Maharramov on 05.12.25.
 //
 
-//  HelpFAQItem.swift
-//  MemeGenerator
-
 import UIKit
 
 enum HelpFAQItemID {
@@ -23,7 +20,6 @@ struct HelpFAQItem {
     let iconBackgroundColor: UIColor
     let title: String
     let body: String
-    let linkTitle: String?
 }
 
 extension HelpFAQItem {
@@ -34,16 +30,15 @@ extension HelpFAQItem {
             iconBackgroundColor: Palette.mgAccentSoft,
             title: "What do I get with Premium?",
             body: """
-Premium unlocks:
+Premium turns MemeGenerator into your full-power meme studio:
 
-• Exclusive meme templates  
-• No watermarks on your memes  
-• Unlimited AI meme generations  
-• A completely ad-free experience
+• Unlimited AI meme generations (no 10-meme limit)  
+• No watermarks – clean exports only  
+• Access to all current and future Premium features  
+• Priority access when traffic is high
 
-Perfect if you create memes regularly and want everything to feel fast and pro.
-""",
-            linkTitle: "View Premium benefits"
+Perfect if you create memes regularly and want everything to feel fast, clean and pro.
+"""
         ),
         HelpFAQItem(
             id: .managePremium,
@@ -51,16 +46,16 @@ Perfect if you create memes regularly and want everything to feel fast and pro.
             iconBackgroundColor: Palette.mgAccentSoft,
             title: "How do I restore or manage my Premium?",
             body: """
-Changed phone or reinstalled the app?
+Changed phone, reinstalled the app or something looks off?
 
+To restore your Premium:
 • Open MemeGenerator  
-• Tap the Premium badge  
+• Tap the Premium badge or “Go Premium”  
 • Choose “Restore Purchase”
 
 To manage or cancel your subscription, go to:
 Settings → Apple ID → Subscriptions → MemeGenerator Premium.
-""",
-            linkTitle: nil
+"""
         ),
         HelpFAQItem(
             id: .aiGeneration,
@@ -68,16 +63,19 @@ Settings → Apple ID → Subscriptions → MemeGenerator Premium.
             iconBackgroundColor: Palette.mgAccentSoft,
             title: "How does AI meme generation work and why can it fail?",
             body: """
-AI uses your text prompt to create an image on our secure servers.
+Our AI takes your idea (prompt) and turns it into a meme image on our secure servers.
 
 It can sometimes fail when:
 • Your internet connection is unstable  
-• Too many requests are happening at once  
-• Your prompt breaks our content rules
+• Too many requests are happening at the same time  
+• Your prompt breaks our safety / content rules
 
-If this happens, wait a few seconds and try again with a clearer prompt.
-""",
-            linkTitle: nil
+If this happens:
+• Wait a few seconds and try again  
+• Rephrase your prompt to be clearer and safe
+
+You’re never charged extra when an AI generation fails.
+"""
         ),
         HelpFAQItem(
             id: .memesStorage,
@@ -91,9 +89,10 @@ You keep them when:
 • You delete and reinstall the app  
 • You switch to a new device and sign in again
 
-Only if you delete your account, your memes will be removed permanently.
-""",
-            linkTitle: nil
+You only lose them if you delete your account – then your memes are removed permanently.
+
+If something looks wrong, try signing out and back in before panicking. 🙂
+"""
         )
     ]
 }
