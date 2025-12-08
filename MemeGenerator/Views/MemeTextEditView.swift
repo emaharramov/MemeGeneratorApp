@@ -218,7 +218,7 @@ final class MemeTextEditView: UIView {
         mainStack.axis = .vertical
         mainStack.spacing = 12
 
-        addSubview(mainStack)
+        addSubviews(mainStack)
         mainStack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(16)
         }

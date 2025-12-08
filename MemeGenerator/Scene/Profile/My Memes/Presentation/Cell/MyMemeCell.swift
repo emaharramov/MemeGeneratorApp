@@ -94,7 +94,7 @@ final class MyMemeCell: UICollectionViewCell {
     private func configureUI() {
         contentView.backgroundColor = .clear
 
-        contentView.addSubview(cardView)
+        contentView.addSubviews(cardView)
         cardView.addSubviews(memeImageView,titleLabel, bottomDivider, bottomStack)
 
         bottomStack.addArrangedSubview(UIView())

@@ -37,4 +37,10 @@ final class UserUseCase {
     ) {
         repository.getAiTempMemes(completion: completion)
     }
+
+    func fetchSubscriptionHistory (
+        completion: @escaping (Result<SubscriptionHistory, ProfileError>) -> Void
+    ) {
+        repository.fetchSubscriptionHistory(completion: completion)
+    }
 }

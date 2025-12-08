@@ -15,7 +15,6 @@ final class UploadMemeViewModel: BaseViewModel {
 
     private(set) var originalImage: UIImage?
 
-    private let isPremiumUser: Bool
     let appWatermarkText: String
 
     private let saveMemeUseCase: SaveMemeUseCaseProtocol
@@ -23,13 +22,11 @@ final class UploadMemeViewModel: BaseViewModel {
     private let loadTemplateImageUseCase: LoadTemplateImageUseCaseProtocol
 
     init(
-        isPremiumUser: Bool,
         appWatermarkText: String,
         saveMemeUseCase: SaveMemeUseCaseProtocol,
         loadTemplatesUseCase: LoadTemplatesUseCaseProtocol,
         loadTemplateImageUseCase: LoadTemplateImageUseCaseProtocol
     ) {
-        self.isPremiumUser = isPremiumUser
         self.appWatermarkText = appWatermarkText
         self.saveMemeUseCase = saveMemeUseCase
         self.loadTemplatesUseCase = loadTemplatesUseCase
@@ -85,11 +82,6 @@ final class UploadMemeViewModel: BaseViewModel {
     }
 
     func saveMeme(image: UIImage, includeWatermark: Bool) {
-        guard isPremiumUser else {
-            showError("This feature is available only for Premium users.")
-            return
-        }
-
         guard originalImage != nil else {
             showError("Please choose an image first.")
             return
@@ -115,6 +107,7 @@ final class UploadMemeViewModel: BaseViewModel {
             }
         )
     }
+
 
     private func addWatermark(to image: UIImage) -> UIImage {
         let size = image.size

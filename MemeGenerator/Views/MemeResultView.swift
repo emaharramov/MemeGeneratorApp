@@ -66,13 +66,13 @@ final class MemeResultView: UIView {
     private func setupUI() {
         backgroundColor = .clear
 
-        addSubview(innerBackground)
+        addSubviews(innerBackground)
         innerBackground.snp.makeConstraints { make in
             make.edges.equalToSuperview()
             make.height.equalTo(innerBackground.snp.width).multipliedBy(4.0 / 5.0)
         }
 
-        innerBackground.addSubview(imageView)
+        innerBackground.addSubviews(imageView)
         imageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -80,7 +80,7 @@ final class MemeResultView: UIView {
         placeholderStack.addArrangedSubview(placeholderIcon)
         placeholderStack.addArrangedSubview(placeholderLabel)
 
-        innerBackground.addSubview(placeholderStack)
+        innerBackground.addSubviews(placeholderStack)
         placeholderStack.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.leading.greaterThanOrEqualToSuperview().inset(24)

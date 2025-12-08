@@ -13,7 +13,8 @@ final class ProfileHeaderCell: UITableViewCell {
     static let reuseID = "ProfileHeaderCell"
 
     var onEditProfile: (() -> Void)?
-    var onGoPremium: (() -> Void)?
+    var onGoPremium: ((Bool) -> Void)?
+    private var isPremium: Bool = false
 
     private let cardView: UIView = {
         let v = UIView()
@@ -94,6 +95,7 @@ final class ProfileHeaderCell: UITableViewCell {
         emailLabel.text = nil
         avatarImageView.image = UIImage(systemName: "person.fill")
         avatarImageView.contentMode = .scaleAspectFit
+        isPremium = false
     }
 
     private func setup() {
@@ -101,7 +103,7 @@ final class ProfileHeaderCell: UITableViewCell {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
 
-        contentView.addSubview(cardView)
+        contentView.addSubviews(cardView)
         cardView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16))
         }
@@ -110,7 +112,7 @@ final class ProfileHeaderCell: UITableViewCell {
             make.width.height.equalTo(64)
         }
 
-        avatarContainerView.addSubview(avatarImageView)
+        avatarContainerView.addSubviews(avatarImageView)
         avatarImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -152,7 +154,7 @@ final class ProfileHeaderCell: UITableViewCell {
         mainStack.axis = .vertical
         mainStack.spacing = 16
 
-        cardView.addSubview(mainStack)
+        cardView.addSubviews(mainStack)
         mainStack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(16)
         }
@@ -178,6 +180,8 @@ final class ProfileHeaderCell: UITableViewCell {
                    email: String,
                    isPremium: Bool,
                    avatarBase64: String? = nil) {
+        self.isPremium = isPremium
+
         nameLabel.text = name
         emailLabel.text = email
 
@@ -217,6 +221,6 @@ final class ProfileHeaderCell: UITableViewCell {
     }
 
     @objc private func premiumTapped() {
-        onGoPremium?()
+        onGoPremium?(isPremium)
     }
 }

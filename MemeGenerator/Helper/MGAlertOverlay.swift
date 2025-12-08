@@ -110,15 +110,15 @@ final class MGAlertOverlay: UIView {
     }
 
     private func setupLayout() {
-        addSubview(cardView)
+        addSubviews(cardView)
 
         let textStack = UIStackView(arrangedSubviews: [iconLabel, titleLabel, messageLabel])
         textStack.axis = .vertical
         textStack.alignment = .center
         textStack.spacing = 8
 
-        cardView.addSubview(textStack)
-        cardView.addSubview(buttonsStack)
+        cardView.addSubviews(textStack)
+        cardView.addSubviews(buttonsStack)
 
         buttonsStack.addArrangedSubview(secondaryButton)
         buttonsStack.addArrangedSubview(primaryButton)
@@ -196,7 +196,7 @@ final class MGAlertOverlay: UIView {
             onPrimary: onPrimary,
             onSecondary: onSecondary
         )
-        hostView.addSubview(alert)
+        hostView.addSubviews(alert)
         alert.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

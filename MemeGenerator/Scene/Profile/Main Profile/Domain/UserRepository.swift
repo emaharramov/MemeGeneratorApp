@@ -24,4 +24,6 @@ protocol UserRepository {
     func getAiTempMemes(
         completion: @escaping (Result<AITempResponse, ProfileError>) -> Void
     )
+
+    func fetchSubscriptionHistory(completion: @escaping (Result<SubscriptionHistory, ProfileError>) -> Void)
 }

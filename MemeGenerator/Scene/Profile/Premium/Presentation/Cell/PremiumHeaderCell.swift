@@ -44,7 +44,7 @@ final class PremiumHeaderCell: UITableViewCell {
         let robot = UIImageView(image: UIImage(systemName: "sparkles"))
         robot.tintColor = Palette.mgTextPrimary
         robot.contentMode = .scaleAspectFit
-        headerImageView.addSubview(robot)
+        headerImageView.addSubviews(robot)
         robot.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.width.height.equalTo(80)
@@ -65,7 +65,7 @@ final class PremiumHeaderCell: UITableViewCell {
         stack.spacing = 16
         stack.alignment = .fill
 
-        contentView.addSubview(stack)
+        contentView.addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(4)
             make.bottom.equalToSuperview().inset(4)

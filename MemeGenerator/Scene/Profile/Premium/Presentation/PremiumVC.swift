@@ -56,7 +56,7 @@ final class PremiumViewController: BaseController<PremiumVM> {
     }
 
     private func setupTableView() {
-        view.addSubview(tableView)
+        view.addSubviews(tableView)
         tableView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
@@ -106,7 +106,7 @@ final class PremiumViewController: BaseController<PremiumVM> {
         stack.spacing = 12
         stack.alignment = .fill
 
-        footer.addSubview(stack)
+        footer.addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
             make.leading.trailing.equalToSuperview().inset(20)

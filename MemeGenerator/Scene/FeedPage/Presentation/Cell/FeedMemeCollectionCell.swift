@@ -97,12 +97,8 @@ final class FeedMemeCollectionCell: UICollectionViewCell {
     private func configureUI() {
         contentView.backgroundColor = .clear
 
-        contentView.addSubview(cardView)
-        cardView.addSubview(memeImageView)
-        cardView.addSubview(titleLabel)
-        cardView.addSubview(subtitleLabel)
-        cardView.addSubview(bottomDivider)
-        cardView.addSubview(bottomStack)
+        contentView.addSubviews(cardView)
+        cardView.addSubviews(memeImageView,titleLabel,subtitleLabel,bottomDivider,bottomStack)
 
         bottomStack.addArrangedSubview(UIView())
         bottomStack.addArrangedSubview(downloadButton)

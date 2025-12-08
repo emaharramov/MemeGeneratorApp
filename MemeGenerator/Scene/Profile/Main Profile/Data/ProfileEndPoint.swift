@@ -12,6 +12,7 @@ enum ProfileEndpoint {
     case updateMe
     case aiMemes(userId: String)
     case aiTempMemes(userId: String)
+    case paymentHistory
 
     var path: String {
         switch self {
@@ -21,6 +22,8 @@ enum ProfileEndpoint {
             return NetworkHelper.shared.configureURL(endpoint: "/memes/ai/\(userId)")
         case .aiTempMemes(let userId):
             return NetworkHelper.shared.configureURL(endpoint: "/memes/aitemp/\(userId)")
+        case .paymentHistory:
+            return NetworkHelper.shared.configureURL(endpoint: "/users/subscription/history")
         }
     }
 }

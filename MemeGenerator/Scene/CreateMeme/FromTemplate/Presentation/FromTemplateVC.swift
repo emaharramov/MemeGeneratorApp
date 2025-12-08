@@ -79,9 +79,9 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         stackView.axis = .vertical
         stackView.spacing = 16
 
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        contentView.addSubview(stackView)
+        view.addSubviews(scrollView)
+        scrollView.addSubviews(contentView)
+        contentView.addSubviews(stackView)
 
         styleCard(promptView)
 
@@ -100,10 +100,10 @@ final class FromTemplateVC: BaseController<FromTemplateVM> {
         generateButton.clipsToBounds = false
 
         styleCard(resultCard)
-        resultCard.addSubview(resultView)
+        resultCard.addSubviews(resultView)
 
         styleCard(shareCard)
-        shareCard.addSubview(shareActionsView)
+        shareCard.addSubviews(shareActionsView)
         shareCard.isHidden = true
 
         stackView.addArrangedSubview(promptView)

@@ -88,30 +88,30 @@ final class EditProfileAvatarCell: UITableViewCell {
     }
 
     private func setupUI() {
-        contentView.addSubview(avatarContainer)
+        contentView.addSubviews(avatarContainer)
         avatarContainer.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(8)
             make.bottom.equalToSuperview().inset(8)
             make.centerX.equalToSuperview()
         }
 
-        avatarContainer.addSubview(avatarCircle)
+        avatarContainer.addSubviews(avatarCircle)
         avatarCircle.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.width.height.equalTo(120)
         }
 
-        avatarCircle.addSubview(avatarImageView)
+        avatarCircle.addSubviews(avatarImageView)
         avatarImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
-        avatarCircle.addSubview(initialsLabel)
+        avatarCircle.addSubviews(initialsLabel)
         initialsLabel.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(12)
         }
 
-        avatarContainer.addSubview(editBadge)
+        avatarContainer.addSubviews(editBadge)
         editBadge.snp.makeConstraints { make in
             make.width.height.equalTo(36)
             make.bottom.equalTo(avatarCircle.snp.bottom).offset(4)
@@ -119,7 +119,7 @@ final class EditProfileAvatarCell: UITableViewCell {
         }
         editBadge.addTarget(self, action: #selector(changeTapped), for: .touchUpInside)
 
-        avatarContainer.addSubview(tapLabel)
+        avatarContainer.addSubviews(tapLabel)
         tapLabel.snp.makeConstraints { make in
             make.top.equalTo(avatarCircle.snp.bottom).offset(10)
             make.leading.trailing.bottom.equalToSuperview()

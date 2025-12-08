@@ -60,7 +60,7 @@ final class LoadingOverlayHelper {
         overlay.alpha = 0
         overlay.isUserInteractionEnabled = true
 
-        hostView.addSubview(overlay)
+        hostView.addSubviews(overlay)
         overlay.translatesAutoresizingMaskIntoConstraints = false
         overlay.snp.makeConstraints { $0.edges.equalToSuperview() }
 
@@ -79,7 +79,7 @@ final class LoadingOverlayHelper {
         messageLabel.numberOfLines = 0
         messageLabel.isHidden = true
 
-        overlay.addSubview(stack)
+        overlay.addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(32)

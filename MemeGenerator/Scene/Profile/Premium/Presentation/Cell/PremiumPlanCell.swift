@@ -69,8 +69,8 @@ final class PremiumPlanCell: UITableViewCell {
         mainStack.spacing = 10
         mainStack.alignment = .leading
 
-        contentView.addSubview(cardView)
-        cardView.addSubview(mainStack)
+        contentView.addSubviews(cardView)
+        cardView.addSubviews(mainStack)
 
         cardView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 20, bottom: 4, right: 20))

@@ -95,7 +95,7 @@ final class ProfileViewController: BaseController<ProfileVM> {
     }
 
     private func setupTableView() {
-        view.addSubview(tableView)
+        view.addSubviews(tableView)
 
         tableView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
@@ -135,6 +135,10 @@ final class ProfileViewController: BaseController<ProfileVM> {
 
     private func openPremium() {
         router?.showPremium()
+    }
+
+    private func openSubscription() {
+        router?.showSubscription()
     }
 
     private func openMyMemes() {
@@ -194,8 +198,14 @@ extension ProfileViewController: UITableViewDataSource {
             cell.onEditProfile = { [weak self] in
                 self?.openEditProfile()
             }
-            cell.onGoPremium   = { [weak self] in
-                self?.openPremium()
+
+            cell.onGoPremium = { [weak self] isPremium in
+                guard let self else { return }
+                if isPremium {
+                    self.openSubscription()
+                } else {
+                    self.openPremium()
+                }
             }
 
             return cell

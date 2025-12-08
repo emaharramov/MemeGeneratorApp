@@ -26,7 +26,7 @@ final class PremiumRepositoryImpl: PremiumRepository {
             "isActive": request.isActive,
             "expiresAt": request.expiresAt as Any
         ]
-        let path = NetworkHelper.shared.configureURL(endpoint: "/users/premium/sync")
+        let path = PremiumEndPoint.premiumSync.path
 
         network.request(
             path: path,

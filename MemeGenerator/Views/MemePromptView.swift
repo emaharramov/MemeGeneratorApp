@@ -147,7 +147,7 @@ private extension MemePromptView {
         backgroundColor = .clear
         textView.delegate = self
 
-        addSubview(cardView)
+        addSubviews(cardView)
         cardView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -160,8 +160,7 @@ private extension MemePromptView {
         labelsStack.axis = .vertical
         labelsStack.spacing = 6
 
-        cardView.addSubview(labelsStack)
-        cardView.addSubview(inputBackgroundView)
+        cardView.addSubviews(labelsStack,inputBackgroundView)
 
         labelsStack.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(16)
@@ -175,12 +174,12 @@ private extension MemePromptView {
             make.height.greaterThanOrEqualTo(70)
         }
 
-        inputBackgroundView.addSubview(textView)
+        inputBackgroundView.addSubviews(textView)
         textView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
-        textView.addSubview(placeholderLabel)
+        textView.addSubviews(placeholderLabel)
         placeholderLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(8)
             make.leading.equalToSuperview().inset(12)

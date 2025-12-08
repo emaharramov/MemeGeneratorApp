@@ -75,7 +75,6 @@ final class DefaultCreateFactory: CreateFactory {
         let loadTemplateImageUseCase = LoadTemplateImageUseCase(repository: templateRepository)
 
         let viewModel = UploadMemeViewModel(
-            isPremiumUser: false,
             appWatermarkText: "MemeGenerator",
             saveMemeUseCase: saveMemeUseCase,
             loadTemplatesUseCase: loadTemplatesUseCase,

@@ -89,7 +89,7 @@ final class MemeShareActionsView: UIView {
         stack.addArrangedSubview(retryButton)
         stack.addArrangedSubview(regenerateButton)
 
-        addSubview(stack)
+        addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

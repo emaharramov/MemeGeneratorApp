@@ -45,7 +45,7 @@ final class EmptyStateView: UIView {
         stack.addArrangedSubview(titleLabel)
         stack.addArrangedSubview(subtitleLabel)
 
-        addSubview(stack)
+        addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

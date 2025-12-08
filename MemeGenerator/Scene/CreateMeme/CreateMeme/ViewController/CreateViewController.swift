@@ -84,9 +84,9 @@ final class CreateViewController: BaseController<BaseViewModel> {
     }
 
     private func setupLayout() {
-        view.addSubview(segmentedBackgroundView)
-        segmentedBackgroundView.addSubview(segmentedControl)
-        view.addSubview(containerView)
+        view.addSubviews(segmentedBackgroundView)
+        segmentedBackgroundView.addSubviews(segmentedControl)
+        view.addSubviews(containerView)
 
         segmentedBackgroundView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
@@ -145,7 +145,7 @@ final class CreateViewController: BaseController<BaseViewModel> {
         }
 
         addChild(vc)
-        containerView.addSubview(vc.view)
+        containerView.addSubviews(vc.view)
 
         vc.view.translatesAutoresizingMaskIntoConstraints = false
         vc.view.snp.makeConstraints { make in

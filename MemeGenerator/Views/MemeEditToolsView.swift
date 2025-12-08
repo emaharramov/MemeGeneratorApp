@@ -70,7 +70,7 @@ final class MemeEditToolsView: UIView {
         stack.distribution = .fillEqually
         stack.spacing = 10
 
-        addSubview(stack)
+        addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

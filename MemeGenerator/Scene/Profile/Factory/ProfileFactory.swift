@@ -11,6 +11,7 @@ protocol ProfileFactory {
     func makeProfile(router: ProfileRouting) -> UIViewController
     func makeEditProfile() -> UIViewController
     func makePremium() -> UIViewController
+    func makeManageSubscription() -> UIViewController
     func makeMyMemes(router: MyMemesRouting) -> UIViewController
     func makeHelp(router: ProfileRouting) -> UIViewController
     func makeAIMemes() -> UIViewController
@@ -48,6 +49,14 @@ final class DefaultProfileFactory: ProfileFactory {
             repository: repo,
         )
         let vc = PremiumViewController(viewModel: vm)
+        return vc
+    }
+
+    func makeManageSubscription() -> UIViewController {
+        let repository = UserRepositoryImp(networkManager: networkManager)
+        let useCase = UserUseCase(repository: repository)
+        let vm = ManageSubscriptionVM(userUseCase: useCase)
+        let vc = ManageSubscriptionVC(viewModel: vm)
         return vc
     }
 

@@ -212,31 +212,25 @@ final class AuthController: BaseController<AuthViewModel> {
     }
 
     private func setupLayout() {
-        view.addSubview(scrollView)
+        view.addSubviews(scrollView)
         scrollView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
 
-        scrollView.addSubview(contentView)
+        scrollView.addSubviews(contentView)
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
         }
 
-        contentView.addSubview(logoView)
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(subtitleLabel)
-        contentView.addSubview(formCard)
-        contentView.addSubview(forgotPasswordButton)
-        contentView.addSubview(primaryButton)
-        contentView.addSubview(orStack)
+        contentView.addSubviews(logoView,titleLabel,subtitleLabel,formCard,forgotPasswordButton,primaryButton,orStack)
 
         let bottomStack = UIStackView(arrangedSubviews: [bottomTextLabel, bottomActionButton])
         bottomStack.axis = .horizontal
         bottomStack.spacing = 4
         bottomStack.alignment = .center
 
-        contentView.addSubview(bottomStack)
+        contentView.addSubviews(bottomStack)
 
         logoView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(32)
@@ -259,7 +253,7 @@ final class AuthController: BaseController<AuthViewModel> {
             make.leading.trailing.equalToSuperview().inset(24)
         }
 
-        formCard.addSubview(fieldsStack)
+        formCard.addSubviews(fieldsStack)
         fieldsStack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -282,8 +276,8 @@ final class AuthController: BaseController<AuthViewModel> {
             make.height.equalTo(52)
         }
 
-        emailContainer.addSubview(emailIcon)
-        emailContainer.addSubview(emailField)
+        emailContainer.addSubviews(emailIcon)
+        emailContainer.addSubviews(emailField)
 
         emailIcon.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(16)
@@ -297,8 +291,8 @@ final class AuthController: BaseController<AuthViewModel> {
             make.trailing.equalToSuperview().inset(16)
         }
 
-        usernameContainer.addSubview(usernameIcon)
-        usernameContainer.addSubview(usernameField)
+        usernameContainer.addSubviews(usernameIcon)
+        usernameContainer.addSubviews(usernameField)
 
         usernameIcon.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(16)
@@ -312,9 +306,9 @@ final class AuthController: BaseController<AuthViewModel> {
             make.trailing.equalToSuperview().inset(16)
         }
 
-        passwordContainer.addSubview(passwordIcon)
-        passwordContainer.addSubview(passwordField)
-        passwordContainer.addSubview(passwordVisibilityButton)
+        passwordContainer.addSubviews(passwordIcon)
+        passwordContainer.addSubviews(passwordField)
+        passwordContainer.addSubviews(passwordVisibilityButton)
 
         passwordIcon.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(16)

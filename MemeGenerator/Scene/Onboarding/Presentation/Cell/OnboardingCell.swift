@@ -38,7 +38,7 @@ class OnboardingCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        [imageView, titleLabel, descriptionLabel].forEach{ contentView.addSubview($0)}
+        contentView.addSubviews(imageView, titleLabel, descriptionLabel)
         configureConstraints()
     }
     

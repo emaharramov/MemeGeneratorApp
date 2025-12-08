@@ -67,7 +67,7 @@ final class EditProfileViewController: BaseController<ProfileVM> {
     }
 
     private func setupTableView() {
-        view.addSubview(tableView)
+        view.addSubviews(tableView)
         tableView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
@@ -110,7 +110,7 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         button.clipsToBounds = false
         button.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
 
-        footer.addSubview(button)
+        footer.addSubviews(button)
         button.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
             make.leading.trailing.equalToSuperview().inset(16)

@@ -8,21 +8,6 @@
 import Foundation
 import RevenueCat
 
-struct SyncPremiumRequestDTO {
-    let userId: String
-    let entitlementId: String
-    let productId: String
-    let isActive: Bool
-    let expiresAt: String?
-}
-
-protocol PremiumRepository {
-    func syncPremium(
-        request: SyncPremiumRequestDTO,
-        completion: @escaping (Result<UserProfile, AIMemeError>) -> Void
-    )
-}
-
 final class PremiumVM: BaseViewModel {
 
     enum Plan {

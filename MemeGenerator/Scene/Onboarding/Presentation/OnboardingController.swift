@@ -124,7 +124,7 @@ private extension OnboardingController {
             alreadyLabel
         )
 
-        scrollView.addSubview(pagesStackView)
+        scrollView.addSubviews(pagesStackView)
     }
 
     func setupConstraints() {

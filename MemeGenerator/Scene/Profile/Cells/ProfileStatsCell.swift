@@ -31,7 +31,7 @@ final class ProfileStatsCell: UITableViewCell {
         stack.spacing = 12
         stack.distribution = .fillEqually
 
-        contentView.addSubview(stack)
+        contentView.addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 0, left: 16, bottom: 4, right: 16))
             make.height.equalTo(80)

@@ -53,7 +53,7 @@ final class AvatarCropViewController: UIViewController, UIScrollViewDelegate {
 
     private func setupUI() {
         // Scroll + image
-        view.addSubview(scrollView)
+        view.addSubviews(scrollView)
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -68,11 +68,11 @@ final class AvatarCropViewController: UIViewController, UIScrollViewDelegate {
 
         imageView.image = image
         imageView.contentMode = .scaleAspectFit
-        scrollView.addSubview(imageView)
+        scrollView.addSubviews(imageView)
 
         // Overlay
         overlayView.isUserInteractionEnabled = false
-        view.addSubview(overlayView)
+        view.addSubviews(overlayView)
         overlayView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -80,7 +80,7 @@ final class AvatarCropViewController: UIViewController, UIScrollViewDelegate {
         // Bottom buttons
         let bottomBar = UIView()
         bottomBar.backgroundColor = UIColor.black.withAlphaComponent(0.8)
-        view.addSubview(bottomBar)
+        view.addSubviews(bottomBar)
         bottomBar.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
             make.height.equalTo(80)
@@ -94,8 +94,7 @@ final class AvatarCropViewController: UIViewController, UIScrollViewDelegate {
         chooseButton.setTitleColor(.systemYellow, for: .normal)
         chooseButton.addTarget(self, action: #selector(chooseTapped), for: .touchUpInside)
 
-        bottomBar.addSubview(cancelButton)
-        bottomBar.addSubview(chooseButton)
+        bottomBar.addSubviews(cancelButton,chooseButton)
 
         cancelButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(24)

@@ -43,7 +43,7 @@ final class MemeHeaderView: UIView {
         stack.axis = .vertical
         stack.spacing = 4
 
-        addSubview(stack)
+        addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

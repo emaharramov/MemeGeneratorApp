@@ -62,7 +62,7 @@ final class ProfileMenuCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        contentView.addSubview(cardView)
+        contentView.addSubviews(cardView)
         cardView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 3, left: 16, bottom: 3, right: 16))
             make.height.equalTo(56)
@@ -72,7 +72,7 @@ final class ProfileMenuCell: UITableViewCell {
             make.width.height.equalTo(36)
         }
 
-        iconBackground.addSubview(iconView)
+        iconBackground.addSubviews(iconView)
         iconView.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
@@ -82,7 +82,7 @@ final class ProfileMenuCell: UITableViewCell {
         stack.alignment = .center
         stack.spacing = 12
 
-        cardView.addSubview(stack)
+        cardView.addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(12)
         }

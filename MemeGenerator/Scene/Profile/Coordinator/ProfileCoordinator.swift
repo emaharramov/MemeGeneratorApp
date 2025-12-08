@@ -41,6 +41,11 @@ extension ProfileCoordinator: ProfileRouting {
         navigation.pushViewController(vc, animated: true)
     }
 
+    func showSubscription() {
+        let vc = factory.makeManageSubscription()
+        navigation.pushViewController(vc, animated: true)
+    }
+
     func showMyMemes() {
         let vc = factory.makeMyMemes(router: self)
         navigation.pushViewController(vc, animated: true)

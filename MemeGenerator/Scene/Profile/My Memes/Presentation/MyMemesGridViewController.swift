@@ -94,7 +94,7 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
     }
 
     private func setupLayout() {
-        view.addSubview(collectionView)
+        view.addSubviews(collectionView)
 
         collectionView.refreshControl = refreshControl
 
@@ -104,7 +104,7 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
             make.edges.equalToSuperview()
         }
 
-        view.addSubview(emptyStateView)
+        view.addSubviews(emptyStateView)
         emptyStateView.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(32)

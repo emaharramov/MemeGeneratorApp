@@ -14,6 +14,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
                                       UINavigationControllerDelegate,
                                       UIColorPickerViewControllerDelegate {
 
+    // MARK: - UI
+
     private let scrollView: UIScrollView = {
         let v = UIScrollView()
         v.backgroundColor = .clear
@@ -42,10 +44,19 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         return v
     }()
 
+    /// Şəkil + text overlay-lər üçün əsas canvas
+    private let memeCanvasView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .black
+        v.layer.cornerRadius = 16
+        v.layer.masksToBounds = true
+        return v
+    }()
+
     private let baseImageView: UIImageView = {
         let v = UIImageView()
-        v.contentMode = .scaleAspectFit
-        v.backgroundColor = .clear
+        v.contentMode = .scaleAspectFill
+        v.backgroundColor = .black
         return v
     }()
 
@@ -120,6 +131,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private let toolsView = MemeEditToolsView()
     private let shareActionsView = MemeShareActionsView()
 
+    // MARK: - State
+
     private var overlays: [MemeTextOverlayView] = []
     private var activeOverlay: MemeTextOverlayView?
     private var isEditMode: Bool = false {
@@ -131,6 +144,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     private var textEditOverlay: UIView?
     private weak var currentTextEditor: MemeTextEditView?
 
+    // MARK: - Init
+
     override init(viewModel: UploadMemeViewModel) {
         super.init(viewModel: viewModel)
     }
@@ -138,6 +153,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -159,15 +176,18 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        dashedBorderLayer.frame = editorCard.bounds
+        // Dashed border yalnız memeCanvas ətrafında olsun
+        dashedBorderLayer.frame = memeCanvasView.frame
         dashedBorderLayer.path = UIBezierPath(
-            roundedRect: editorCard.bounds,
-            cornerRadius: 20
+            roundedRect: dashedBorderLayer.bounds,
+            cornerRadius: 16
         ).cgPath
     }
 
+    // MARK: - Setup
+
     private func setupScrollLayout() {
-        view.addSubview(scrollView)
+        view.addSubviews(scrollView)
         scrollView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
@@ -176,7 +196,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         scrollView.refreshControl = refreshControl
 
-        scrollView.addSubview(contentView)
+        scrollView.addSubviews(contentView)
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
@@ -192,7 +212,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     }
 
     private func setupHeader() {
-        contentView.addSubview(headerView)
+        contentView.addSubviews(headerView)
         headerView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.leading.trailing.equalToSuperview().inset(16)
@@ -203,44 +223,56 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         styleCard(editorCard)
         editorCard.layer.addSublayer(dashedBorderLayer)
 
-        contentView.addSubview(editorCard)
+        contentView.addSubviews(editorCard)
         editorCard.snp.makeConstraints { make in
             make.top.equalTo(headerView.snp.bottom).offset(16)
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(editorCard.snp.width).multipliedBy(0.75)
         }
 
-        editorCard.addSubview(baseImageView)
-        baseImageView.snp.makeConstraints { make in
+        // Canvas
+        editorCard.addSubviews(memeCanvasView)
+        memeCanvasView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(8)
         }
 
-        editorCard.addSubview(overlayContainer)
+        // Image
+        memeCanvasView.addSubviews(baseImageView)
+        baseImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        // Overlays
+        memeCanvasView.addSubviews(overlayContainer)
         overlayContainer.snp.makeConstraints { make in
             make.edges.equalTo(baseImageView.snp.edges)
         }
 
+        // Placeholder
         placeholderStack.addArrangedSubview(placeholderIcon)
         placeholderStack.addArrangedSubview(placeholderLabel)
 
-        editorCard.addSubview(placeholderStack)
+        memeCanvasView.addSubviews(placeholderStack)
         placeholderStack.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
 
+        // Watermark preview (yalnız non-premium üçün)
         watermarkPreviewLabel.text = viewModel.appWatermarkText
-        overlayContainer.addSubview(watermarkPreviewLabel)
+        overlayContainer.addSubviews(watermarkPreviewLabel)
         watermarkPreviewLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.width.lessThanOrEqualToSuperview().multipliedBy(0.8)
         }
 
-        contentView.addSubview(hintLabel)
+        // Hint
+        contentView.addSubviews(hintLabel)
         hintLabel.snp.makeConstraints { make in
             make.top.equalTo(editorCard.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview().inset(24)
         }
 
+        // Gestures
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleCanvasTap(_:)))
         overlayContainer.addGestureRecognizer(tap)
 
@@ -249,13 +281,13 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
     }
 
     private func setupToolsAndActions() {
-        contentView.addSubview(toolsTitleLabel)
+        contentView.addSubviews(toolsTitleLabel)
         toolsTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(hintLabel.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(16)
         }
 
-        contentView.addSubview(toolsView)
+        contentView.addSubviews(toolsView)
         toolsView.snp.makeConstraints { make in
             make.top.equalTo(toolsTitleLabel.snp.bottom).offset(10)
             make.leading.trailing.equalToSuperview().inset(16)
@@ -276,7 +308,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             self?.openTemplatePicker()
         }
 
-        contentView.addSubview(shareActionsView)
+        contentView.addSubviews(shareActionsView)
         shareActionsView.snp.makeConstraints { make in
             make.top.equalTo(toolsView.snp.bottom).offset(24)
             make.leading.trailing.equalToSuperview().inset(16)
@@ -322,41 +354,12 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             .store(in: &cancellables)
     }
 
-    private func openTemplatePicker() {
-        if !viewModel.templates.isEmpty {
-            presentTemplatePicker(with: viewModel.templates)
-            return
-        }
-
-        showToast(message: "Loading templates…", type: .info)
-        viewModel.loadTemplatesIfNeeded()
-    }
-
-    private func presentTemplatePicker(with templates: [TemplateDTO]) {
-        guard !templates.isEmpty else {
-            showToast(message: "No templates available yet.", type: .error)
-            return
-        }
-
-        let picker = TemplatePickerViewController(templates: templates)
-        picker.onTemplateSelected = { [weak self] template in
-            guard let self else { return }
-            self.viewModel.applyTemplate(template)
-            self.clearAllOverlays()
-        }
-
-        picker.modalPresentationStyle = .pageSheet
-        if let sheet = picker.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberVisible = true
-        }
-
-        present(picker, animated: true)
-    }
-
     private func updatePlaceholderState(hasImage: Bool) {
         placeholderStack.isHidden = hasImage
-        watermarkPreviewLabel.isHidden = !hasImage
+
+        let isPremium = AppStorage.shared.isPremiumUser
+        watermarkPreviewLabel.isHidden = !hasImage || isPremium
+
         hintLabel.isHidden = !hasImage
 
         if !hasImage {
@@ -384,7 +387,7 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             self.activeOverlay = overlay
         }
 
-        overlayContainer.addSubview(overlay)
+        overlayContainer.addSubviews(overlay)
 
         let maxWidth = overlayContainer.bounds.width * 0.8
         overlay.adjustSize(maxWidth: maxWidth)
@@ -416,6 +419,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         overlays.forEach { $0.isInEditMode = isEditMode }
     }
 
+    // MARK: - Text edit
+
     private func presentTextEdit(for overlay: MemeTextOverlayView) {
         textEditOverlay?.removeFromSuperview()
 
@@ -423,13 +428,13 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         dimView.backgroundColor = UIColor.black.withAlphaComponent(0.4)
         dimView.alpha = 0
 
-        view.addSubview(dimView)
+        view.addSubviews(dimView)
         dimView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
         let editor = MemeTextEditView()
-        dimView.addSubview(editor)
+        dimView.addSubviews(editor)
 
         editor.snp.makeConstraints { make in
             make.center.equalToSuperview()
@@ -510,6 +515,8 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
         currentTextEditor = nil
     }
 
+    // MARK: - Gestures
+
     @objc private func handleCanvasTap(_ recognizer: UITapGestureRecognizer) {
         let location = recognizer.location(in: overlayContainer)
 
@@ -570,7 +577,41 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
             return
         }
         view.endEditing(true)
-        viewModel.saveMeme(image: image, includeWatermark: false)
+
+        let shouldAddWatermark = !AppStorage.shared.isPremiumUser
+        viewModel.saveMeme(image: image, includeWatermark: shouldAddWatermark)
+    }
+
+    private func openTemplatePicker() {
+        if !viewModel.templates.isEmpty {
+            presentTemplatePicker(with: viewModel.templates)
+            return
+        }
+
+        showToast(message: "Loading templates…", type: .info)
+        viewModel.loadTemplatesIfNeeded()
+    }
+
+    private func presentTemplatePicker(with templates: [TemplateDTO]) {
+        guard !templates.isEmpty else {
+            showToast(message: "No templates available yet.", type: .error)
+            return
+        }
+
+        let picker = TemplatePickerViewController(templates: templates)
+        picker.onTemplateSelected = { [weak self] template in
+            guard let self else { return }
+            self.viewModel.applyTemplate(template)
+            self.clearAllOverlays()
+        }
+
+        picker.modalPresentationStyle = .pageSheet
+        if let sheet = picker.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+
+        present(picker, animated: true)
     }
 
     private func handleShare() {
@@ -604,19 +645,23 @@ final class UploadMemeViewController: BaseController<UploadMemeViewModel>,
 
         view.layoutIfNeeded()
 
-        guard overlayContainer.bounds.width > 0,
-              overlayContainer.bounds.height > 0 else {
+        guard memeCanvasView.bounds.width > 0,
+              memeCanvasView.bounds.height > 0 else {
             return nil
         }
-        let captureRect = overlayContainer.convert(overlayContainer.bounds, to: editorCard)
-        let renderer = UIGraphicsImageRenderer(bounds: captureRect)
+
+        // Premium və s. üçün preview watermark export-a düşməsin
+        let oldHidden = watermarkPreviewLabel.isHidden
+        watermarkPreviewLabel.isHidden = true
+        defer { watermarkPreviewLabel.isHidden = oldHidden }
+
+        let renderer = UIGraphicsImageRenderer(bounds: memeCanvasView.bounds)
 
         let image = renderer.image { _ in
-            let drawRect = editorCard.bounds.offsetBy(
-                dx: -captureRect.origin.x,
-                dy: -captureRect.origin.y
+            memeCanvasView.drawHierarchy(
+                in: memeCanvasView.bounds,
+                afterScreenUpdates: true
             )
-            editorCard.drawHierarchy(in: drawRect, afterScreenUpdates: true)
         }
 
         return image

@@ -109,7 +109,7 @@ final class HelpFAQCell: UITableViewCell {
         contentView.backgroundColor = .clear
         selectionStyle = .none
 
-        contentView.addSubview(cardView)
+        contentView.addSubviews(cardView)
         cardView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(8)
             make.bottom.equalToSuperview().inset(8)
@@ -117,7 +117,7 @@ final class HelpFAQCell: UITableViewCell {
         }
         cardView.applyFAQCardStyle()
 
-        cardView.addSubview(verticalStack)
+        cardView.addSubviews(verticalStack)
         verticalStack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
                 .inset(UIEdgeInsets(top: 14, left: 16, bottom: 14, right: 16))
@@ -129,7 +129,7 @@ final class HelpFAQCell: UITableViewCell {
         iconContainer.setContentHuggingPriority(.required, for: .horizontal)
         iconContainer.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        iconContainer.addSubview(iconImageView)
+        iconContainer.addSubviews(iconImageView)
         iconImageView.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.width.height.equalTo(20)

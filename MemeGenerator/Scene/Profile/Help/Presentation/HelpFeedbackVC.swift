@@ -55,7 +55,7 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
             forCellReuseIdentifier: HelpFAQCell.reuseID
         )
 
-        view.addSubview(tableView)
+        view.addSubviews(tableView)
         tableView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
@@ -69,7 +69,7 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
     private func setupFooterCard() {
         footerCard.applyFAQCardStyle()
 
-        view.addSubview(footerCard)
+        view.addSubviews(footerCard)
         footerCard.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(35)
@@ -91,7 +91,7 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
         stack.addArrangedSubview(footerTitleLabel)
         stack.addArrangedSubview(footerButton)
 
-        footerCard.addSubview(stack)
+        footerCard.addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
                 .inset(UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12))

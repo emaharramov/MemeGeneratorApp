@@ -113,7 +113,7 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         middleButton.layer.shadowOffset = .zero
         middleButton.layer.shadowRadius = 18
 
-        view.addSubview(middleButton)
+        view.addSubviews(middleButton)
         middleButton.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
@@ -132,7 +132,7 @@ final class TabbarController: UITabBarController, UITabBarControllerDelegate {
         middleTitleLabel.font = .systemFont(ofSize: 11, weight: .semibold)
         middleTitleLabel.textAlignment = .center
 
-        view.addSubview(middleTitleLabel)
+        view.addSubviews(middleTitleLabel)
         middleTitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([

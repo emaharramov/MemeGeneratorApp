@@ -68,7 +68,7 @@ final class FeedController: BaseController<FeedViewModel> {
     }
 
     private func setupSubviews() {
-        view.addSubview(collectionView)
+        view.addSubviews(collectionView)
     }
 
     private func setupConstraints() {

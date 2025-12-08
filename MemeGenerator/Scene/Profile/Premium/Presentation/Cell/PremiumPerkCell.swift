@@ -45,7 +45,7 @@ final class PremiumPerkCell: UITableViewCell {
         textLabelView.textColor = Palette.mgTextPrimary
         textLabelView.numberOfLines = 0
 
-        iconContainer.addSubview(iconView)
+        iconContainer.addSubviews(iconView)
         iconView.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.width.height.equalTo(20)
@@ -56,8 +56,8 @@ final class PremiumPerkCell: UITableViewCell {
         stack.alignment = .center
         stack.spacing = 12
 
-        contentView.addSubview(cardView)
-        cardView.addSubview(stack)
+        contentView.addSubviews(cardView)
+        cardView.addSubviews(stack)
 
         cardView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIEdgeInsets(top: 4, left: 20, bottom: 4, right: 20))

@@ -38,7 +38,7 @@ final class ProfileStatCardView: UIView {
         stack.spacing = 4
         stack.alignment = .leading
 
-        addSubview(stack)
+        addSubviews(stack)
         stack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(12)
         }

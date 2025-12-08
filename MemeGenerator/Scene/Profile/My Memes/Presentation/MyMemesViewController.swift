@@ -84,9 +84,8 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
     }
 
     private func setupLayout() {
-        view.addSubview(segmentedBackgroundView)
-        segmentedBackgroundView.addSubview(segmentedControl)
-        view.addSubview(containerView)
+        view.addSubviews(segmentedBackgroundView,containerView)
+        segmentedBackgroundView.addSubviews(segmentedControl)
 
         segmentedBackgroundView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
@@ -144,7 +143,7 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
         }
 
         addChild(vc)
-        containerView.addSubview(vc.view)
+        containerView.addSubviews(vc.view)
 
         vc.view.translatesAutoresizingMaskIntoConstraints = false
         vc.view.snp.makeConstraints { make in

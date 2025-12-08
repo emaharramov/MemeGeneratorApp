@@ -58,7 +58,7 @@ final class OnboardingPageView: UIView {
         stack.alignment = .fill
         stack.spacing = 16
 
-        addSubview(stack)
+        addSubviews(stack)
         stack.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
 

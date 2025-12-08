@@ -484,11 +484,8 @@ extension UIViewController {
 
         label.text = emojiPrefix + message
 
-        container.addSubview(toastView)
-        toastView.addSubview(blurView)
-        toastView.addSubview(accentView)
-        toastView.addSubview(iconView)
-        toastView.addSubview(label)
+        container.addSubviews(toastView)
+        toastView.addSubviews(blurView, accentView,iconView, label)
 
         let guide = container.safeAreaLayoutGuide
 

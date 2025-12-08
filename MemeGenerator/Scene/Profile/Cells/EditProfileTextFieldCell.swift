@@ -49,9 +49,8 @@ final class EditProfileTextFieldCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(containerView)
-        containerView.addSubview(textField)
+        contentView.addSubviews(titleLabel,containerView)
+        containerView.addSubviews(textField)
 
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(4)

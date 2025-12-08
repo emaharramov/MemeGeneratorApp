@@ -104,4 +104,22 @@ final class UserRepositoryImp: UserRepository {
             }
         }
     }
+
+    func fetchSubscriptionHistory(completion: @escaping (Result<SubscriptionHistory, ProfileError>) -> Void) {
+        let path = ProfileEndpoint.paymentHistory.path
+
+        networkManager.request(
+            path: path,
+            model: SubscriptionHistory.self,
+            method: .get,
+            encodingType: .json
+        ) { model, errorMessage in
+            if let model {
+                completion(.success(model))
+            } else {
+                let message = errorMessage ?? "Unknown error"
+                completion(.failure(.network(message)))
+            }
+        }
+    }
 }

@@ -65,9 +65,9 @@ final class MemeTextOverlayView: UIView {
         bubble.layer.borderWidth = 1
         bubble.layer.borderColor = UIColor.clear.cgColor
 
-        addSubview(bubble)
-        bubble.addSubview(label)
-        addSubview(closeButton)
+        addSubviews(bubble)
+        bubble.addSubviews(label)
+        addSubviews(closeButton)
 
         bubble.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(4)

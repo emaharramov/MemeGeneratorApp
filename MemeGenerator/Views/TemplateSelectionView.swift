@@ -74,7 +74,7 @@ final class TemplateSelectionView: UIView {
         contentStack.axis = .vertical
         contentStack.spacing = 8
 
-        addSubview(contentStack)
+        addSubviews(contentStack)
 
         contentStack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(16)

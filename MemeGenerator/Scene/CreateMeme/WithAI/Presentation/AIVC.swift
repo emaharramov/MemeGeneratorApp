@@ -85,9 +85,9 @@ final class AIVC: BaseController<AIVM> {
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         scrollView.refreshControl = refreshControl
 
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        contentView.addSubview(stackView)
+        view.addSubviews(scrollView)
+        scrollView.addSubviews(contentView)
+        contentView.addSubviews(stackView)
 
         generateButton.applyFilledStyle(
             title: "Generate Meme",
@@ -99,10 +99,10 @@ final class AIVC: BaseController<AIVM> {
         generateButton.clipsToBounds = false
 
         styleCard(resultCard)
-        resultCard.addSubview(resultView)
+        resultCard.addSubviews(resultView)
 
         styleCard(shareCard)
-        shareCard.addSubview(shareActionsView)
+        shareCard.addSubviews(shareActionsView)
         shareCard.isHidden = true
 
         stackView.addArrangedSubview(promptView)

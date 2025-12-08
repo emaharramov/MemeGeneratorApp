@@ -37,8 +37,7 @@ final class TemplatePickerCell: UICollectionViewCell {
         titleLabel.textColor = Palette.mgTextPrimary
         titleLabel.numberOfLines = 0
 
-        contentView.addSubview(imageView)
-        contentView.addSubview(titleLabel)
+        contentView.addSubviews(imageView,titleLabel)
 
         imageView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()

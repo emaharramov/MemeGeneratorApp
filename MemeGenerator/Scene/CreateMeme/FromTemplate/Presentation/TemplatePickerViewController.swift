@@ -47,7 +47,7 @@ final class TemplatePickerViewController: UIViewController {
         collectionView.register(TemplatePickerCell.self,
                                 forCellWithReuseIdentifier: TemplatePickerCell.reuseId)
 
-        view.addSubview(collectionView)
+        view.addSubviews(collectionView)
         collectionView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
