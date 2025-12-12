@@ -12,6 +12,8 @@ final class AppCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
     private let window: UIWindow
 
+    private lazy var networkManager = NetworkManager()
+
     init(window: UIWindow) {
         self.window = window
     }
@@ -29,7 +31,7 @@ final class AppCoordinator: Coordinator {
         if AppStorage.shared.isLoggedIn {
             showMainTabbar()
         } else {
-            showAuth()
+            showAuthFlow()
         }
     }
 
@@ -40,38 +42,29 @@ final class AppCoordinator: Coordinator {
         vm.onFinish = { [weak self] in
             guard let self else { return }
             AppStorage.shared.hasSeenOnboarding = true
-            self.showAuth()
+            self.showAuthFlow()
         }
 
         setRoot(vc)
     }
 
-    private func showAuth() {
-        let networkManager = NetworkManager()
-        let authRepository = AuthRepositoryImpl(networkManager: networkManager)
+    private func showAuthFlow() {
+        let authFactory = DefaultAuthFactory(networkManager: networkManager)
+        let authCoordinator = AuthCoordinator(factory: authFactory)
+        add(authCoordinator)
 
-        let loginUseCase = LoginUseCaseImpl(repository: authRepository)
-        let registerUseCase = RegisterUseCaseImpl(repository: authRepository)
-        let vm = AuthViewModel(
-            loginUseCase: loginUseCase,
-            registerUseCase: registerUseCase
-        )
-        let vc = AuthController(viewModel: vm, mode: .login)
-        vm.onLoginSuccess = { [weak self] token in
-            guard let self else { return }
+        authCoordinator.onFinish = { [weak self, weak authCoordinator] token in
+            guard let self, let authCoordinator else { return }
+            self.remove(authCoordinator)
+
             AppStorage.shared.accessToken = token
             AppStorage.shared.isLoggedIn = true
+
             self.showMainTabbar()
         }
 
-        vm.onRegisterSuccess = { [weak self] token in
-            guard let self else { return }
-            AppStorage.shared.accessToken = token
-            AppStorage.shared.isLoggedIn = true
-            self.showMainTabbar()
-        }
-
-        setRoot(vc)
+        authCoordinator.start()
+        setRoot(authCoordinator.rootViewController)
     }
 
     private func showMainTabbar() {
@@ -81,9 +74,11 @@ final class AppCoordinator: Coordinator {
         mainCoordinator.onLogout = { [weak self, weak mainCoordinator] in
             guard let self, let mainCoordinator else { return }
             self.remove(mainCoordinator)
+
             AppStorage.shared.isLoggedIn = false
             AppStorage.shared.accessToken = nil
-            self.showAuth()
+
+            self.showAuthFlow()
         }
 
         mainCoordinator.start()
@@ -103,9 +98,5 @@ final class AppCoordinator: Coordinator {
             animations: nil,
             completion: nil
         )
-    }
-
-    func resetToRoot(_ vc: UIViewController) {
-        setRoot(vc, animated: false)
     }
 }
