@@ -7,10 +7,15 @@
 
 import UIKit
 import SnapKit
-import Combine
+
+struct MyMemesSegmentItem {
+    let title: String
+    let viewController: UIViewController
+}
 
 final class MyMemesViewController: BaseController<MyMemesVM> {
-    private weak var router: MyMemesRouting?
+
+    private let segments: [MyMemesSegmentItem]
 
     private let segmentedBackgroundView: UIView = {
         let view = UIView()
@@ -22,9 +27,8 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
         return view
     }()
 
-    private let segmentedControl: UISegmentedControl = {
-        let items = ["AI Meme", "AI + Template"]
-        let sc = UISegmentedControl(items: items)
+    private lazy var segmentedControl: UISegmentedControl = {
+        let sc = UISegmentedControl(items: segments.map { $0.title })
         sc.selectedSegmentIndex = 0
 
         sc.backgroundColor = .clear
@@ -45,6 +49,7 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
         sc.layer.cornerRadius = 16
         sc.layer.masksToBounds = true
 
+        sc.addTarget(self, action: #selector(modeChanged), for: .valueChanged)
         return sc
     }()
 
@@ -57,14 +62,16 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
     private var currentVC: UIViewController?
     private var childCache: [Int: UIViewController] = [:]
 
-    init(router: MyMemesRouting, viewModel: MyMemesVM) {
-            self.router = router
-            super.init(viewModel: viewModel)
-        }
+    init(viewModel: MyMemesVM, segments: [MyMemesSegmentItem]) {
+        self.segments = segments
+        super.init(viewModel: viewModel)
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        for (idx, item) in segments.enumerated() {
+            childCache[idx] = item.viewController
+        }
     }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,18 +80,11 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
         navigationItem.title = "My Memes"
 
         setupLayout()
-
-        segmentedControl.addTarget(
-            self,
-            action: #selector(modeChanged),
-            for: .valueChanged
-        )
-
         showSegment(index: 0)
     }
 
     private func setupLayout() {
-        view.addSubviews(segmentedBackgroundView,containerView)
+        view.addSubviews(segmentedBackgroundView, containerView)
         segmentedBackgroundView.addSubviews(segmentedControl)
 
         segmentedBackgroundView.snp.makeConstraints {
@@ -109,33 +109,15 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
     }
 
     private func showSegment(index: Int) {
-        guard let vc = viewControllerForSegment(index: index) else { return }
-        switchTo(vc: vc)
-    }
-    
-
-    private func viewControllerForSegment(index: Int) -> UIViewController? {
-        if let cached = childCache[index] {
-            return cached
-        }
-
-        guard let router = router else { return nil }
-
-        let vc: UIViewController
-        switch index {
-        case 0:
-            vc = router.makeAIMemes()
-        case 1:
-            vc = router.makeAIMemesWithTemplate()
-        default:
-            return nil
-        }
-
+        guard segments.indices.contains(index) else { return }
+        let vc = childCache[index] ?? segments[index].viewController
         childCache[index] = vc
-        return vc
+        switchTo(vc: vc)
     }
 
     private func switchTo(vc: UIViewController) {
+        guard currentVC !== vc else { return }
+
         if let current = currentVC {
             current.willMove(toParent: nil)
             current.view.removeFromSuperview()
@@ -143,16 +125,11 @@ final class MyMemesViewController: BaseController<MyMemesVM> {
         }
 
         addChild(vc)
-        containerView.addSubviews(vc.view)
+        containerView.addSubview(vc.view)
 
-        vc.view.translatesAutoresizingMaskIntoConstraints = false
-        vc.view.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        vc.view.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         vc.didMove(toParent: self)
-        vc.view.layoutIfNeeded()
-
         currentVC = vc
     }
 }

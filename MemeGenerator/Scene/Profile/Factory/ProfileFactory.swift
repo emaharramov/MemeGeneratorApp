@@ -12,10 +12,11 @@ protocol ProfileFactory {
     func makeEditProfile() -> UIViewController
     func makePremium() -> UIViewController
     func makeManageSubscription() -> UIViewController
+
     func makeMyMemes(router: MyMemesRouting) -> UIViewController
+    func makeMyMemesGrid(mode: MyMemesMode) -> UIViewController
+
     func makeHelp(router: ProfileRouting) -> UIViewController
-    func makeAIMemes() -> UIViewController
-    func makeAIMemesWithTemplate() -> UIViewController
 }
 
 final class DefaultProfileFactory: ProfileFactory {
@@ -26,69 +27,56 @@ final class DefaultProfileFactory: ProfileFactory {
         self.networkManager = networkManager
     }
 
+    private lazy var userRepository: UserRepositoryImp = {
+        UserRepositoryImp(networkManager: networkManager)
+    }()
+
+    private lazy var userUseCase: UserUseCase = {
+        UserUseCase(repository: userRepository)
+    }()
+
     func makeProfile(router: ProfileRouting) -> UIViewController {
-        let repository = UserRepositoryImp(networkManager: networkManager)
-        let useCase = UserUseCase(repository: repository)
-        let viewModel = ProfileVM(userUseCase: useCase)
-        let vc = ProfileViewController(viewModel: viewModel, router: router)
-        return vc
+        let viewModel = ProfileVM(userUseCase: userUseCase)
+        return ProfileViewController(viewModel: viewModel, router: router)
     }
 
     func makeEditProfile() -> UIViewController {
-        let repository = UserRepositoryImp(networkManager: networkManager)
-        let useCase = UserUseCase(repository: repository)
-        let vm = ProfileVM(userUseCase: useCase)
-        let vc = EditProfileViewController(viewModel: vm)
-        return vc
+        let vm = ProfileVM(userUseCase: userUseCase)
+        return EditProfileViewController(viewModel: vm)
     }
 
     func makePremium() -> UIViewController {
         let repo = PremiumRepositoryImpl(network: networkManager)
-        let vm = PremiumVM(
-            userId: AppStorage.shared.userId,
-            repository: repo,
-        )
-        let vc = PremiumViewController(viewModel: vm)
-        return vc
+        let vm = PremiumVM(userId: AppStorage.shared.userId, repository: repo)
+        return PremiumViewController(viewModel: vm)
     }
 
     func makeManageSubscription() -> UIViewController {
-        let repository = UserRepositoryImp(networkManager: networkManager)
-        let useCase = UserUseCase(repository: repository)
-        let vm = ManageSubscriptionVM(userUseCase: useCase)
-        let vc = ManageSubscriptionVC(viewModel: vm)
-        return vc
+        let vm = ManageSubscriptionVM(userUseCase: userUseCase)
+        return ManageSubscriptionVC(viewModel: vm)
     }
 
     func makeMyMemes(router: MyMemesRouting) -> UIViewController {
-        let repository = UserRepositoryImp(networkManager: networkManager)
-        let useCase = UserUseCase(repository: repository)
-        let viewModel = MyMemesVM(userUseCase: useCase)
-        let vc = MyMemesViewController(router: router, viewModel: viewModel)
-        return vc
+        let vm = MyMemesVM(userUseCase: userUseCase)
+
+        let aiVC = MyMemesGridViewController(mode: .ai, viewModel: vm)
+        let aiTempVC = MyMemesGridViewController(mode: .aiTemplate, viewModel: vm)
+
+        let segments: [MyMemesSegmentItem] = [
+            .init(title: MyMemesMode.ai.title, viewController: aiVC),
+            .init(title: MyMemesMode.aiTemplate.title, viewController: aiTempVC)
+        ]
+
+        return MyMemesViewController(viewModel: vm, segments: segments)
+    }
+
+    func makeMyMemesGrid(mode: MyMemesMode) -> UIViewController {
+        let vm = MyMemesVM(userUseCase: userUseCase)
+        return MyMemesGridViewController(mode: mode, viewModel: vm)
     }
 
     func makeHelp(router: ProfileRouting) -> UIViewController {
         let vm = HelpFeedbackVM()
-        let vc = HelpFeedbackVC(viewModel: vm, router: router)
-        return vc
-    }
-
-    private func makeMyMemesVM() -> MyMemesVM {
-        let repository = UserRepositoryImp(networkManager: networkManager)
-        let useCase = UserUseCase(repository: repository)
-        return MyMemesVM(userUseCase: useCase)
-    }
-
-    func makeAIMemes() -> UIViewController {
-        let vm = makeMyMemesVM()
-        let vc = MyMemesGridViewController(mode: .ai, viewModel: vm)
-        return vc
-    }
-
-    func makeAIMemesWithTemplate() -> UIViewController {
-        let vm = makeMyMemesVM()
-        let vc = MyMemesGridViewController(mode: .aiTemplate, viewModel: vm)
-        return vc
+        return HelpFeedbackVC(viewModel: vm, router: router)
     }
 }

@@ -8,6 +8,5 @@
 import UIKit
 
 protocol MyMemesRouting: AnyObject {
-    func makeAIMemes() -> UIViewController
-    func makeAIMemesWithTemplate() -> UIViewController
+    func showMyMemes(mode: MyMemesMode)
 }

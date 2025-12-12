@@ -8,9 +8,13 @@
 import UIKit
 import SnapKit
 
-final class CreateViewController: BaseController<BaseViewModel> {
+struct CreateSegmentItem {
+    let title: String
+    let viewController: UIViewController
+}
 
-    private weak var router: CreateRouting?
+final class CreateViewController: BaseController<BaseViewModel> {
+    private let segments: [CreateSegmentItem]
 
     private let segmentedBackgroundView: UIView = {
         let view = UIView()
@@ -22,9 +26,8 @@ final class CreateViewController: BaseController<BaseViewModel> {
         return view
     }()
 
-    private let segmentedControl: UISegmentedControl = {
-        let items = ["AI Meme", "AI + Template", "Custom"]
-        let sc = UISegmentedControl(items: items)
+    private lazy var segmentedControl: UISegmentedControl = {
+        let sc = UISegmentedControl(items: segments.map { $0.title })
         sc.selectedSegmentIndex = 0
 
         sc.backgroundColor = .clear
@@ -45,6 +48,7 @@ final class CreateViewController: BaseController<BaseViewModel> {
         sc.layer.cornerRadius = 16
         sc.layer.masksToBounds = true
 
+        sc.addTarget(self, action: #selector(modeChanged), for: .valueChanged)
         return sc
     }()
 
@@ -55,11 +59,19 @@ final class CreateViewController: BaseController<BaseViewModel> {
     }()
 
     private var currentVC: UIViewController?
+
     private var childCache: [Int: UIViewController] = [:]
 
-    init(router: CreateRouting) {
-        self.router = router
+    init(
+        segments: [CreateSegmentItem]
+    ) {
+        self.segments = segments
         super.init(viewModel: BaseViewModel())
+
+        // hazır VC-ləri cache-ə yığırıq (optional)
+        for (idx, item) in segments.enumerated() {
+            childCache[idx] = item.viewController
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -73,13 +85,6 @@ final class CreateViewController: BaseController<BaseViewModel> {
         navigationItem.title = "Create"
 
         setupLayout()
-
-        segmentedControl.addTarget(
-            self,
-            action: #selector(modeChanged),
-            for: .valueChanged
-        )
-
         showSegment(index: 0)
     }
 
@@ -110,34 +115,18 @@ final class CreateViewController: BaseController<BaseViewModel> {
     }
 
     private func showSegment(index: Int) {
-        guard let vc = viewControllerForSegment(index: index) else { return }
+        guard segments.indices.contains(index) else { return }
+
+        // cache-dən götürürük (hazır VC)
+        let vc = childCache[index] ?? segments[index].viewController
+        childCache[index] = vc
+
         switchTo(vc: vc)
     }
 
-    private func viewControllerForSegment(index: Int) -> UIViewController? {
-        if let cached = childCache[index] {
-            return cached
-        }
-
-        guard let router = router else { return nil }
-
-        let vc: UIViewController
-        switch index {
-        case 0:
-            vc = router.makeAIMeme()
-        case 1:
-            vc = router.makeAIWithTemplate()
-        case 2:
-            vc = router.makeCustomMeme()
-        default:
-            return nil
-        }
-
-        childCache[index] = vc
-        return vc
-    }
-
     private func switchTo(vc: UIViewController) {
+        guard currentVC !== vc else { return }
+
         if let current = currentVC {
             current.willMove(toParent: nil)
             current.view.removeFromSuperview()
@@ -147,14 +136,9 @@ final class CreateViewController: BaseController<BaseViewModel> {
         addChild(vc)
         containerView.addSubviews(vc.view)
 
-        vc.view.translatesAutoresizingMaskIntoConstraints = false
-        vc.view.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        vc.view.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         vc.didMove(toParent: self)
-        vc.view.layoutIfNeeded()
-
         currentVC = vc
     }
 }

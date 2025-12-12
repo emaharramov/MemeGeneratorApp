@@ -7,16 +7,6 @@
 
 import UIKit
 
-protocol CreateRouting: AnyObject {
-
-    func makeAIMeme() -> UIViewController
-    func makeAIWithTemplate() -> UIViewController
-    func makeCustomMeme() -> UIViewController
-
-    func showPremium()
-    func showAuth()
-}
-
 final class CreateCoordinator: Coordinator {
 
     var childCoordinators: [Coordinator] = []
@@ -29,38 +19,13 @@ final class CreateCoordinator: Coordinator {
     }
 
     func start() {
-        let vc = factory.makeCreate(router: self)
+        let segments: [CreateSegmentItem] = [
+            .init(title: "With AI", viewController: factory.makeAIMeme()),
+            .init(title: "Template", viewController: factory.makeAIWithTemplate()),
+            .init(title: "Upload", viewController: factory.makeCustomMeme())
+        ]
+
+        let vc = factory.makeCreate(segments: segments)
         navigation.setViewControllers([vc], animated: false)
-    }
-}
-
-// MARK: - CreateRouting
-
-extension CreateCoordinator: CreateRouting {
-
-    // MARK: Child VC factory-ləri (VC factory-dən gəlir)
-
-    func makeAIMeme() -> UIViewController {
-        factory.makeAIMeme()
-    }
-
-    func makeAIWithTemplate() -> UIViewController {
-        factory.makeAIWithTemplate()
-    }
-
-    func makeCustomMeme() -> UIViewController {
-        factory.makeCustomMeme()
-    }
-
-    // MARK: Navigation aksiyaları
-
-    func showPremium() {
-        let vc = factory.makePremium()
-        navigation.pushViewController(vc, animated: true)
-    }
-
-    func showAuth() {
-        let vc = factory.makeAuth()
-        navigation.present(vc, animated: true)
     }
 }
