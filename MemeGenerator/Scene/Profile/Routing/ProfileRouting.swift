@@ -14,4 +14,5 @@ protocol ProfileRouting: AnyObject {
     func showMyMemes()
     func showHelp()
     func performLogout()
+    func showSupport()
 }

@@ -43,16 +43,12 @@ final class PremiumViewController: BaseController<PremiumVM> {
         setupFooter()
 
         viewModel.onPremiumActivated = { [weak self] in
-            self?.dismiss(animated: true)
+            self?.navigationController?.popViewController(animated: true)
         }
 
         viewModel.onShowMessage = { [weak self] message in
             self?.showToast(message: message)
         }
-
-//        viewModel.onLoadingChange = { [weak self] isLoading in
-//            isLoading ? self?.showLoading() : self?.hideLoading()
-//        }
     }
 
     private func setupTableView() {

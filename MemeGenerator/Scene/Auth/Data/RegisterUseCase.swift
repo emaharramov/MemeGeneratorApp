@@ -12,7 +12,7 @@ protocol RegisterUseCase {
         email: String,
         username: String,
         password: String,
-        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
+        completion: @escaping (Result<RegisterStartResponseModel, AuthError>) -> Void
     )
 }
 
@@ -27,7 +27,7 @@ final class RegisterUseCaseImpl: RegisterUseCase {
         email: String,
         username: String,
         password: String,
-        completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void
+        completion: @escaping (Result<RegisterStartResponseModel, AuthError>) -> Void
     ) {
         repository.register(
             email: email,

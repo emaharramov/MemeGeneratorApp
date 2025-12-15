@@ -8,4 +8,5 @@
 protocol AuthRouting: AnyObject {
     func showForgotPassword()
     func authDidFinish(accessToken: String)
+    func showEmailVerification(email: String)
 }

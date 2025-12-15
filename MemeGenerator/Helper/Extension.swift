@@ -63,7 +63,6 @@ extension Date {
 extension String {
     // expects ISO8601 string with fractional seconds
     func timeAgoString() -> String {
-        // static formatter to avoid recreate overhead
         struct Static {
             static let formatter: ISO8601DateFormatter = {
                 let f = ISO8601DateFormatter()
@@ -72,10 +71,23 @@ extension String {
             }()
         }
 
-        guard let date = Static.formatter.date(from: self) else {
-            return ""
-        }
+        guard let date = Static.formatter.date(from: self) else { return "" }
         return date.timeAgoString()
+    }
+
+    func toDisplayDate(_ format: String = "d MMM yyyy") -> String {
+        struct Static {
+            static let formatter: ISO8601DateFormatter = {
+                let f = ISO8601DateFormatter()
+                f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                return f
+            }()
+        }
+
+        guard let date = Static.formatter.date(from: self) else { return "" }
+        let df = DateFormatter()
+        df.dateFormat = format
+        return df.string(from: date)
     }
 }
 
@@ -128,7 +140,7 @@ extension UITextField {
         placeholder: String? = nil,
         keyboardType: UIKeyboardType = .default,
         isSecure: Bool = false,
-        capitalization: UITextAutocapitalizationType = .none
+        capitalization: UITextAutocapitalizationType = .none,
     ) -> UITextField {
         let tf = UITextField()
         tf.placeholder = placeholder

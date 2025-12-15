@@ -7,6 +7,7 @@
 
 import UIKit
 import RevenueCat
+import SafariServices
 
 final class ProfileCoordinator: Coordinator {
 
@@ -78,6 +79,13 @@ extension ProfileCoordinator: ProfileRouting {
                 self.onLogout?()
             }
         )
+    }
+
+    func showSupport() {
+        guard let url = URL(string: "https://memegenerator.app/support") else { return }
+        let safari = SFSafariViewController(url: url)
+        safari.dismissButtonStyle = .close
+        navigation.present(safari, animated: true)
     }
 }
 

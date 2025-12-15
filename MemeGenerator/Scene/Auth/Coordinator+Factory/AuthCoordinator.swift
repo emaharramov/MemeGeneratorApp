@@ -38,6 +38,11 @@ extension AuthCoordinator: AuthRouting {
         rootViewController.pushViewController(vc, animated: true)
     }
 
+    func showEmailVerification(email: String) {
+        let vc = factory.makeEmailVerification(email: email, router: self)
+        rootViewController.pushViewController(vc, animated: true)
+    }
+
     func authDidFinish(accessToken: String) {
         onFinish?(accessToken)
     }

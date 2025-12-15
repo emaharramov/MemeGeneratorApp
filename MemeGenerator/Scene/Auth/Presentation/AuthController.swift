@@ -433,6 +433,7 @@ final class AuthController: BaseController<AuthViewModel> {
             bottomTextLabel.text = "Already have an account?"
             bottomActionButton.setTitle("Log In", for: .normal)
         }
+        updatePrimaryButtonState()
     }
 
     private func setupActions() {
@@ -440,6 +441,55 @@ final class AuthController: BaseController<AuthViewModel> {
         passwordVisibilityButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
         bottomActionButton.addTarget(self, action: #selector(handleToggleMode), for: .touchUpInside)
         forgotPasswordButton.addTarget(self, action: #selector(handleForgotPassword), for: .touchUpInside)
+
+        emailField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
+            usernameField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
+            passwordField.addTarget(self, action: #selector(handleEditingChanged), for: .editingChanged)
+        updatePrimaryButtonState()
+    }
+
+    @objc private func handleEditingChanged() {
+        updatePrimaryButtonState()
+    }
+
+    private func updatePrimaryButtonState() {
+        let email = (emailField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let username = (usernameField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let password = passwordField.text ?? ""
+
+        let emailOk = isValidEmail(email)
+
+        let enabled: Bool
+        switch mode {
+        case .login:
+            enabled = emailOk && password.count >= 8
+
+        case .register:
+            enabled = emailOk && !username.isEmpty && isStrongPasswordForRegister(password)
+        }
+
+        applyPrimaryButton(enabled: enabled)
+    }
+
+    private func applyPrimaryButton(enabled: Bool) {
+        primaryButton.isEnabled = enabled
+        primaryButton.isUserInteractionEnabled = enabled
+
+        // Sadə disabled görünüş
+        UIView.animate(withDuration: 0.15) {
+            self.primaryButton.alpha = enabled ? 1.0 : 0.45
+        }
+    }
+
+    private func isValidEmail(_ value: String) -> Bool {
+        guard !value.isEmpty else { return false }
+        let emailRegex = #"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$"#
+        return NSPredicate(format: "SELF MATCHES[c] %@", emailRegex).evaluate(with: value)
+    }
+
+    private func isStrongPasswordForRegister(_ value: String) -> Bool {
+        guard value.count >= 8 else { return false }
+        return true
     }
 
     @objc private func handlePrimaryTapped() {
@@ -465,7 +515,7 @@ final class AuthController: BaseController<AuthViewModel> {
 
     @objc private func handleToggleMode() {
         mode = (mode == .login) ? .register : .login
-        // viewModel.didChangeMode(to: mode)
+        updatePrimaryButtonState()
     }
 
     @objc private func handleForgotPassword() {

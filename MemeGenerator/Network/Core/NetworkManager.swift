@@ -51,8 +51,6 @@ final class NetworkManager {
                             retries: retries - 1,
                             completion: completion
                         )
-                    } else {
-                        completion(nil, "Session expired. Please log in again.")
                     }
                 }
                 return

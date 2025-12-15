@@ -8,12 +8,6 @@
 import Foundation
 import Combine
 
-struct SubscriptionHistoryItemViewData {
-    let title: String
-    let dateText: String
-    let statusText: String
-}
-
 final class ManageSubscriptionVM: BaseViewModel {
 
     private let userUseCase: UserUseCase
@@ -31,9 +25,7 @@ final class ManageSubscriptionVM: BaseViewModel {
         performWithLoading(
             operation: { [weak self] completion in
                 guard let self else { return }
-                self.userUseCase.fetchProfile { result in
-                    completion(result)
-                }
+                self.userUseCase.fetchProfile { completion($0) }
             },
             errorMapper: { [weak self] (error: ProfileError) in
                 guard let self else { return "Something went wrong. Please try again." }
@@ -43,9 +35,10 @@ final class ManageSubscriptionVM: BaseViewModel {
                 }
             },
             onSuccess: { [weak self] profile in
-                self?.userProfile = profile
-                self?.updateCurrentPlan(from: profile.data.user)
-                self?.getHistory()
+                guard let self else { return }
+                self.userProfile = profile
+                self.currentPlan = self.makeCurrentPlan(from: profile.data.user)
+                self.getHistory()
             }
         )
     }
@@ -54,9 +47,7 @@ final class ManageSubscriptionVM: BaseViewModel {
         performWithLoading(
             operation: { [weak self] completion in
                 guard let self else { return }
-                self.userUseCase.fetchSubscriptionHistory { result in
-                    completion(result)
-                }
+                self.userUseCase.fetchSubscriptionHistory { completion($0) }
             },
             errorMapper: { [weak self] (error: ProfileError) in
                 guard let self else { return "Something went wrong. Please try again." }
@@ -72,82 +63,56 @@ final class ManageSubscriptionVM: BaseViewModel {
         )
     }
 
-    private func updateCurrentPlan(from user: User) {
-        let planTitle: String
-        switch user.premiumPlan?.lowercased() {
-        case "yearly":
-            planTitle = "You're on the Yearly Plan"
-        case "monthly":
-            planTitle = "You're on the Monthly Plan"
-        default:
-            planTitle = "You're on the Premium Plan"
-        }
-
-        var subtitle: String?
-        if let expiresAtString = user.premiumExpiresAt {
-            let iso = ISO8601DateFormatter()
-            iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-            if let date = iso.date(from: expiresAtString) {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "d MMM yyyy"
-                let dateString = formatter.string(from: date)
-                subtitle = "Renews on \(dateString)"
+    private func makeCurrentPlan(from user: User) -> CurrentPlanViewData {
+        let title: String = {
+            switch user.premiumPlan?.lowercased() {
+            case "yearly":  return "You're on the Yearly Plan"
+            case "monthly": return "You're on the Monthly Plan"
+            default:        return "You're on the Premium Plan"
             }
-        }
+        }()
 
-        currentPlan = CurrentPlanViewData(
-            title: planTitle,
-            subtitle: subtitle
-        )
+        let subtitle: String? = {
+            guard let raw = user.premiumExpiresAt, !raw.isEmpty else { return nil }
+            let date = raw.toDisplayDate("d MMM yyyy")
+            return date.isEmpty ? nil : "Renews on \(date)"
+        }()
+
+        return CurrentPlanViewData(title: title, subtitle: subtitle)
     }
 
     private func mapHistory(_ history: SubscriptionHistory) -> [SubscriptionHistoryItemViewData] {
-        let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-
-        let displayFormatter = DateFormatter()
-        displayFormatter.dateFormat = "d MMM yyyy"
-
         let events = history.data?.events ?? []
 
-        return events.map { event in
-            let planText: String
-            switch event.plan?.lowercased() {
-            case "yearly":
-                planText = "Yearly plan"
-            case "monthly":
-                planText = "Monthly plan"
-            default:
-                planText = "Subscription"
-            }
+        func displayDate(from raw: String?) -> String {
+            guard let raw, !raw.isEmpty else { return "" }
+            let d = raw.toDisplayDate("d MMM yyyy")
+            return d.isEmpty ? raw : d
+        }
 
-            let actionText: String
-            if !(event.isActive ?? false) {
-                actionText = "deactivated"
-            } else {
-                switch event.type {
-                case "initial_purchase":
-                    actionText = "started"
-                case "renewal":
-                    actionText = "renewed"
-                case "product_change":
-                    actionText = "changed"
-                case "restore":
-                    actionText = "restored"
-                default:
-                    actionText = "updated"
+        return events.map { event in
+            let planText: String = {
+                switch event.plan?.lowercased() {
+                case "yearly":  return "Yearly plan"
+                case "monthly": return "Monthly plan"
+                default:        return "Subscription"
                 }
-            }
+            }()
+
+            let actionText: String = {
+                if (event.isActive ?? false) == false { return "deactivated" }
+
+                switch event.type {
+                case "initial_purchase": return "started"
+                case "renewal":         return "renewed"
+                case "product_change":  return "changed"
+                case "restore":         return "restored"
+                default:                return "updated"
+                }
+            }()
 
             let title = "\(planText) \(actionText)"
-
-            var dateText = event.date ?? ""
-            if let raw = event.date,
-               let date = isoFormatter.date(from: raw) {
-                dateText = displayFormatter.string(from: date)
-            }
-
+            let dateText = displayDate(from: event.date)
             let statusText = (event.isActive ?? false) ? "Completed" : "Inactive"
 
             return SubscriptionHistoryItemViewData(
