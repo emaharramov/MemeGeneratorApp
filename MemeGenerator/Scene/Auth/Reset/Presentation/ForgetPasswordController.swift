@@ -369,7 +369,7 @@ final class ForgetPasswordController: BaseController<ForgetPasswordVM>, UITextFi
         }
         otpField.snp.makeConstraints {
             $0.top.bottom.equalToSuperview().inset(6)
-            $0.leading.equalToSuperview().inset(16)
+            $0.leading.equalTo(otpIcon.snp.trailing).offset(10)
             $0.trailing.equalToSuperview().inset(16)
         }
     }
