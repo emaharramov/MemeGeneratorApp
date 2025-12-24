@@ -9,7 +9,8 @@ import Foundation
 
 struct AITempResponse: Codable {
     let success: Bool?
-    let memes: [AiTempMeme]?
+    var memes: [AiTempMeme]?
+    let pageInfo: PageInfo?
 }
 
 struct AiTempMeme: Codable {

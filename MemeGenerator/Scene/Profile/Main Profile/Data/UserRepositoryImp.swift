@@ -66,9 +66,10 @@ final class UserRepositoryImp: UserRepository {
     }
 
     func getAiMemes(
+        page: Int,
         completion: @escaping (Result<FeedMemes, ProfileError>) -> Void
     ) {
-        let path = ProfileEndpoint.aiMemes(userId: AppStorage.shared.userId).path
+        let path = ProfileEndpoint.aiMemes(userId: AppStorage.shared.userId, page: page).path
 
         networkManager.request(
             path: path,
@@ -79,16 +80,17 @@ final class UserRepositoryImp: UserRepository {
             if let model {
                 completion(.success(model))
             } else {
-                let message = errorMessage ?? "Unknown error"
+                let message = path
                 completion(.failure(.network(message)))
             }
         }
     }
 
     func getAiTempMemes(
+        page: Int,
         completion: @escaping (Result<AITempResponse, ProfileError>) -> Void
     ) {
-        let path = ProfileEndpoint.aiTempMemes(userId: AppStorage.shared.userId).path
+        let path = ProfileEndpoint.aiTempMemes(userId: AppStorage.shared.userId, page: page).path
 
         networkManager.request(
             path: path,

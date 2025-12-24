@@ -11,6 +11,12 @@ import Foundation
 struct FeedMemes: Codable, Sendable {
     let success: Bool?
     let memes: [MemesTemplate]?
+    let pageInfo: PageInfo?
+}
+
+struct PageInfo: Codable, Sendable {
+    let hasNext: Bool?
+    let page: Int?
 }
 
 // MARK: - MemesTemplate

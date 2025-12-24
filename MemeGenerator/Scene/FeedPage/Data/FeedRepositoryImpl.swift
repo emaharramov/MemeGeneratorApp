@@ -16,11 +16,11 @@ final class FeedRepositoryImpl: FeedRepository {
         self.networkManager = networkManager
     }
 
-    func getAllMemes(
-        completion: @escaping (Result<FeedMemes, FeedError>
-        ) -> Void
-    ) {
-        let path = FeedEndpoint.allAIMemes.path
+    func getAllAIMemes(
+            page: Int,
+            completion: @escaping (Result<FeedMemes, FeedError>) -> Void
+    ){
+        let path = FeedEndpoint.allAIMemes(page: page).path
 
         networkManager.request(
             path: path,

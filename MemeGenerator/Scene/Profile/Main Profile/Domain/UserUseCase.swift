@@ -27,15 +27,17 @@ final class UserUseCase {
     }
 
     func getAiMemes(
+        page: Int,
         completion: @escaping (Result<FeedMemes, ProfileError>) -> Void
     ) {
-        repository.getAiMemes(completion: completion)
+        repository.getAiMemes(page: page, completion: completion)
     }
 
     func getAiTempMemes(
+        page: Int,
         completion: @escaping (Result<AITempResponse, ProfileError>) -> Void
     ) {
-        repository.getAiTempMemes(completion: completion)
+        repository.getAiTempMemes(page: page, completion: completion)
     }
 
     func fetchSubscriptionHistory (

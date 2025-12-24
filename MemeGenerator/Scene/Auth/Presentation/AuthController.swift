@@ -15,8 +15,6 @@ enum AuthMode {
 
 final class AuthController: BaseController<AuthViewModel> {
 
-    private weak var router: AuthRouting?
-
     var mode: AuthMode {
         didSet { updateForMode() }
     }
@@ -193,8 +191,7 @@ final class AuthController: BaseController<AuthViewModel> {
         alignment: .center
     )
 
-    init(viewModel: AuthViewModel, mode: AuthMode, router: AuthRouting) {
-        self.router = router
+    init(viewModel: AuthViewModel, mode: AuthMode) {
         self.mode = mode
         super.init(viewModel: viewModel)
     }
@@ -207,7 +204,6 @@ final class AuthController: BaseController<AuthViewModel> {
         super.viewDidLoad()
 
         view.backgroundColor = Palette.mgBackground
-        configureNavigation(title: "Auth")
 
         setupLayout()
         setupActions()
@@ -519,6 +515,6 @@ final class AuthController: BaseController<AuthViewModel> {
     }
 
     @objc private func handleForgotPassword() {
-        router?.showForgotPassword()
+        viewModel.showPassTapped()
     }
 }

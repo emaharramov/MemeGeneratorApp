@@ -13,10 +13,12 @@ final class AuthViewModel: BaseViewModel {
     var onLoginSuccess: ((String) -> Void)?
     var onRegisterRequiresVerification: ((String) -> Void)?
 
+    private weak var router: AuthRouting?
     private let loginUseCase: LoginUseCase
     private let registerUseCase: RegisterUseCase
 
-    init(loginUseCase: LoginUseCase, registerUseCase: RegisterUseCase) {
+    init(router: AuthRouting, loginUseCase: LoginUseCase, registerUseCase: RegisterUseCase) {
+        self.router = router
         self.loginUseCase = loginUseCase
         self.registerUseCase = registerUseCase
     }
@@ -154,6 +156,10 @@ final class AuthViewModel: BaseViewModel {
             return nil
         }
         return (parsed.code, parsed.message)
+    }
+    
+    func showPassTapped() {
+        router?.showForgotPassword()
     }
 
     private func mapError(_ error: AuthError) -> String {

@@ -70,7 +70,7 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
     }
 
     @objc private func onRefresh() {
-        fetchData() // ✅ yalnız cari mode refresh
+        fetchData()
     }
 
     private func fetchData() {

@@ -10,14 +10,7 @@ import SnapKit
 import Combine
 
 final class FeedController: BaseController<FeedViewModel> {
-
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        .lightContent
-    }
-
-    private enum Section: Int, CaseIterable {
-        case feed
-    }
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
     private lazy var collectionView: UICollectionView = {
         let layout = createLayout()
@@ -25,10 +18,9 @@ final class FeedController: BaseController<FeedViewModel> {
         cv.backgroundColor = .clear
         cv.alwaysBounceVertical = true
         cv.showsVerticalScrollIndicator = false
-        cv.register(
-            FeedMemeCollectionCell.self,
-            forCellWithReuseIdentifier: FeedMemeCollectionCell.reuseId
-        )
+        cv.register(FeedMemeCollectionCell.self, forCellWithReuseIdentifier: FeedMemeCollectionCell.reuseId)
+        cv.dataSource = self
+        cv.delegate = self
         return cv
     }()
 
@@ -40,68 +32,34 @@ final class FeedController: BaseController<FeedViewModel> {
 
     private var cancellables = Set<AnyCancellable>()
 
-    override init(viewModel: FeedViewModel) {
-        super.init(viewModel: viewModel)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        title = "Feed"
         view.backgroundColor = Palette.mgBackground
-
-        setupSubviews()
-        setupConstraints()
-        setupCollectionView()
+        setupUI()
         bindViewModel()
-
-        viewModel.getAllMemes()
+        viewModel.loadPage(1)
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        viewModel.getAllMemes()
-    }
-
-    private func setupSubviews() {
-        view.addSubviews(collectionView)
-    }
-
-    private func setupConstraints() {
-        collectionView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
-        }
-    }
-
-    private func setupCollectionView() {
-        collectionView.dataSource = self
-        collectionView.delegate = self
+    private func setupUI() {
+        view.addSubview(collectionView)
+        collectionView.snp.makeConstraints { $0.edges.equalTo(view.safeAreaLayoutGuide) }
 
         collectionView.refreshControl = refreshControl
-        refreshControl.addTarget(
-            self,
-            action: #selector(onRefresh),
-            for: .valueChanged
-        )
+        refreshControl.addTarget(self, action: #selector(onRefresh), for: .valueChanged)
     }
 
     @objc private func onRefresh() {
-        viewModel.getAllMemes()
+        viewModel.loadPage(1)
     }
 
     override func bindViewModel() {
         super.bindViewModel()
 
-        viewModel.$allMemes
+        viewModel.$allAIMemes
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
-                guard let self else { return }
-                self.refreshControl.endRefreshing()
-                self.collectionView.reloadData()
+                self?.refreshControl.endRefreshing()
+                self?.collectionView.reloadData()
             }
             .store(in: &cancellables)
 
@@ -109,54 +67,33 @@ final class FeedController: BaseController<FeedViewModel> {
             .compactMap { $0 }
             .receive(on: RunLoop.main)
             .sink { [weak self] message in
-                guard let self else { return }
-                self.refreshControl.endRefreshing()
-                self.showToast(message: message)
-            }
-            .store(in: &cancellables)
-
-        viewModel.$isLoading
-            .receive(on: RunLoop.main)
-            .sink { [weak self] isLoading in
-                guard let self else { return }
-                if !isLoading {
-                    self.refreshControl.endRefreshing()
-                }
+                self?.refreshControl.endRefreshing()
+                self?.showToast(message: message)
             }
             .store(in: &cancellables)
     }
 
     private func createLayout() -> UICollectionViewLayout {
-        UICollectionViewCompositionalLayout { sectionIndex, _ in
-            guard let section = Section(rawValue: sectionIndex) else { return nil }
-
-            switch section {
-            case .feed:
-                let itemSize = NSCollectionLayoutSize(
+        UICollectionViewCompositionalLayout { _, _ in
+            let item = NSCollectionLayoutItem(
+                layoutSize: NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .estimated(420)
                 )
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            )
 
-                let groupSize = NSCollectionLayoutSize(
+            let group = NSCollectionLayoutGroup.vertical(
+                layoutSize: NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .estimated(420)
-                )
-                let group = NSCollectionLayoutGroup.vertical(
-                    layoutSize: groupSize,
-                    subitems: [item]
-                )
+                ),
+                subitems: [item]
+            )
 
-                let sectionLayout = NSCollectionLayoutSection(group: group)
-                sectionLayout.contentInsets = NSDirectionalEdgeInsets(
-                    top: 12,
-                    leading: 0,
-                    bottom: 32,
-                    trailing: 0
-                )
-                sectionLayout.interGroupSpacing = 12
-                return sectionLayout
-            }
+            let section = NSCollectionLayoutSection(group: group)
+            section.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 0, bottom: 32, trailing: 0)
+            section.interGroupSpacing = 12
+            return section
         }
     }
 
@@ -167,52 +104,27 @@ final class FeedController: BaseController<FeedViewModel> {
 }
 
 extension FeedController: UICollectionViewDataSource {
-
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        Section.allCases.count
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        viewModel.allAIMemes.count
     }
 
-    func collectionView(_ collectionView: UICollectionView,
-                        numberOfItemsInSection section: Int) -> Int {
-        guard let sectionType = Section(rawValue: section) else { return 0 }
-
-        switch sectionType {
-        case .feed:
-            return viewModel.allMemes.count
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell: FeedMemeCollectionCell = collectionView.dequeueCell(FeedMemeCollectionCell.self, for: indexPath)
+        let meme = viewModel.allAIMemes[indexPath.item]
+        cell.configure(template: meme)
+        cell.onDownloadTapped = { [weak self] image in
+            guard let self, let image else { return }
+            self.saveImageToPhotos(image)
         }
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-
-        guard let sectionType = Section(rawValue: indexPath.section) else {
-            fatalError("Unknown section")
-        }
-
-        switch sectionType {
-        case .feed:
-            let cell: FeedMemeCollectionCell = collectionView.dequeueCell(
-                FeedMemeCollectionCell.self,
-                for: indexPath
-            )
-
-            let template = viewModel.allMemes[indexPath.item]
-            cell.configure(template: template)
-
-            cell.onDownloadTapped = { [weak self] image in
-                guard let self, let image else { return }
-                self.saveImageToPhotos(image)
-            }
-
-            return cell
-        }
+        return cell
     }
 }
 
 extension FeedController: UICollectionViewDelegate {
-
-    func collectionView(_ collectionView: UICollectionView,
-                        didSelectItemAt indexPath: IndexPath) {
-        // future: open detail
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let count = viewModel.allAIMemes.count
+        if indexPath.item >= count - 2 {
+            viewModel.loadNextPage()
+        }
     }
 }

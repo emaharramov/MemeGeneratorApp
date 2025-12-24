@@ -16,8 +16,9 @@ final class FeedUseCase {
     }
 
     func execute(
+        page: Int,
         completion: @escaping (Result<FeedMemes, FeedError>) -> Void
     ) {
-        repository.getAllMemes(completion: completion)
+        repository.getAllAIMemes(page: page, completion: completion)
     }
 }

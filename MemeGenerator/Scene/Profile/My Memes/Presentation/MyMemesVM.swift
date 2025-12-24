@@ -20,11 +20,11 @@ final class MyMemesVM: BaseViewModel {
         super.init()
     }
 
-    func getAiMemes(shouldRefreshProfile: Bool = true) {
+    func getAiMemes(shouldRefreshProfile: Bool = true, page: Int = 1) {
         performWithLoading(
             operation: { [weak self] completion in
                 guard let self else { return }
-                self.userUseCase.getAiMemes { result in
+                self.userUseCase.getAiMemes(page: page) { result in
                     completion(result)
                 }
             },
@@ -35,11 +35,11 @@ final class MyMemesVM: BaseViewModel {
         )
     }
 
-    func getAiTemplateMemes(shouldRefreshProfile: Bool = true) {
+    func getAiTemplateMemes(shouldRefreshProfile: Bool = true, page: Int = 1) {
         performWithLoading(
             operation: { [weak self] completion in
                 guard let self else { return }
-                self.userUseCase.getAiTempMemes { result in
+                self.userUseCase.getAiTempMemes(page: page) { result in
                     completion(result)
                 }
             },

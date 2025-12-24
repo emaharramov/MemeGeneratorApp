@@ -31,8 +31,16 @@ final class NetworkHelper {
     }
 
     func configureURL(endpoint: String) -> String {
-        return Constants.baseURL + endpoint
+        return Constants.baseURLFortest + endpoint
     }
+
+//    func configureURL(endpoint: String, query: [String: String] = [:]) -> String {
+//        var components = URLComponents(string: Constants.baseURL + endpoint)
+//            if !query.isEmpty {
+//                components?.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
+//            }
+//        return components?.url?.absoluteString ?? (Constants.baseURLFortest + endpoint)
+//    }
 }
 
 extension NetworkHelper {

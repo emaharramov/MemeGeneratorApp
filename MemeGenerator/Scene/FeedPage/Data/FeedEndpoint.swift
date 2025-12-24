@@ -8,15 +8,13 @@
 import Foundation
 
 enum FeedEndpoint {
-    case allMemes
-    case allAIMemes
+    case allAIMemes(page: Int)
     
     var path: String {
         switch self {
-        case .allMemes:
-            return NetworkHelper.shared.configureURL(endpoint: "/memes/all")
-        case .allAIMemes:
-            return NetworkHelper.shared.configureURL(endpoint: "/memes/ai/all")
+        case .allAIMemes(let page):
+            return NetworkHelper.shared.configureURL(
+                           endpoint: "/memes/ai/all?page=\(page)")
         }
     }
 }

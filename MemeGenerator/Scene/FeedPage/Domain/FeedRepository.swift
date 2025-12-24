@@ -8,7 +8,8 @@
 import Foundation
 
 protocol FeedRepository {
-    func getAllMemes(
+    func getAllAIMemes(
+        page: Int,
         completion: @escaping (Result<FeedMemes, FeedError>) -> Void
     )
 }

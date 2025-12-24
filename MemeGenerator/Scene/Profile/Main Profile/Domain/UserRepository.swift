@@ -18,10 +18,12 @@ protocol UserRepository {
      )
 
     func getAiMemes(
+        page: Int,
         completion: @escaping (Result<FeedMemes, ProfileError>) -> Void
     )
 
     func getAiTempMemes(
+        page: Int,
         completion: @escaping (Result<AITempResponse, ProfileError>) -> Void
     )
 

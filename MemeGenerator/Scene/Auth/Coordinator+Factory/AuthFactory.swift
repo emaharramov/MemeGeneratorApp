@@ -27,8 +27,12 @@ final class DefaultAuthFactory: AuthFactory {
         let loginUseCase = LoginUseCaseImpl(repository: authRepository)
         let registerUseCase = RegisterUseCaseImpl(repository: authRepository)
 
-        let vm = AuthViewModel(loginUseCase: loginUseCase, registerUseCase: registerUseCase)
-        let vc = AuthController(viewModel: vm, mode: mode, router: router)
+        let vm = AuthViewModel(
+            router: router,
+            loginUseCase: loginUseCase,
+            registerUseCase: registerUseCase
+        )
+        let vc = AuthController(viewModel: vm, mode: mode)
 
         vm.onLoginSuccess = { token in
             router.authDidFinish(accessToken: token)

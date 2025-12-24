@@ -10,18 +10,18 @@ import Foundation
 enum ProfileEndpoint {
     case me
     case updateMe
-    case aiMemes(userId: String)
-    case aiTempMemes(userId: String)
+    case aiMemes(userId: String,page: Int)
+    case aiTempMemes(userId: String,page: Int)
     case paymentHistory
 
     var path: String {
         switch self {
         case .me, .updateMe:
             return NetworkHelper.shared.configureURL(endpoint: "/users/me")
-        case .aiMemes(let userId):
-            return NetworkHelper.shared.configureURL(endpoint: "/memes/ai/\(userId)")
-        case .aiTempMemes(let userId):
-            return NetworkHelper.shared.configureURL(endpoint: "/memes/aitemp/\(userId)")
+        case .aiMemes(let userId, let page):
+            return NetworkHelper.shared.configureURL(endpoint: "/memes/ai/\(userId)?page=\(page)")
+        case .aiTempMemes(let userId, let page):
+            return NetworkHelper.shared.configureURL(endpoint: "/memes/aitemp/\(userId)?page=\(page)")
         case .paymentHistory:
             return NetworkHelper.shared.configureURL(endpoint: "/users/subscription/history")
         }
