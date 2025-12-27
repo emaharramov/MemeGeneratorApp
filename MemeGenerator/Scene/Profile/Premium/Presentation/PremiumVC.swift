@@ -25,8 +25,7 @@ final class PremiumViewController: BaseController<PremiumVM> {
 
     private let perks: [(String, String)] = [
         ("infinity",    "Unlimited AI Generations"),
-        ("drop.fill",   "No More Watermarks"),
-        ("rocket.fill", "Early Access to New Styles")
+        ("drop.fill",   "No More Watermarks")
     ]
 
     private var selectedPlan: Plan = .yearly {
@@ -36,7 +35,6 @@ final class PremiumViewController: BaseController<PremiumVM> {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = "Go Premium"
         view.backgroundColor = Palette.mgBackground
 
         setupTableView()
@@ -167,7 +165,7 @@ extension PremiumViewController: UITableViewDataSource {
 
             cell.configure(
                 title: "Go Premium",
-                subtitle: "Unlock unlimited AI memes, remove watermarks, and get early access to new templates."
+                subtitle: "Unlock unlimited AI memes and remove watermarks"
             )
             return cell
 
@@ -207,7 +205,7 @@ extension PremiumViewController: UITableViewDataSource {
                     isSelected: selectedPlan == .monthly
                 )
             }
-
+            cell.selectionStyle = .none
             return cell
         }
     }

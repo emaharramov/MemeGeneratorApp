@@ -168,8 +168,7 @@ final class ManageSubscriptionVC: BaseController<ManageSubscriptionVM> {
     private func setupBenefits() {
         let benefits = [
             "Unlimited AI generations",
-            "No watermarks",
-            "Early access to new styles"
+            "No watermarks"
         ]
 
         benefits.forEach { benefitsStack.addArrangedSubview(makeBenefitRow(text: $0)) }
