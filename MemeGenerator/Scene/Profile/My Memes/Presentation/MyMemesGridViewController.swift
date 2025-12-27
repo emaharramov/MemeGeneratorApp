@@ -17,6 +17,10 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
     private var items: [MyMemeViewData] = []
     private var cancellables = Set<AnyCancellable>()
 
+    private var currentPage: Int = 1
+    private var isLoadingMore: Bool = false
+    private var hasMorePages: Bool = true
+
     private let emptyStateView = EmptyStateView(
         title: "No memes yet",
         subtitle: "This place is awkwardly empty.\nCreate or generate a meme to see it here."
@@ -70,21 +74,39 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
     }
 
     @objc private func onRefresh() {
+        resetPagination()
         fetchData()
     }
 
-    private func fetchData() {
+    private func resetPagination() {
+        currentPage = 1
+        hasMorePages = true
+        isLoadingMore = false
         items.removeAll()
-        collectionView.reloadData()
+    }
+
+    private func fetchData(isLoadingMore: Bool = false) {
+        if !isLoadingMore {
+            items.removeAll()
+            collectionView.reloadData()
+        }
 
         switch mode {
         case .ai:
-            viewModel.getAiMemes()
+            viewModel.getAiMemes(page: currentPage)
         case .aiTemplate:
-            viewModel.getAiTemplateMemes()
+            viewModel.getAiTemplateMemes(page: currentPage)
         }
 
         updateEmptyState()
+    }
+
+    private func loadMoreIfNeeded() {
+        guard !isLoadingMore, hasMorePages else { return }
+
+        isLoadingMore = true
+        currentPage += 1
+        fetchData(isLoadingMore: true)
     }
 
     private func updateEmptyState() {
@@ -92,9 +114,9 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
 
         switch mode {
         case .ai:
-            isEmpty = (viewModel.aiMemes?.memes?.isEmpty ?? true)
+            isEmpty = (viewModel.aiMemes?.memes?.isEmpty ?? true) && currentPage == 1
         case .aiTemplate:
-            isEmpty = (viewModel.aiTempMemes?.memes?.isEmpty ?? true)
+            isEmpty = (viewModel.aiTempMemes?.memes?.isEmpty ?? true) && currentPage == 1
         }
 
         emptyStateView.isHidden = !isEmpty
@@ -136,7 +158,10 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                 guard self.mode == .ai else { return }
 
                 let memes = response?.memes ?? []
-                self.items = memes.map { meme in
+
+                self.hasMorePages = !memes.isEmpty
+
+                let newItems = memes.map { meme in
                     MyMemeViewData(
                         imageURL: meme.imageURL,
                         title: meme.prompt ?? "",
@@ -145,6 +170,13 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                     )
                 }
 
+                if self.currentPage == 1 {
+                    self.items = newItems
+                } else {
+                    self.items.append(contentsOf: newItems)
+                }
+
+                self.isLoadingMore = false
                 self.refreshControl.endRefreshing()
                 self.collectionView.reloadData()
                 self.updateEmptyState()
@@ -158,7 +190,9 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                 guard self.mode == .aiTemplate else { return }
 
                 let memes = response?.memes ?? []
-                self.items = memes.map { meme in
+                self.hasMorePages = !memes.isEmpty
+
+                let newItems = memes.map { meme in
                     let top = meme.topText ?? ""
                     let bottom = meme.bottomText ?? ""
                     let title = [top, bottom].filter { !$0.isEmpty }.joined(separator: "\n")
@@ -171,6 +205,13 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
                     )
                 }
 
+                if self.currentPage == 1 {
+                    self.items = newItems
+                } else {
+                    self.items.append(contentsOf: newItems)
+                }
+
+                self.isLoadingMore = false
                 self.refreshControl.endRefreshing()
                 self.collectionView.reloadData()
                 self.updateEmptyState()
@@ -197,6 +238,15 @@ final class MyMemesGridViewController: BaseController<MyMemesVM>,
         }
 
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        willDisplay cell: UICollectionViewCell,
+                        forItemAt indexPath: IndexPath) {
+        let totalItems = items.count
+        if indexPath.item >= totalItems - 2 {
+            loadMoreIfNeeded()
+        }
     }
 
     private func saveImageToPhotos(_ image: UIImage) {
