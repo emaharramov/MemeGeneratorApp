@@ -20,6 +20,7 @@ final class NetworkManager {
         encodingType: EncodingType = .url,
         header: HTTPHeaders? = nil,
         retries: Int = 1,
+        shouldRetryOn401: Bool = true,
         completion: @escaping ((T?, String?) -> Void)
     ) {
         let headers = header ?? NetworkHelper.shared.headers
@@ -37,7 +38,7 @@ final class NetworkManager {
 
             let statusCode = response.response?.statusCode ?? -1
 
-            if statusCode == 401, retries > 0 {
+            if statusCode == 401, retries > 0, shouldRetryOn401 {
                 Task {
                     let refreshed = await self.tryRefreshToken()
                     if refreshed {
@@ -49,8 +50,11 @@ final class NetworkManager {
                             encodingType: encodingType,
                             header: header,
                             retries: retries - 1,
+                            shouldRetryOn401: shouldRetryOn401,
                             completion: completion
                         )
+                    } else {
+                        completion(nil, "Session expired. Please log in again.")
                     }
                 }
                 return

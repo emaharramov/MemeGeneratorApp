@@ -187,6 +187,7 @@ final class AuthRepositoryImpl: AuthRepository {
             params: params,
             encodingType: .json,
             header: NetworkHelper.shared.headers,
+            shouldRetryOn401: false,
             completion: completion
         )
     }
