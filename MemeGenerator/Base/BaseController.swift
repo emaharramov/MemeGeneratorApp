@@ -50,6 +50,18 @@ class BaseController<ViewModel: BaseViewModel>: UIViewController {
     func bindViewModel() {}
 
     private func bindViewModelBase() {
+
+        viewModel.shouldShowAd = { [weak self] onAdDismissed in
+            guard let self = self else {
+                onAdDismissed()
+                return
+            }
+
+            AdMobManager.shared.showInterstitialAd(from: self) {
+                onAdDismissed()
+            }
+        }
+
         viewModel.$errorMessage
             .receive(on: RunLoop.main)
             .sink { [weak self] message in

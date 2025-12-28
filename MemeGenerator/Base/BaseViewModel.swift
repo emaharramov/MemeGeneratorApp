@@ -14,6 +14,7 @@ class BaseViewModel: NSObject {
     @Published var errorMessage: String?
     @Published var successMessage: String?
 
+    var shouldShowAd: ((@escaping () -> Void) -> Void)?
     var cancellables = Set<AnyCancellable>()
 
     override init() {}
@@ -68,6 +69,7 @@ class BaseViewModel: NSObject {
 
     func performWithLoading<T, E: Error>(
         resetMessages shouldReset: Bool = true,
+        showAdForNonPremiumUser: Bool = false,
         operation: (@escaping (Result<T, E>) -> Void) -> Void,
         errorMapper: ((E) -> String)? = nil,
         onSuccess: @escaping (T) -> Void
@@ -75,6 +77,7 @@ class BaseViewModel: NSObject {
         if shouldReset {
             resetMessages()
         }
+
         setLoading(true)
 
         operation { [weak self] result in
@@ -83,7 +86,13 @@ class BaseViewModel: NSObject {
 
             switch result {
             case .success(let value):
-                onSuccess(value)
+                if showAdForNonPremiumUser && !self.isPremiumUser {
+                    self.shouldShowAd? {
+                        onSuccess(value)
+                    }
+                } else {
+                    onSuccess(value)
+                }
 
             case .failure(let error):
                 if let errorMapper {
@@ -92,6 +101,10 @@ class BaseViewModel: NSObject {
                 }
             }
         }
+    }
+
+    private var isPremiumUser: Bool {
+        return AppStorage.shared.currentUser?.isPremium ?? false
     }
 }
 

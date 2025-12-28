@@ -74,6 +74,7 @@ final class FromTemplateVM: BaseViewModel {
         }
 
         performWithLoading(
+            showAdForNonPremiumUser: true,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.generateMemeUseCase.execute(

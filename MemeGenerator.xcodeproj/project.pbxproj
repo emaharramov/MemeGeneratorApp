@@ -10,6 +10,7 @@
 		DE2462422ECCDCD6006A5F23 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = DE2462412ECCDCD6006A5F23 /* Alamofire */; };
 		DE2462942ECD307F006A5F23 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = DE2462932ECD307F006A5F23 /* SnapKit */; };
 		DE2462A42ECD4374006A5F23 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = DE2462A32ECD4374006A5F23 /* Kingfisher */; };
+		DE3C720F2F007FD200559755 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DE3C720E2F007FD200559755 /* GoogleMobileAds */; };
 		DEBD75AB2EE4F4940061CF53 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = DEBD75AA2EE4F4940061CF53 /* RevenueCat */; };
 		DEBD75AD2EE4F4940061CF53 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = DEBD75AC2EE4F4940061CF53 /* RevenueCatUI */; };
 /* End PBXBuildFile section */
@@ -44,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE3C720F2F007FD200559755 /* GoogleMobileAds in Frameworks */,
 				DEBD75AB2EE4F4940061CF53 /* RevenueCat in Frameworks */,
 				DE2462A42ECD4374006A5F23 /* Kingfisher in Frameworks */,
 				DE2462422ECCDCD6006A5F23 /* Alamofire in Frameworks */,
@@ -96,6 +98,7 @@
 				DE2462A32ECD4374006A5F23 /* Kingfisher */,
 				DEBD75AA2EE4F4940061CF53 /* RevenueCat */,
 				DEBD75AC2EE4F4940061CF53 /* RevenueCatUI */,
+				DE3C720E2F007FD200559755 /* GoogleMobileAds */,
 			);
 			productName = MemeGenerator;
 			productReference = DE7DAE7E2ECCB41B0087C37C /* MemeGenerator.app */;
@@ -130,6 +133,7 @@
 				DE2462922ECD307F006A5F23 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				DE2462A22ECD4374006A5F23 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				DEBD75A92EE4F4940061CF53 /* XCRemoteSwiftPackageReference "purchases-ios" */,
+				DE3C720D2F007FD200559755 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DE7DAE7F2ECCB41B0087C37C /* Products */;
@@ -405,6 +409,14 @@
 				minimumVersion = 8.6.2;
 			};
 		};
+		DE3C720D2F007FD200559755 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.14.0;
+			};
+		};
 		DEBD75A92EE4F4940061CF53 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios";
@@ -430,6 +442,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DE2462A22ECD4374006A5F23 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		DE3C720E2F007FD200559755 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE3C720D2F007FD200559755 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 		DEBD75AA2EE4F4940061CF53 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;

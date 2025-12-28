@@ -45,6 +45,7 @@ final class AIVM: BaseViewModel {
         }
 
         performWithLoading(
+            showAdForNonPremiumUser: true,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.generateUseCase.execute(
