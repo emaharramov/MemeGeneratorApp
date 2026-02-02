@@ -30,15 +30,16 @@ extension HelpFAQItem {
             iconBackgroundColor: Palette.mgAccentSoft,
             title: "What do I get with Premium?",
             body: """
-Premium turns MemeGenerator into your full-power meme studio:
+        Premium turns MemeGenerator into your full-power meme studio:
 
-• Unlimited AI meme generations (no 10-meme limit)  
-• No watermarks – clean exports only  
-• Access to all current and future Premium features  
-• Priority access when traffic is high
+        • Unlimited AI meme generations (no 10-meme limit)  
+        • No watermarks – clean exports only  
+        • Ad-free experience – memes without interruptions  
+        • Access to all current and future Premium features  
+        • Priority access when traffic is high
 
-Perfect if you create memes regularly and want everything to feel fast, clean and pro.
-"""
+        Perfect if you create memes regularly and want everything to feel fast, clean and pro.
+        """
         ),
         HelpFAQItem(
             id: .managePremium,
@@ -52,9 +53,6 @@ To restore your Premium:
 • Open MemeGenerator  
 • Tap the Premium badge or “Go Premium”  
 • Choose “Restore Purchase”
-
-To manage or cancel your subscription, go to:
-Settings → Apple ID → Subscriptions → MemeGenerator Premium.
 """
         ),
         HelpFAQItem(

@@ -37,6 +37,7 @@ final class VerifyEmailViewModel: BaseViewModel {
         }
 
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] (completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void) in
                 guard let self else { return }
                 self.verifyUseCase.execute(email: self.email, code: clean, completion: completion)
@@ -50,8 +51,7 @@ final class VerifyEmailViewModel: BaseViewModel {
                 AppStorage.shared.saveLogin(
                     accessToken: session.data.accessToken,
                     userId: session.data.user.id,
-                    refreshToken: session.data.refreshToken,
-                    user: session.data.user
+                    refreshToken: session.data.refreshToken
                 )
 
                 Purchases.shared.logIn(session.data.user.id) { _, created, error in
@@ -70,6 +70,7 @@ final class VerifyEmailViewModel: BaseViewModel {
 
     func resendCode() {
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] (completion: @escaping (Result<SimpleServerMessageResponse, AuthError>) -> Void) in
                 guard let self else { return }
                 self.resendUseCase.execute(email: self.email, completion: completion)

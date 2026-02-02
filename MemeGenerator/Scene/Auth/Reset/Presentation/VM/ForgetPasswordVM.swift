@@ -125,6 +125,7 @@ final class ForgetPasswordVM: BaseViewModel {
         }
 
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] done in
                 guard let self else { return }
                 self.forgotUseCase.execute(email: currentEmail, completion: done)
@@ -160,6 +161,7 @@ final class ForgetPasswordVM: BaseViewModel {
         }
 
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] done in
                 guard let self else { return }
                 self.resetUseCase.execute(
@@ -178,8 +180,7 @@ final class ForgetPasswordVM: BaseViewModel {
                 AppStorage.shared.saveLogin(
                     accessToken: session.data.accessToken,
                     userId: session.data.user.id,
-                    refreshToken: session.data.refreshToken,
-                    user: session.data.user
+                    refreshToken: session.data.refreshToken
                 )
 
                 self.showSuccess("Password updated. Logged in!")

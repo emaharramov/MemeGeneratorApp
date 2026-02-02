@@ -151,7 +151,6 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         if let image = selectedAvatarImage {
             let resized = image.resizedToMaxDimension(256)
             if let data = resized.jpegData(compressionQuality: 0.35) {
-                print("Avatar bytes:", data.count)
                 let base64String = data.base64EncodedString()
                 avatarUrlToSend = base64String
             }

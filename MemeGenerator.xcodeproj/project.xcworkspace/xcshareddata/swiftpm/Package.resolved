@@ -1,5 +1,5 @@
 {
-  "originHash" : "cd9a3ff0336af8105a66570d6d0046496e510f11a7093d822e059fb841adaf93",
+  "originHash" : "12451843028146cd06fb3972644371d03d304d562de9d1f7c0d00b18f1449314",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
         "version" : "5.10.2"
+      }
+    },
+    {
+      "identity" : "keychainaccess?utm_source=chatgpt.com",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess?utm_source=chatgpt.com",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e0c7eebc5a4465a3c4680764f26b7a61f567cdaf"
       }
     },
     {

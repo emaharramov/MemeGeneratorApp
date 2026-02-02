@@ -2,18 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>This allows us to show you personalized ads and improve your experience.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-6373627516869152~8162615295</string>
-	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take photos for memes.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>We need access to save your memes to Photos.
-We need access to save your memes to Photos.
-</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photos so you can pick images for memes.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -24,8 +24,9 @@ final class PremiumViewController: BaseController<PremiumVM> {
     private let tableView = UITableView(frame: .zero, style: .plain)
 
     private let perks: [(String, String)] = [
-        ("infinity",    "Unlimited AI Generations"),
-        ("drop.fill",   "No More Watermarks")
+        ("infinity",        "Unlimited AI Generations"),
+        ("drop.fill",       "No More Watermarks"),
+        ("nosign",          "Ad-free Experience")
     ]
 
     private var selectedPlan: Plan = .yearly {

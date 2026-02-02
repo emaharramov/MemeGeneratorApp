@@ -68,15 +68,8 @@ extension ProfileCoordinator: ProfileRouting {
             secondaryTitle: "Cancel",
             emoji: "🤔",
             onPrimary: { [weak self] in
-                guard let self else { return }
-                AppStorage.shared.isLoggedIn = false
-                AppStorage.shared.accessToken = nil
-                Purchases.shared.logOut { error,err  in
-                   if let error {
-                       print("RevenueCat logOut error:", error)
-                   }
-                }
-                self.onLogout?()
+                AppStorage.shared.logout()
+                self?.onLogout?()
             }
         )
     }

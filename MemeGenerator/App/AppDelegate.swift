@@ -13,15 +13,16 @@ import AppTrackingTransparency
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         Purchases.configure(withAPIKey: "test_DdWclUrWHxHGXqIkPNradfWoRIq")
+
         AdMobManager.shared.initialize()
         AdMobManager.shared.loadInterstitialAd()
+
+        SubscriptionManager.shared.configureUserIfNeeded()
 
         return true
     }

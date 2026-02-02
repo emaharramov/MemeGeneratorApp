@@ -102,8 +102,7 @@ final class NetworkManager {
         AppStorage.shared.saveLogin(
             accessToken: model.data.accessToken,
             userId: model.data.user.id,
-            refreshToken: model.data.refreshToken,
-            user: model.data.user
+            refreshToken: model.data.refreshToken
         )
     }
 }

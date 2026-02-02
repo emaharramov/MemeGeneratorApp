@@ -29,13 +29,15 @@ final class ProfileViewController: BaseController<ProfileVM> {
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
 
+    private var isPremium: Bool {
+        SubscriptionManager.shared.isPremium
+    }
+    
     private var displayName: String {
         let user = viewModel.userProfile?.data
-
         if let fullName = user?.user.fullName, !fullName.isEmpty {
             return fullName
         }
-
         return "Meme Master"
     }
 
@@ -55,8 +57,6 @@ final class ProfileViewController: BaseController<ProfileVM> {
         String(viewModel.userProfile?.data.stats?.aiTemplateMemeCount ?? 0)
     }
 
-    // MARK: - Init
-
     init(viewModel: ProfileVM, router: ProfileRouting) {
         self.router = router
         super.init(viewModel: viewModel)
@@ -66,8 +66,6 @@ final class ProfileViewController: BaseController<ProfileVM> {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Lifecycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = Palette.mgBackground
@@ -76,11 +74,13 @@ final class ProfileViewController: BaseController<ProfileVM> {
         setupTableView()
         setupRefreshControl()
         bindViewModel()
+        bindSubscription()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.getUserProfile()
+        SubscriptionManager.shared.refreshStatus()
     }
 
     override func bindViewModel() {
@@ -90,6 +90,15 @@ final class ProfileViewController: BaseController<ProfileVM> {
                 guard let self else { return }
                 self.refreshControl.endRefreshing()
                 self.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func bindSubscription() {
+        SubscriptionManager.shared.$isPremium
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.tableView.reloadData()
             }
             .store(in: &cancellables)
     }
@@ -129,29 +138,12 @@ final class ProfileViewController: BaseController<ProfileVM> {
         viewModel.getUserProfile()
     }
 
-    private func openEditProfile() {
-        router?.showEditProfile()
-    }
-
-    private func openPremium() {
-        router?.showPremium()
-    }
-
-    private func openSubscription() {
-        router?.showSubscription()
-    }
-
-    private func openMyMemes() {
-        router?.showMyMemes()
-    }
-
-    private func openHelp() {
-        router?.showHelp()
-    }
-
-    private func logout() {
-        router?.performLogout()
-    }
+    private func openEditProfile() { router?.showEditProfile() }
+    private func openPremium() { router?.showPremium() }
+    private func openSubscription() { router?.showSubscription() }
+    private func openMyMemes() { router?.showMyMemes() }
+    private func openHelp() { router?.showHelp() }
+    private func logout() { router?.performLogout() }
 }
 
 extension ProfileViewController: UITableViewDataSource {
@@ -180,13 +172,12 @@ extension ProfileViewController: UITableViewDataSource {
         }
 
         switch section {
+
         case .header:
             let cell: ProfileHeaderCell = tableView.dequeueCell(
                 ProfileHeaderCell.self,
                 for: indexPath
             )
-
-            let isPremium = viewModel.userProfile?.data.user.isPremium ?? false
 
             cell.configure(
                 name: displayName,
@@ -262,9 +253,9 @@ extension ProfileViewController: UITableViewDelegate {
               let row = MenuRow(rawValue: indexPath.row) else { return }
 
         switch row {
-        case .myMemes:    openMyMemes()
-        case .help:       openHelp()
-        case .logout:     logout()
+        case .myMemes: openMyMemes()
+        case .help:    openHelp()
+        case .logout:  logout()
         }
     }
 

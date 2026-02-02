@@ -69,7 +69,7 @@ class BaseViewModel: NSObject {
 
     func performWithLoading<T, E: Error>(
         resetMessages shouldReset: Bool = true,
-        showAdForNonPremiumUser: Bool = false,
+        showAdForNonPremiumUser: Bool = true,
         operation: (@escaping (Result<T, E>) -> Void) -> Void,
         errorMapper: ((E) -> String)? = nil,
         onSuccess: @escaping (T) -> Void
@@ -104,7 +104,7 @@ class BaseViewModel: NSObject {
     }
 
     private var isPremiumUser: Bool {
-        return AppStorage.shared.currentUser?.isPremium ?? false
+        return SubscriptionManager.shared.isPremium
     }
 }
 

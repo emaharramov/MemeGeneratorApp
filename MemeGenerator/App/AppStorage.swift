@@ -6,91 +6,71 @@
 //
 
 import Foundation
+import KeychainAccess
 
 final class AppStorage {
-
-    private enum Key: String {
-        case accessToken
-        case refreshToken
-        case userId
-        case user
-        case hasSeenOnboarding
-    }
-
     static let shared = AppStorage()
     private init() {}
 
+    private enum Key: String {
+        case accessToken, refreshToken, userId, hasSeenOnboarding
+    }
+
+    private let keychain = Keychain(service: "com.emil.MemeGenerator")
+        .accessibility(.afterFirstUnlock)
     private let defaults = UserDefaults.standard
 
     var accessToken: String? {
-        get { defaults.string(forKey: Key.accessToken.rawValue) }
-        set { defaults.setValue(newValue, forKey: Key.accessToken.rawValue) }
+        get { try? keychain.get(Key.accessToken.rawValue) }
+        set { updateKeychain(key: .accessToken, value: newValue) }
     }
 
     var refreshToken: String? {
-        get { defaults.string(forKey: Key.refreshToken.rawValue) }
-        set { defaults.setValue(newValue, forKey: Key.refreshToken.rawValue) }
+        get { try? keychain.get(Key.refreshToken.rawValue) }
+        set { updateKeychain(key: .refreshToken, value: newValue) }
     }
 
     var userId: String {
-        get { defaults.string(forKey: Key.userId.rawValue) ?? "" }
-        set { defaults.setValue(newValue, forKey: Key.userId.rawValue) }
-    }
-
-    var currentUser: User? {
-        get {
-            guard let data = defaults.data(forKey: Key.user.rawValue) else {
-                return nil
-            }
-            return try? JSONDecoder().decode(User.self, from: data)
-        }
-        set {
-            if let newValue {
-                let encoder = JSONEncoder()
-                if let data = try? encoder.encode(newValue) {
-                    defaults.set(data, forKey: Key.user.rawValue)
-                }
-            } else {
-                defaults.removeObject(forKey: Key.user.rawValue)
-            }
-        }
-    }
-
-    var isPremiumUser: Bool {
-        currentUser?.isPremium ?? false
-    }
-
-    var isLoggedIn: Bool {
-        get { !(accessToken ?? "").isEmpty }
-        set {
-            guard newValue == false else { return }
-            accessToken = nil
-            refreshToken = nil
-            userId = ""
-            currentUser = nil
-        }
+        get { (try? keychain.get(Key.userId.rawValue)) ?? "" }
+        set { updateKeychain(key: .userId, value: newValue.isEmpty ? nil : newValue) }
     }
 
     var hasSeenOnboarding: Bool {
         get { defaults.bool(forKey: Key.hasSeenOnboarding.rawValue) }
-        set { defaults.setValue(newValue, forKey: Key.hasSeenOnboarding.rawValue) }
+        set { defaults.set(newValue, forKey: Key.hasSeenOnboarding.rawValue) }
     }
 
-    func saveLogin(
-        accessToken: String,
-        userId: String,
-        refreshToken: String? = nil,
-        user: User? = nil
-    ) {
+    var isLoggedIn: Bool {
+        accessToken?.isEmpty == false
+    }
+
+    var isPremiumUser: Bool {
+        SubscriptionManager.shared.isPremium
+    }
+
+    func saveLogin(accessToken: String, userId: String, refreshToken: String? = nil) {
         self.accessToken = accessToken
         self.userId = userId
+        self.refreshToken = refreshToken
+        SubscriptionManager.shared.configureUserIfNeeded()
+    }
 
-        if let refreshToken {
-            self.refreshToken = refreshToken
-        }
+    func logout() {
+        accessToken = nil
+        refreshToken = nil
+        userId = ""
+        SubscriptionManager.shared.logOut()
+    }
 
-        if let user {
-            self.currentUser = user
+    private func updateKeychain(key: Key, value: String?) {
+        do {
+            if let value = value {
+                try keychain.set(value, key: key.rawValue)
+            } else {
+                try keychain.remove(key.rawValue)
+            }
+        } catch {
+            print("DEBUG::: Keychain error (\(key)):", error)
         }
     }
 }

@@ -109,6 +109,10 @@ extension FeedController: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard indexPath.item < viewModel.allAIMemes.count else {
+            return UICollectionViewCell()
+        }
+
         let cell: FeedMemeCollectionCell = collectionView.dequeueCell(FeedMemeCollectionCell.self, for: indexPath)
         let meme = viewModel.allAIMemes[indexPath.item]
         cell.configure(template: meme)
@@ -123,7 +127,7 @@ extension FeedController: UICollectionViewDataSource {
 extension FeedController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let count = viewModel.allAIMemes.count
-        if indexPath.item >= count - 2 {
+        if indexPath.item >= count - 2 && viewModel.hasNext {
             viewModel.loadNextPage()
         }
     }

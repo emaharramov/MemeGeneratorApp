@@ -32,6 +32,7 @@ final class FromTemplateVM: BaseViewModel {
 
     func loadTemplates() {
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.loadTemplatesUseCase.execute(completion: completion)

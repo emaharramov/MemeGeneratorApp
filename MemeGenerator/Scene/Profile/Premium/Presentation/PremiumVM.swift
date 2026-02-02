@@ -115,31 +115,26 @@ final class PremiumVM: BaseViewModel {
         onLoadingChange?(true)
 
         Purchases.shared.restorePurchases { [weak self] customerInfo, error in
-            guard let self else { return }
+            guard let self = self else { return }
+            defer { self.onLoadingChange?(false) }
 
-            if let error {
-                self.onLoadingChange?(false)
+            if let error = error {
                 self.onShowMessage?(error.localizedDescription)
                 return
             }
 
             guard
-                let info = customerInfo,
-                let entitlement = info.entitlements.all["MemeCraft Pro"],
+                let entitlement = customerInfo?.entitlements["MemeCraft Pro"],
                 entitlement.isActive
             else {
-                self.onLoadingChange?(false)
                 self.onShowMessage?("Purchase did not activate premium.")
                 return
             }
 
-            let expiresAtISO: String?
-            if let exp = entitlement.expirationDate {
+            let expiresAtISO: String? = entitlement.expirationDate.flatMap {
                 let formatter = ISO8601DateFormatter()
                 formatter.formatOptions = [.withInternetDateTime]
-                expiresAtISO = formatter.string(from: exp)
-            } else {
-                expiresAtISO = nil
+                return formatter.string(from: $0)
             }
 
             let productId = entitlement.productIdentifier
@@ -152,10 +147,7 @@ final class PremiumVM: BaseViewModel {
                 expiresAt: expiresAtISO
             )
 
-            self.repository.syncPremium(request: req) { [weak self] result in
-                guard let self else { return }
-                self.onLoadingChange?(false)
-
+            self.repository.syncPremium(request: req) { result in
                 switch result {
                 case .success:
                     self.onPremiumActivated?()

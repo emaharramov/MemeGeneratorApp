@@ -37,6 +37,7 @@ final class MyMemesVM: BaseViewModel {
 
     func getAiTemplateMemes(shouldRefreshProfile: Bool = true, page: Int = 1) {
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.getAiTempMemes(page: page) { result in

@@ -23,6 +23,7 @@ final class ManageSubscriptionVM: BaseViewModel {
 
     func getUserProfile() {
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.fetchProfile { completion($0) }
@@ -45,6 +46,7 @@ final class ManageSubscriptionVM: BaseViewModel {
 
     private func getHistory() {
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.fetchSubscriptionHistory { completion($0) }

@@ -21,6 +21,7 @@ final class ProfileVM: BaseViewModel {
 
     func getUserProfile() {
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.fetchProfile { result in
@@ -54,6 +55,7 @@ final class ProfileVM: BaseViewModel {
         )
 
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] completion in
                 guard let self else { return }
                 self.userUseCase.updateProfile(request) { result in

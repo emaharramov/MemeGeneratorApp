@@ -11,6 +11,7 @@
 		DE2462942ECD307F006A5F23 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = DE2462932ECD307F006A5F23 /* SnapKit */; };
 		DE2462A42ECD4374006A5F23 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = DE2462A32ECD4374006A5F23 /* Kingfisher */; };
 		DE3C720F2F007FD200559755 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DE3C720E2F007FD200559755 /* GoogleMobileAds */; };
+		DE780E302F30FBB100680346 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = DE780E2F2F30FBB100680346 /* KeychainAccess */; };
 		DEBD75AB2EE4F4940061CF53 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = DEBD75AA2EE4F4940061CF53 /* RevenueCat */; };
 		DEBD75AD2EE4F4940061CF53 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = DEBD75AC2EE4F4940061CF53 /* RevenueCatUI */; };
 /* End PBXBuildFile section */
@@ -47,6 +48,7 @@
 			files = (
 				DE3C720F2F007FD200559755 /* GoogleMobileAds in Frameworks */,
 				DEBD75AB2EE4F4940061CF53 /* RevenueCat in Frameworks */,
+				DE780E302F30FBB100680346 /* KeychainAccess in Frameworks */,
 				DE2462A42ECD4374006A5F23 /* Kingfisher in Frameworks */,
 				DE2462422ECCDCD6006A5F23 /* Alamofire in Frameworks */,
 				DEBD75AD2EE4F4940061CF53 /* RevenueCatUI in Frameworks */,
@@ -99,6 +101,7 @@
 				DEBD75AA2EE4F4940061CF53 /* RevenueCat */,
 				DEBD75AC2EE4F4940061CF53 /* RevenueCatUI */,
 				DE3C720E2F007FD200559755 /* GoogleMobileAds */,
+				DE780E2F2F30FBB100680346 /* KeychainAccess */,
 			);
 			productName = MemeGenerator;
 			productReference = DE7DAE7E2ECCB41B0087C37C /* MemeGenerator.app */;
@@ -111,7 +114,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2610;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					DE7DAE7D2ECCB41B0087C37C = {
@@ -134,6 +137,7 @@
 				DE2462A22ECD4374006A5F23 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				DEBD75A92EE4F4940061CF53 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				DE3C720D2F007FD200559755 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				DE780E2E2F30FBB100680346 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DE7DAE7F2ECCB41B0087C37C /* Products */;
@@ -176,8 +180,10 @@
 				DEVELOPMENT_TEAM = J4QKJ2964W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MemeGenerator/Info.plist;
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to add your generated memes to your Photos library.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your Photos library to let you pick and manage images for memes.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take photos for memes.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need access to save your memes to Photos.\nWe need access to save your memes to Photos.\n";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos so you can pick images for memes.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This allows us to show you personalized ads and improve your experience.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -213,8 +219,10 @@
 				DEVELOPMENT_TEAM = J4QKJ2964W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MemeGenerator/Info.plist;
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need permission to add your generated memes to your Photos library.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your Photos library to let you pick and manage images for memes.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to take photos for memes.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We need access to save your memes to Photos.\nWe need access to save your memes to Photos.\n";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos so you can pick images for memes.";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This allows us to show you personalized ads and improve your experience.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -417,6 +425,14 @@
 				minimumVersion = 12.14.0;
 			};
 		};
+		DE780E2E2F30FBB100680346 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess?utm_source=chatgpt.com";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		DEBD75A92EE4F4940061CF53 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios";
@@ -447,6 +463,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DE3C720D2F007FD200559755 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
+		};
+		DE780E2F2F30FBB100680346 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE780E2E2F30FBB100680346 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 		DEBD75AA2EE4F4940061CF53 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;

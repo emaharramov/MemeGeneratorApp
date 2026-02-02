@@ -15,7 +15,7 @@ final class FeedViewModel: BaseViewModel {
     @Published private(set) var allAIMemes: [MemesTemplate] = []
 
     private var currentPage = 0
-    private var hasNext = true
+    private(set) var hasNext = true
 
     init(getAllMemesUseCase: FeedUseCase) {
         self.useCase = getAllMemesUseCase

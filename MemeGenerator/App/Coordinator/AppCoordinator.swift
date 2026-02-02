@@ -8,10 +8,8 @@
 import UIKit
 
 final class AppCoordinator: Coordinator {
-
     var childCoordinators: [Coordinator] = []
     private let window: UIWindow
-
     private lazy var networkManager = NetworkManager()
 
     init(window: UIWindow) {
@@ -28,11 +26,7 @@ final class AppCoordinator: Coordinator {
             return
         }
 
-        if AppStorage.shared.isLoggedIn {
-            showMainTabbar()
-        } else {
-            showAuthFlow()
-        }
+        AppStorage.shared.isLoggedIn ? showMainTabbar() : showAuthFlow()
     }
 
     private func showOnboarding() {
@@ -40,9 +34,8 @@ final class AppCoordinator: Coordinator {
         let vc = OnboardingController(viewModel: vm)
 
         vm.onFinish = { [weak self] in
-            guard let self else { return }
             AppStorage.shared.hasSeenOnboarding = true
-            self.showAuthFlow()
+            self?.showAuthFlow()
         }
 
         setRoot(vc)
@@ -58,8 +51,6 @@ final class AppCoordinator: Coordinator {
             self.remove(authCoordinator)
 
             AppStorage.shared.accessToken = token
-            AppStorage.shared.isLoggedIn = true
-
             self.showMainTabbar()
         }
 
@@ -75,9 +66,7 @@ final class AppCoordinator: Coordinator {
             guard let self, let mainCoordinator else { return }
             self.remove(mainCoordinator)
 
-            AppStorage.shared.isLoggedIn = false
-            AppStorage.shared.accessToken = nil
-
+            AppStorage.shared.logout()
             self.showAuthFlow()
         }
 
@@ -95,8 +84,7 @@ final class AppCoordinator: Coordinator {
             with: window,
             duration: 0.35,
             options: .transitionCrossDissolve,
-            animations: nil,
-            completion: nil
+            animations: nil
         )
     }
 }

@@ -100,7 +100,6 @@ final class HelpFeedbackVC: BaseController<HelpFeedbackVM> {
 
     @objc private func contactSupportTapped() {
          router?.showSupport()
-        print("Contact Support tapped")
     }
 }
 

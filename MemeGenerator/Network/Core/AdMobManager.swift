@@ -26,89 +26,72 @@ final class AdMobManager: NSObject {
     }
 
     func initialize() {
-        print("DEBUG::: AdMob initialize() START")
-
-        MobileAds.shared.start { status in
-            print("DEBUG::: AdMob SDK initialized")
-            print("DEBUG::: Adapter statuses:", status.adapterStatusesByClassName)
-        }
+        MobileAds.shared.start(completionHandler: nil)
     }
 
     func loadInterstitialAd() {
-        print("DEBUG::: loadInterstitialAd CALLED")
-
-        let request = Request()
-
-        InterstitialAd.load(
-            with: interstitialAdUnitID,
-            request: request
-        ) { [weak self] ad, error in
-            if let error = error {
-                return
-            }
-
-            self?.interstitialAd = ad
-            self?.interstitialAd?.fullScreenContentDelegate = self
+        InterstitialAd.load(with: interstitialAdUnitID, request: Request()) { [weak self] ad, error in
+            guard let self = self, let ad = ad else { return }
+            self.interstitialAd = ad
+            self.interstitialAd?.fullScreenContentDelegate = self
         }
     }
 
-    func showInterstitialAd(
-        from viewController: UIViewController,
-        onDismissed: @escaping () -> Void
-    ) {
-        self.onAdDismissed = onDismissed
+    func showInterstitialAd(from viewController: UIViewController, onDismissed: @escaping () -> Void) {
+        self.onAdDismissed = { [weak self] in
+            onDismissed()
+            self?.onAdDismissed = nil
+        }
 
         guard let ad = interstitialAd else {
             onDismissed()
             return
         }
+
         ad.present(from: viewController)
     }
 
     func loadRewardedAd() {
-        let request = Request()
-
-        RewardedAd.load(
-            with: rewardedAdUnitID,
-            request: request
-        ) { [weak self] ad, error in
-            if let error = error {
-                return
-            }
-            self?.rewardedAd = ad
-            self?.rewardedAd?.fullScreenContentDelegate = self
+        RewardedAd.load(with: rewardedAdUnitID, request: Request()) { [weak self] ad, error in
+            guard let self = self, let ad = ad else { return }
+            self.rewardedAd = ad
+            self.rewardedAd?.fullScreenContentDelegate = self
         }
     }
 
-    func showRewardedAd(
-        from viewController: UIViewController,
-        onRewardEarned: @escaping () -> Void
-    ) {
-        self.onRewardEarned = onRewardEarned
+    func showRewardedAd(from viewController: UIViewController, onRewardEarned: @escaping () -> Void) {
+        self.onRewardEarned = { [weak self] in
+            onRewardEarned()
+            self?.onRewardEarned = nil
+        }
 
-        if let ad = rewardedAd {
-            ad.present(from: viewController) { [weak self] in
-                let reward = ad.adReward
-                self?.onRewardEarned?()
-            }
+        guard let ad = rewardedAd else { return }
+
+        ad.present(from: viewController) { [weak self] in
+            self?.onRewardEarned?()
         }
     }
 }
 
 extension AdMobManager: FullScreenContentDelegate {
 
-    func adDidRecordImpression(_ ad: FullScreenPresentingAd) {
-        print("📊 Ad impression recorded")
-    }
-
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
         if ad is InterstitialAd {
             onAdDismissed?()
             onAdDismissed = nil
+
+            interstitialAd?.fullScreenContentDelegate = nil
+            interstitialAd = nil
+
             loadInterstitialAd()
         }
+
         if ad is RewardedAd {
             onRewardEarned = nil
+
+            rewardedAd?.fullScreenContentDelegate = nil
+            rewardedAd = nil
+
             loadRewardedAd()
         }
     }
@@ -117,6 +100,16 @@ extension AdMobManager: FullScreenContentDelegate {
         if ad is InterstitialAd {
             onAdDismissed?()
             onAdDismissed = nil
+
+            interstitialAd?.fullScreenContentDelegate = nil
+            interstitialAd = nil
+        }
+
+        if ad is RewardedAd {
+            onRewardEarned = nil
+
+            rewardedAd?.fullScreenContentDelegate = nil
+            rewardedAd = nil
         }
     }
 }

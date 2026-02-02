@@ -29,6 +29,7 @@ final class AuthViewModel: BaseViewModel {
         guard validateLogin(email: normalizedEmail, password: password) else { return }
 
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] (completion: @escaping (Result<AuthLoginResponseModel, AuthError>) -> Void) in
                 guard let self else { return }
                 self.loginUseCase.execute(
@@ -56,8 +57,7 @@ final class AuthViewModel: BaseViewModel {
                 AppStorage.shared.saveLogin(
                     accessToken: session.data.accessToken,
                     userId: session.data.user.id,
-                    refreshToken: session.data.refreshToken,
-                    user: session.data.user
+                    refreshToken: session.data.refreshToken
                 )
 
                 Purchases.shared.logIn(session.data.user.id) { _, created, error in
@@ -83,6 +83,7 @@ final class AuthViewModel: BaseViewModel {
         guard validateRegister(email: normalizedEmail, username: trimmedUsername, password: password) else { return }
 
         performWithLoading(
+            showAdForNonPremiumUser: false,
             operation: { [weak self] (completion: @escaping (Result<RegisterStartResponseModel, AuthError>) -> Void) in
                 guard let self else { return }
                 self.registerUseCase.execute(
