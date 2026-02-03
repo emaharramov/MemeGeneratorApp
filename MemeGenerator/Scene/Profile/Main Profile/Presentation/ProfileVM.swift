@@ -11,12 +11,21 @@ import Combine
 final class ProfileVM: BaseViewModel {
 
     private let userUseCase: UserUseCase
+    private let remoteConfig: RemoteConfigService
 
     @Published private(set) var userProfile: UserProfile?
+    @Published private(set) var isFeatureEnabled: Bool = false
 
-    init(userUseCase: UserUseCase) {
+    init(userUseCase: UserUseCase, remoteConfig: RemoteConfigService) {
         self.userUseCase = userUseCase
+        self.remoteConfig = remoteConfig
         super.init()
+        fetchConfig()
+    }
+
+    func fetchConfig() {
+        remoteConfig.fetch()
+        isFeatureEnabled = remoteConfig.componentVisibility
     }
 
     func getUserProfile() {
@@ -75,5 +84,9 @@ final class ProfileVM: BaseViewModel {
                 self?.showSuccess("Profile updated successfully ✅")
             }
         )
+    }
+
+    func deleteUserAccount() {
+        print("DEBUG::: DELETED ACCOUNT")
     }
 }

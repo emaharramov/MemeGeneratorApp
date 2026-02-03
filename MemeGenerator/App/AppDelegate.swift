@@ -9,6 +9,7 @@ import UIKit
 import RevenueCat
 import GoogleMobileAds
 import AppTrackingTransparency
+import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,6 +25,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SubscriptionManager.shared.configureUserIfNeeded()
 
+        FirebaseApp.configure()
+        RemoteConfigService.shared.fetch()
         return true
     }
     // MARK: UISceneSession Lifecycle

@@ -37,7 +37,9 @@ final class MainTabbarCoordinator: Coordinator {
         profileNavigation: UINavigationController = UINavigationController(),
         homeFactory: HomeFactory = HomeFeedFactory(),
         createFactory: CreateFactory = DefaultCreateFactory(),
-        profileFactory: ProfileFactory = DefaultProfileFactory()
+        profileFactory: ProfileFactory = DefaultProfileFactory(
+            remoteConfig: RemoteConfigService.shared
+        )
     ) {
         self.homeNavigation = homeNavigation
         self.createNavigation = createNavigation

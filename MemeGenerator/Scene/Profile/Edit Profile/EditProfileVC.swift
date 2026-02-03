@@ -12,17 +12,57 @@ import Combine
 final class EditProfileViewController: BaseController<ProfileVM> {
 
     private enum Section: Int, CaseIterable {
-        case avatar
-        case fields
+        case avatar, fields
     }
 
     private enum FieldRow: Int, CaseIterable {
-        case fullName
-        case username
-        case email
+        case fullName, username, email
     }
 
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private lazy var tableView: UITableView = {
+        let tv = UITableView(frame: .zero, style: .plain)
+        tv.backgroundColor = .clear
+        tv.separatorStyle = .none
+        tv.showsVerticalScrollIndicator = false
+        tv.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 16, right: 0)
+        tv.rowHeight = UITableView.automaticDimension
+        tv.estimatedRowHeight = 120
+        tv.register(EditProfileAvatarCell.self, forCellReuseIdentifier: EditProfileAvatarCell.reuseID)
+        tv.register(EditProfileTextFieldCell.self, forCellReuseIdentifier: EditProfileTextFieldCell.reuseID)
+        tv.dataSource = self
+        tv.delegate = self
+        return tv
+    }()
+
+    private lazy var saveButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.applyFilledStyle(
+            title: "Save Changes",
+            baseBackgroundColor: Palette.mgAccent,
+            baseForegroundColor: .black,
+            contentInsets: .init(top: 14, leading: 16, bottom: 14, trailing: 16),
+            addShadow: true
+        )
+        btn.layer.cornerRadius = 22
+        btn.clipsToBounds = false
+        btn.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+        return btn
+    }()
+
+    private lazy var deleteButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.applyFilledStyle(
+            title: "Delete Account",
+            baseBackgroundColor: .systemRed,
+            baseForegroundColor: .white,
+            contentInsets: .init(top: 14, leading: 16, bottom: 14, trailing: 16),
+            addShadow: true
+        )
+        btn.layer.cornerRadius = 22
+        btn.clipsToBounds = false
+        btn.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        return btn
+    }()
 
     private weak var fullNameField: UITextField?
     private weak var usernameField: UITextField?
@@ -64,76 +104,40 @@ final class EditProfileViewController: BaseController<ProfileVM> {
                 self.navigationController?.popViewController(animated: true)
             }
             .store(in: &cancellables)
+
+        viewModel.$isFeatureEnabled
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isEnabled in
+                self?.deleteButton.isHidden = isEnabled
+            }
+            .store(in: &cancellables)
     }
 
     private func setupTableView() {
-        view.addSubviews(tableView)
-        tableView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
-        }
-
-        tableView.backgroundColor = .clear
-        tableView.separatorStyle = .none
-        tableView.showsVerticalScrollIndicator = false
-        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 16, right: 0)
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 120
-
-        tableView.register(
-            EditProfileAvatarCell.self,
-            forCellReuseIdentifier: EditProfileAvatarCell.reuseID
-        )
-        tableView.register(
-            EditProfileTextFieldCell.self,
-            forCellReuseIdentifier: EditProfileTextFieldCell.reuseID
-        )
-
-        tableView.dataSource = self
-        tableView.delegate   = self
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints { $0.edges.equalTo(view.safeAreaLayoutGuide) }
     }
 
     private func setupFooter() {
-        let footer = UIView(
-            frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 96)
-        )
+        let footer = UIView()
         footer.backgroundColor = .clear
+        footer.frame.size.height = 160
 
-        let button = UIButton(type: .system)
-        button.applyFilledStyle(
-            title: "Save Changes",
-            baseBackgroundColor: Palette.mgAccent,
-            baseForegroundColor: .black,
-            contentInsets: .init(top: 14, leading: 16, bottom: 14, trailing: 16),
-            addShadow: true
-        )
-        button.layer.cornerRadius = 22
-        button.clipsToBounds = false
-        button.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+        footer.addSubviews(saveButton, deleteButton)
 
-        footer.addSubviews(button)
-        button.snp.makeConstraints { make in
+        saveButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
             make.leading.trailing.equalToSuperview().inset(16)
-            make.bottom.equalToSuperview().inset(12)
+            make.height.equalTo(52)
+        }
+
+        deleteButton.snp.makeConstraints { make in
+            make.top.equalTo(saveButton.snp.bottom).offset(12)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(52)
         }
 
         tableView.tableFooterView = footer
-    }
-
-    private var currentFullName: String {
-        viewModel.userProfile?.data.user.fullName ?? ""
-    }
-
-    private var currentUsername: String {
-        viewModel.userProfile?.data.user.username ?? ""
-    }
-
-    private var currentEmail: String {
-        viewModel.userProfile?.data.user.email ?? ""
-    }
-
-    private var currentAvatarUrl: String {
-        viewModel.userProfile?.data.user.avatarUrl ?? ""
     }
 
     @objc private func saveTapped() {
@@ -146,14 +150,11 @@ final class EditProfileViewController: BaseController<ProfileVM> {
             return
         }
 
-        var avatarUrlToSend = currentAvatarUrl
+        var avatarUrlToSend = viewModel.userProfile?.data.user.avatarUrl ?? ""
 
-        if let image = selectedAvatarImage {
-            let resized = image.resizedToMaxDimension(256)
-            if let data = resized.jpegData(compressionQuality: 0.35) {
-                let base64String = data.base64EncodedString()
-                avatarUrlToSend = base64String
-            }
+        if let image = selectedAvatarImage,
+           let data = image.resizedToMaxDimension(256).jpegData(compressionQuality: 0.35) {
+            avatarUrlToSend = data.base64EncodedString()
         }
 
         viewModel.updateProfile(
@@ -164,6 +165,22 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         )
     }
 
+    @objc private func deleteTapped() {
+        MGAlertOverlay.show(
+            on: view,
+            title: "Delete Account",
+            message: "Are you sure you want to delete your account? This action cannot be undone.",
+            primaryTitle: "Delete",
+            secondaryTitle: "Cancel",
+            emoji: "⚠️",
+            onPrimary: { [weak self] in
+                guard let self else { return }
+                self.viewModel.deleteUserAccount()
+                self.showToast(message: "Account deleted", type: .success)
+            }
+        )
+    }
+
     private func presentAvatarPicker() {
         let picker = UIImagePickerController()
         picker.sourceType = .photoLibrary
@@ -171,58 +188,40 @@ final class EditProfileViewController: BaseController<ProfileVM> {
         picker.delegate = self
         present(picker, animated: true)
     }
+
+    private var currentFullName: String { viewModel.userProfile?.data.user.fullName ?? "" }
+    private var currentUsername: String { viewModel.userProfile?.data.user.username ?? "" }
+    private var currentEmail: String { viewModel.userProfile?.data.user.email ?? "" }
+    private var currentAvatarUrl: String { viewModel.userProfile?.data.user.avatarUrl ?? "" }
 }
 
 extension EditProfileViewController: UITableViewDataSource {
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        Section.allCases.count
-    }
+    func numberOfSections(in tableView: UITableView) -> Int { Section.allCases.count }
 
-    func tableView(_ tableView: UITableView,
-                   numberOfRowsInSection section: Int) -> Int {
-
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let section = Section(rawValue: section) else { return 0 }
-
-        switch section {
-        case .avatar: return 1
-        case .fields: return FieldRow.allCases.count
-        }
+        return section == .avatar ? 1 : FieldRow.allCases.count
     }
 
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-        guard let section = Section(rawValue: indexPath.section) else {
-            return UITableViewCell()
-        }
+        guard let section = Section(rawValue: indexPath.section) else { return UITableViewCell() }
 
         switch section {
         case .avatar:
-            let cell: EditProfileAvatarCell = tableView.dequeueCell(
-                EditProfileAvatarCell.self,
-                for: indexPath
-            )
-
+            let cell = tableView.dequeueReusableCell(withIdentifier: EditProfileAvatarCell.reuseID, for: indexPath) as! EditProfileAvatarCell
             let nameForInitials = currentFullName.isEmpty ? currentUsername : currentFullName
-
             cell.configure(
                 initialsFrom: nameForInitials,
                 avatarBase64: currentAvatarUrl,
                 pickedImage: selectedAvatarImage
             )
-
-            cell.onChangePhoto = { [weak self] in
-                self?.presentAvatarPicker()
-            }
+            cell.onChangePhoto = { [weak self] in self?.presentAvatarPicker() }
             return cell
 
         case .fields:
-            let cell: EditProfileTextFieldCell = tableView.dequeueCell(
-                EditProfileTextFieldCell.self,
-                for: indexPath
-            )
-
+            let cell = tableView.dequeueReusableCell(withIdentifier: EditProfileTextFieldCell.reuseID, for: indexPath) as! EditProfileTextFieldCell
             guard let row = FieldRow(rawValue: indexPath.row) else { return cell }
 
             switch row {
@@ -264,20 +263,17 @@ extension EditProfileViewController: UITableViewDataSource {
 
 extension EditProfileViewController: UITableViewDelegate {
 
-    func tableView(_ tableView: UITableView,
-                   heightForHeaderInSection section: Int) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         section == 0 ? 8 : 16
     }
 
-    func tableView(_ tableView: UITableView,
-                   viewForHeaderInSection section: Int) -> UIView? {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let v = UIView()
         v.backgroundColor = .clear
         return v
     }
 
-    func tableView(_ tableView: UITableView,
-                   heightForFooterInSection section: Int) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         0.01
     }
 }
@@ -286,23 +282,15 @@ extension EditProfileViewController: UIImagePickerControllerDelegate, UINavigati
 
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-
-        let image = (info[.editedImage] as? UIImage)
-            ?? (info[.originalImage] as? UIImage)
-
         picker.dismiss(animated: true) { [weak self] in
-            guard let self, let image else { return }
+            guard let self else { return }
+            guard let image = (info[.editedImage] as? UIImage) ?? (info[.originalImage] as? UIImage) else { return }
 
             let cropVC = AvatarCropViewController(image: image)
             cropVC.onCrop = { [weak self] croppedImage in
-                guard let self else { return }
-
-                self.selectedAvatarImage = croppedImage
-
-                let avatarSection = IndexSet(integer: Section.avatar.rawValue)
-                self.tableView.reloadSections(avatarSection, with: .automatic)
+                self?.selectedAvatarImage = croppedImage
+                self?.tableView.reloadSections(IndexSet(integer: Section.avatar.rawValue), with: .automatic)
             }
-
             self.present(cropVC, animated: true)
         }
     }

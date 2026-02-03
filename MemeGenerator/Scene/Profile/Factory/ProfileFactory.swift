@@ -22,9 +22,14 @@ protocol ProfileFactory {
 final class DefaultProfileFactory: ProfileFactory {
 
     private let networkManager: NetworkManager
+    private let remoteConfig: RemoteConfigService
 
-    init(networkManager: NetworkManager = NetworkManager()) {
+    init(
+        networkManager: NetworkManager = NetworkManager(),
+        remoteConfig: RemoteConfigService
+    ) {
         self.networkManager = networkManager
+        self.remoteConfig = remoteConfig
     }
 
     private lazy var userRepository: UserRepositoryImp = {
@@ -36,12 +41,18 @@ final class DefaultProfileFactory: ProfileFactory {
     }()
 
     func makeProfile(router: ProfileRouting) -> UIViewController {
-        let viewModel = ProfileVM(userUseCase: userUseCase)
+        let viewModel = ProfileVM(
+            userUseCase: userUseCase,
+            remoteConfig: remoteConfig
+        )
         return ProfileViewController(viewModel: viewModel, router: router)
     }
 
     func makeEditProfile() -> UIViewController {
-        let vm = ProfileVM(userUseCase: userUseCase)
+        let vm = ProfileVM(
+            userUseCase: userUseCase,
+            remoteConfig: remoteConfig
+        )
         return EditProfileViewController(viewModel: vm)
     }
 
